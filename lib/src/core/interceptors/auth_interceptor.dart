@@ -23,9 +23,9 @@ class AuthInterceptor extends QueuedInterceptor {
     ErrorInterceptorHandler handler,
   ) async {
     final requestOptions = err.requestOptions;
-    final hasAuthHeader = requestOptions.headers['Authorization'] != null;
+    final hasAuthHeader = _readAuthorizationHeader(requestOptions) != null;
     final isUnauthorized = err.response?.statusCode == 401;
-    final isRefreshApi = requestOptions.path.endsWith(_refreshPath);
+    final isRefreshApi = _isRefreshApi(requestOptions);
     final alreadyRetried = requestOptions.extra[_retryKey] == true;
 
     // Authorization 헤더가 포함된 요청 + 401 에러에서만 토큰 갱신 시도
@@ -74,10 +74,11 @@ class AuthInterceptor extends QueuedInterceptor {
             log('토큰 갱신 성공');
 
             // 원래 요청 재시도 (무한 재시도 방지 플래그 포함)
-            requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-            requestOptions.extra[_retryKey] = true;
+            _setAuthorizationHeader(requestOptions, 'Bearer $newAccessToken');
+            final retryOptions = _buildRetryOptions(requestOptions)
+              ..extra[_retryKey] = true;
 
-            final retryResponse = await dio.fetch(requestOptions);
+            final retryResponse = await dio.fetch<dynamic>(retryOptions);
             return handler.resolve(retryResponse);
           } else {
             log('토큰 갱신 응답 포맷이 유효하지 않음');
@@ -104,5 +105,39 @@ class AuthInterceptor extends QueuedInterceptor {
     }
 
     return handler.next(err);
+  }
+
+  bool _isRefreshApi(RequestOptions options) {
+    final parsed = Uri.tryParse(options.path);
+    final normalizedPath = parsed?.path ?? options.path;
+    return normalizedPath.endsWith(_refreshPath);
+  }
+
+  String? _readAuthorizationHeader(RequestOptions options) {
+    for (final entry in options.headers.entries) {
+      if (entry.key.toLowerCase() != 'authorization') {
+        continue;
+      }
+      final value = entry.value?.toString().trim();
+      if (value == null || value.isEmpty) {
+        return null;
+      }
+      return value;
+    }
+    return null;
+  }
+
+  void _setAuthorizationHeader(RequestOptions options, String value) {
+    final authorizationHeaderKey = options.headers.keys.firstWhere(
+      (key) => key.toLowerCase() == 'authorization',
+      orElse: () => 'Authorization',
+    );
+    options.headers[authorizationHeaderKey] = value;
+  }
+
+  RequestOptions _buildRetryOptions(RequestOptions source) {
+    final data = source.data;
+    final clonedData = data is FormData ? data.clone() : data;
+    return source.copyWith(data: clonedData);
   }
 }

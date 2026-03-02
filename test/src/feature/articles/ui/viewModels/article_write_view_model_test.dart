@@ -173,6 +173,51 @@ void main() {
         '포스트가 출간되었습니다.',
       );
     });
+
+    test('자동 임시저장은 변경사항이 있을 때만 저장한다', () async {
+      final fakeRepository = FakePostRepository();
+      final container = ProviderContainer(
+        overrides: [
+          userViewModelProvider.overrideWith(FakeUserViewModel.new),
+          postRepositoryProvider.overrideWithValue(fakeRepository),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(articleWriteViewModelProvider.notifier);
+      final firstResult = await notifier.autoSaveDraft(
+        title: '자동저장 제목',
+        contentMarkdown: '자동저장 본문',
+      );
+      final secondResult = await notifier.autoSaveDraft(
+        title: '자동저장 제목',
+        contentMarkdown: '자동저장 본문',
+      );
+
+      expect(firstResult, isTrue);
+      expect(secondResult, isFalse);
+      expect(fakeRepository.createCallCount, 1);
+    });
+
+    test('자동 임시저장은 제목이 없으면 저장하지 않는다', () async {
+      final fakeRepository = FakePostRepository();
+      final container = ProviderContainer(
+        overrides: [
+          userViewModelProvider.overrideWith(FakeUserViewModel.new),
+          postRepositoryProvider.overrideWithValue(fakeRepository),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(articleWriteViewModelProvider.notifier);
+      final result = await notifier.autoSaveDraft(
+        title: '   ',
+        contentMarkdown: '내용만 입력',
+      );
+
+      expect(result, isFalse);
+      expect(fakeRepository.createCallCount, 0);
+    });
   });
 }
 
