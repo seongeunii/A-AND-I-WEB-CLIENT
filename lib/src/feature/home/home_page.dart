@@ -45,7 +45,7 @@ class HomePage extends ConsumerWidget {
               isLoggedIn: isLoggedIn,
               onGoHome: () => context.go('/'),
               onGoIntro: () => context.go("/promotion"),
-              onGoEducation: () => context.go('/report'),
+              onGoEducation: () => context.go('/course'),
               onGoPosts: () => context.go('/articles'),
               onGoFaq: () => context.go('/faq'),
               onGoMyAccount: () => context.go('/my-account'),

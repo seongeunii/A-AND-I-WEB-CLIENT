@@ -432,7 +432,7 @@ class UserManagermentViewState extends ConsumerState<UserManagermentView> {
               profileImageUrl: topBarProfileImageUrl,
               isLoggedIn: isLoggedIn,
               onGoIntro: () => context.go('/promotion'),
-              onGoEducation: () => context.go('/report'),
+              onGoEducation: () => context.go('/course'),
               onGoPosts: () => context.go('/articles'),
               onGoMyAccount: () => context.go('/my-account'),
               onLogin: () => context.go('/sign-in'),

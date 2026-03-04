@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 class ProblemBulletList extends StatelessWidget {
   final List<String> items;
-  const ProblemBulletList({super.key, required this.items});
+  final bool isDarkMode;
+  const ProblemBulletList({
+    super.key,
+    required this.items,
+    this.isDarkMode = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,18 +20,18 @@ class ProblemBulletList extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.fiber_manual_record,
                     size: 10,
-                    color: Color(0xFF000000),
+                    color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
                   ),
                   const SizedBox(width: 12),
                   Flexible(
                     child: Text(
                       item,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF000000),
+                        color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
                         height: 1.5,
                       ),
                     ),

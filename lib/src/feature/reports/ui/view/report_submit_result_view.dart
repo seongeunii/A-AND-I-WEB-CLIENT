@@ -5,8 +5,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ReportSubmitResultView extends ConsumerWidget {
   final Report report;
+  final bool isDarkMode;
 
-  const ReportSubmitResultView({super.key, required this.report});
+  const ReportSubmitResultView({
+    super.key,
+    required this.report,
+    this.isDarkMode = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,30 +20,30 @@ class ReportSubmitResultView extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           '제출 결과',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF000000),
+            color: isDarkMode ? Color(0xFFF5F5F5) : Color(0xFF000000),
           ),
         ),
         const SizedBox(height: 12),
         Text(
           '"${report.title}" 제출 상태를 확인할 수 있습니다.',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Color(0xFF000000),
+            color: isDarkMode ? Color(0xFFE5E7EB) : Color(0xFF000000),
             height: 1.6,
           ),
         ),
         const SizedBox(height: 24),
-        _SummaryCard(state: state),
+        _SummaryCard(state: state, isDarkMode: isDarkMode),
         const SizedBox(height: 20),
-        _FeedbackCard(state: state),
+        _FeedbackCard(state: state, isDarkMode: isDarkMode),
         if (state.latestSubmittedCode.isNotEmpty) ...[
           const SizedBox(height: 20),
-          _SubmittedCodeCard(state: state),
+          _SubmittedCodeCard(state: state, isDarkMode: isDarkMode),
         ],
       ],
     );
@@ -47,8 +52,9 @@ class ReportSubmitResultView extends ConsumerWidget {
 
 class _SummaryCard extends StatelessWidget {
   final ReportSubmitState state;
+  final bool isDarkMode;
 
-  const _SummaryCard({required this.state});
+  const _SummaryCard({required this.state, required this.isDarkMode});
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +64,10 @@ class _SummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        color: const Color(0xFFFCFCFD),
+        border: Border.all(
+          color: isDarkMode ? const Color(0xFF3F3F46) : const Color(0xFFE5E7EB),
+        ),
+        color: isDarkMode ? const Color(0xFF27272A) : const Color(0xFFFCFCFD),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,8 +94,9 @@ class _SummaryCard extends StatelessWidget {
               if (state.latestSubmittedLanguage != null)
                 Text(
                   '언어: ${state.latestSubmittedLanguage!.label}',
-                  style: const TextStyle(
-                    color: Color(0xFF000000),
+                  style: TextStyle(
+                    color:
+                        isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -102,16 +111,19 @@ class _SummaryCard extends StatelessWidget {
                 value: state.submissionStatus == SubmissionStatus.notSubmitted
                     ? '-'
                     : '${state.score}',
+                isDarkMode: isDarkMode,
               ),
               const SizedBox(width: 12),
               _MetricTile(
                 label: '제출 횟수',
                 value: '${state.submitCount}',
+                isDarkMode: isDarkMode,
               ),
               const SizedBox(width: 12),
               _MetricTile(
                 label: '최근 제출',
                 value: _formatDateTime(state.submittedAt),
+                isDarkMode: isDarkMode,
               ),
             ],
           ),
@@ -124,8 +136,13 @@ class _SummaryCard extends StatelessWidget {
 class _MetricTile extends StatelessWidget {
   final String label;
   final String value;
+  final bool isDarkMode;
 
-  const _MetricTile({required this.label, required this.value});
+  const _MetricTile({
+    required this.label,
+    required this.value,
+    required this.isDarkMode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -133,27 +150,31 @@ class _MetricTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDarkMode ? const Color(0xFF18181B) : Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(
+            color: isDarkMode ? const Color(0xFF3F3F46) : const Color(0xFFE5E7EB),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Color(0xFF000000),
+                color:
+                    isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 6),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFF000000),
+                color:
+                    isDarkMode ? const Color(0xFFF5F5F5) : const Color(0xFF000000),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -166,8 +187,9 @@ class _MetricTile extends StatelessWidget {
 
 class _FeedbackCard extends StatelessWidget {
   final ReportSubmitState state;
+  final bool isDarkMode;
 
-  const _FeedbackCard({required this.state});
+  const _FeedbackCard({required this.state, required this.isDarkMode});
 
   @override
   Widget build(BuildContext context) {
@@ -177,26 +199,30 @@ class _FeedbackCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        color: Colors.white,
+        border: Border.all(
+          color: isDarkMode ? const Color(0xFF3F3F46) : const Color(0xFFE5E7EB),
+        ),
+        color: isDarkMode ? const Color(0xFF18181B) : Colors.white,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '피드백',
             style: TextStyle(
               fontSize: 15,
-              color: Color(0xFF000000),
+              color: isDarkMode ? Color(0xFFF5F5F5) : Color(0xFF000000),
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 10),
           if (feedbacks.isEmpty)
-            const Text(
+            Text(
               '아직 제출 기록이 없습니다. 제출 탭에서 코드를 제출해 주세요.',
               style: TextStyle(
-                  fontSize: 13, color: Color(0xFF000000), height: 1.6),
+                  fontSize: 13,
+                  color: isDarkMode ? Color(0xFFE5E7EB) : Color(0xFF000000),
+                  height: 1.6),
             ),
           if (feedbacks.isNotEmpty)
             ...feedbacks.map(
@@ -205,21 +231,21 @@ class _FeedbackCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(top: 7),
                       child: Icon(
                         Icons.circle,
                         size: 6,
-                        color: Color(0xFF000000),
+                        color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         feedback,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF000000),
+                          color: isDarkMode ? Color(0xFFE5E7EB) : Color(0xFF000000),
                           height: 1.6,
                         ),
                       ),
@@ -236,8 +262,9 @@ class _FeedbackCard extends StatelessWidget {
 
 class _SubmittedCodeCard extends StatelessWidget {
   final ReportSubmitState state;
+  final bool isDarkMode;
 
-  const _SubmittedCodeCard({required this.state});
+  const _SubmittedCodeCard({required this.state, required this.isDarkMode});
 
   @override
   Widget build(BuildContext context) {
@@ -246,17 +273,19 @@ class _SubmittedCodeCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        color: const Color(0xFFF9FAFB),
+        border: Border.all(
+          color: isDarkMode ? const Color(0xFF3F3F46) : const Color(0xFFE5E7EB),
+        ),
+        color: isDarkMode ? const Color(0xFF27272A) : const Color(0xFFF9FAFB),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '최근 제출 코드',
             style: TextStyle(
               fontSize: 15,
-              color: Color(0xFF000000),
+              color: isDarkMode ? const Color(0xFFF5F5F5) : const Color(0xFF000000),
               fontWeight: FontWeight.w700,
             ),
           ),

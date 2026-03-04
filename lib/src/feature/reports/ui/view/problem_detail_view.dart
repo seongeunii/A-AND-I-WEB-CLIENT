@@ -16,7 +16,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 class ProblemDetailView extends HookWidget {
   final Report report;
   final DateTime? endAt;
-  const ProblemDetailView({super.key, required this.report, this.endAt});
+  final bool isDarkMode;
+  const ProblemDetailView({
+    super.key,
+    required this.report,
+    this.endAt,
+    this.isDarkMode = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +31,17 @@ class ProblemDetailView extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _HeaderCard(report: report, selectedTab: selectedTab, endAt: endAt),
-        _ContentCard(report: report, selectedTab: selectedTab.value),
+        _HeaderCard(
+          report: report,
+          selectedTab: selectedTab,
+          endAt: endAt,
+          isDarkMode: isDarkMode,
+        ),
+        _ContentCard(
+          report: report,
+          selectedTab: selectedTab.value,
+          isDarkMode: isDarkMode,
+        ),
         const SizedBox(height: 64),
         const BottomLogo(),
       ],
@@ -38,23 +53,38 @@ class _HeaderCard extends StatelessWidget {
   final Report report;
   final ValueNotifier<int> selectedTab;
   final DateTime? endAt;
+  final bool isDarkMode;
 
-  const _HeaderCard({required this.report, required this.selectedTab, this.endAt});
+  const _HeaderCard({
+    required this.report,
+    required this.selectedTab,
+    this.endAt,
+    required this.isDarkMode,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(48, 40, 48, 0),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF18181B) : Colors.white,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
         border: Border(
-          top: BorderSide(color: Color(0xFFE5E7EB)),
-          left: BorderSide(color: Color(0xFFE5E7EB)),
-          right: BorderSide(color: Color(0xFFE5E7EB)),
+          top: BorderSide(
+              color: isDarkMode
+                  ? const Color(0xFF27272A)
+                  : const Color(0xFFE5E7EB)),
+          left: BorderSide(
+              color: isDarkMode
+                  ? const Color(0xFF27272A)
+                  : const Color(0xFFE5E7EB)),
+          right: BorderSide(
+              color: isDarkMode
+                  ? const Color(0xFF27272A)
+                  : const Color(0xFFE5E7EB)),
         ),
       ),
       child: Column(
@@ -70,10 +100,10 @@ class _HeaderCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         report.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF000000),
+                          color: isDarkMode ? Colors.white : Color(0xFF000000),
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -85,12 +115,12 @@ class _HeaderCard extends StatelessWidget {
               ),
               if (endAt != null) ...[
                 const SizedBox(width: 20),
-                _DeadlineTimer(endAt: endAt!),
+                _DeadlineTimer(endAt: endAt!, isDarkMode: isDarkMode),
               ],
             ],
           ),
           const SizedBox(height: 32),
-          ProblemNavTabs(selectedTab: selectedTab),
+          ProblemNavTabs(selectedTab: selectedTab, isDarkMode: isDarkMode),
         ],
       ),
     );
@@ -100,20 +130,28 @@ class _HeaderCard extends StatelessWidget {
 class _ContentCard extends StatelessWidget {
   final Report report;
   final int selectedTab;
+  final bool isDarkMode;
 
-  const _ContentCard({required this.report, required this.selectedTab});
+  const _ContentCard({
+    required this.report,
+    required this.selectedTab,
+    required this.isDarkMode,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(48),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF18181B) : Colors.white,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
         ),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(
+          color:
+              isDarkMode ? const Color(0xFF27272A) : const Color(0xFFE5E7EB),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -123,10 +161,10 @@ class _ContentCard extends StatelessWidget {
         ],
       ),
       child: switch (selectedTab) {
-        0 => _ProblemTab(report: report),
-        1 => SourceCodeSubmitView(report: report),
-        2 => ReportSubmitResultView(report: report),
-        _ => const _ComingSoon(),
+        0 => _ProblemTab(report: report, isDarkMode: isDarkMode),
+        1 => SourceCodeSubmitView(report: report, isDarkMode: isDarkMode),
+        2 => ReportSubmitResultView(report: report, isDarkMode: isDarkMode),
+        _ => _ComingSoon(isDarkMode: isDarkMode),
       },
     );
   }
@@ -134,41 +172,45 @@ class _ContentCard extends StatelessWidget {
 
 class _ProblemTab extends StatelessWidget {
   final Report report;
-  const _ProblemTab({required this.report});
+  final bool isDarkMode;
+  const _ProblemTab({required this.report, required this.isDarkMode});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ProblemSectionHeader(label: '문제 설명'),
+        ProblemSectionHeader(label: '문제 설명', isDarkMode: isDarkMode),
         const SizedBox(height: 24),
         Text(
           report.content,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Color(0xFF000000),
+            color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
             height: 1.7,
           ),
         ),
         const SizedBox(height: 48),
-        const ProblemSectionHeader(label: '문제 요구 사항'),
+        ProblemSectionHeader(label: '문제 요구 사항', isDarkMode: isDarkMode),
         const SizedBox(height: 24),
         ProblemBulletList(
           items: report.requirement.map((r) => r.content).toList(),
+          isDarkMode: isDarkMode,
         ),
         const SizedBox(height: 48),
-        const ProblemSectionHeader(label: '학습 정리 목표'),
+        ProblemSectionHeader(label: '학습 정리 목표', isDarkMode: isDarkMode),
         const SizedBox(height: 24),
         ProblemBulletList(
           items: report.objects.map((o) => o.content).toList(),
+          isDarkMode: isDarkMode,
         ),
         const SizedBox(height: 48),
-        const ProblemSectionHeader(label: '예제 입출력'),
+        ProblemSectionHeader(label: '예제 입출력', isDarkMode: isDarkMode),
         const SizedBox(height: 32),
         ProblemIOView(
           contents:
               report.exampleIo.map((io) => (io.input, io.output)).toList(),
+          isDarkMode: isDarkMode,
         ),
       ],
     );
@@ -176,16 +218,20 @@ class _ProblemTab extends StatelessWidget {
 }
 
 class _ComingSoon extends StatelessWidget {
-  const _ComingSoon();
+  final bool isDarkMode;
+  const _ComingSoon({required this.isDarkMode});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 48),
+        padding: const EdgeInsets.symmetric(vertical: 48),
         child: Text(
           '준비 중입니다.',
-          style: TextStyle(fontSize: 14, color: Color(0xFF000000)),
+          style: TextStyle(
+            fontSize: 14,
+            color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
+          ),
         ),
       ),
     );
@@ -194,7 +240,8 @@ class _ComingSoon extends StatelessWidget {
 
 class _DeadlineTimer extends HookWidget {
   final DateTime endAt;
-  const _DeadlineTimer({required this.endAt});
+  final bool isDarkMode;
+  const _DeadlineTimer({required this.endAt, required this.isDarkMode});
 
   Duration _remaining() {
     final now = DateTime.now().add(const Duration(hours: 9)).toUtc();
@@ -216,14 +263,22 @@ class _DeadlineTimer extends HookWidget {
     }, []);
 
     if (isDone) {
-      return const Row(
+      return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.schedule, size: 15, color: Color(0xFF9CA3AF)),
-          SizedBox(width: 5),
+          Icon(
+            Icons.schedule,
+            size: 15,
+            color: isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF9CA3AF),
+          ),
+          const SizedBox(width: 5),
           Text(
             '종료됨',
-            style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+            style: TextStyle(
+              fontSize: 13,
+              color:
+                  isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF9CA3AF),
+            ),
           ),
         ],
       );
@@ -236,19 +291,28 @@ class _DeadlineTimer extends HookWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.schedule, size: 15, color: Color(0xFF6B7280)),
+        Icon(
+          Icons.schedule,
+          size: 15,
+          color: isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF6B7280),
+        ),
         const SizedBox(width: 5),
         Text.rich(
           TextSpan(
             text: '마감까지 ',
-            style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+            style: TextStyle(
+              fontSize: 13,
+              color:
+                  isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF6B7280),
+            ),
             children: [
               TextSpan(
                 text: '$h:$m:$s',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'monospace',
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF000000),
+                  color:
+                      isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
                 ),
               ),
             ],

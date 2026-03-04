@@ -4,6 +4,7 @@ import 'package:a_and_i_report_web_server/src/feature/articles/presentation/arti
 import 'package:a_and_i_report_web_server/src/feature/articles/presentation/article_list_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/presentation/article_write_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/activate/ui/activate_page.dart';
+import 'package:a_and_i_report_web_server/src/feature/course/presentation/course_list_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/promotion/ui/faq_light_page.dart';
 import 'package:a_and_i_report_web_server/src/feature/user/presentation/user_managerment_view.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/auth_view_model.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/auth_state.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/views/login_ui.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/home_ui.dart';
+import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/report_list_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/report_detail_ui.dart';
 import 'package:a_and_i_report_web_server/src/feature/promotion/ui/promotion_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -34,7 +35,7 @@ part 'route_config.g.dart';
 /// **정의된 라우트:**
 /// - `/`: 루트 경로. 인증 상태에 따라 `/report` 또는 `/sign-in`으로 리다이렉트합니다.
 /// - `/sign-in`: 로그인 화면 ([LoginUI]).
-/// - `/report`: 과제 목록 화면 ([HomeUI]).
+/// - `/report`: 과제 목록 화면 ([ReportListView]).
 ///   - `/report/:id`: 과제 상세 화면 ([ReportDetailUI]).
 /// - `/promotion`: 홍보 포스터 화면 ([PromotionPage]).
 ///
@@ -72,7 +73,7 @@ GoRouter goRouter(Ref ref) {
       if (isLoggedIn && location == '/sign-in') {
         final from = state.uri.queryParameters['from'];
         // from 파라미터가 있으면 그곳으로, 없으면 기본 페이지로 이동
-        return (from != null && from.isNotEmpty) ? from : '/report';
+        return (from != null && from.isNotEmpty) ? from : '/course';
       }
 
       // 리다이렉트가 필요 없는 경우 null 반환
@@ -164,11 +165,19 @@ GoRouter goRouter(Ref ref) {
         },
       ),
       GoRoute(
+        path: '/course',
+        name: "코스 목록 | A&I",
+        pageBuilder: (context, state) {
+          html.document.title = "내 강좌 | A&I";
+          return NoTransitionPage(child: const CourseListView());
+        },
+      ),
+      GoRoute(
         path: '/report',
         name: "멘토링 | A&I",
         pageBuilder: (context, state) {
           html.document.title = "멘토링 | A&I";
-          return NoTransitionPage(child: const HomeUI());
+          return NoTransitionPage(child: const ReportListView());
         },
         routes: [
           GoRoute(

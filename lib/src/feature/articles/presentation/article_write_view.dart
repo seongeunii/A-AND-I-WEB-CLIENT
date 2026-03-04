@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:a_and_i_report_web_server/src/core/auth/role_policy.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/user_view_model.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/user_view_state.dart';
@@ -22,10 +24,14 @@ class ArticleWriteView extends ConsumerStatefulWidget {
 }
 
 class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
+  static const Duration _autoSaveInterval = Duration(minutes: 1);
+
   late final TextEditingController titleController;
   late final TextEditingController contentController;
   late final FocusNode contentFocusNode;
   late final UndoHistoryController contentUndoController;
+  Timer? _autoSaveTimer;
+  bool _isAutoSaving = false;
 
   @override
   void initState() {
@@ -41,10 +47,12 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
     contentController = TextEditingController(text: initialMarkdown);
     contentFocusNode = FocusNode();
     contentUndoController = UndoHistoryController();
+    _startAutoSaveTimer();
   }
 
   @override
   void dispose() {
+    _autoSaveTimer?.cancel();
     titleController.dispose();
     contentController.dispose();
     contentFocusNode.dispose();
@@ -87,6 +95,10 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
                 control: true, shift: true): ArticleRedoIntent(),
             SingleActivator(LogicalKeyboardKey.keyZ, meta: true, shift: true):
                 ArticleRedoIntent(),
+            SingleActivator(LogicalKeyboardKey.keyS, control: true):
+                ArticleSaveDraftIntent(),
+            SingleActivator(LogicalKeyboardKey.keyS, meta: true):
+                ArticleSaveDraftIntent(),
           },
           child: Actions(
             actions: <Type, Action<Intent>>{
@@ -105,6 +117,12 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
                       contentUndoController.value.canRedo) {
                     contentUndoController.redo();
                   }
+                  return null;
+                },
+              ),
+              ArticleSaveDraftIntent: CallbackAction<ArticleSaveDraftIntent>(
+                onInvoke: (intent) {
+                  unawaited(_onShortcutSaveDraft(context));
                   return null;
                 },
               ),
@@ -343,6 +361,15 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
     );
   }
 
+  Future<void> _onShortcutSaveDraft(BuildContext context) async {
+    final composeState = ref.read(articleWriteViewModelProvider);
+    if (composeState.isSubmitting || composeState.isUploadingImage) {
+      return;
+    }
+
+    await onTapSaveDraft(context);
+  }
+
   void onTapGoConfirm(BuildContext context) {
     _syncDraft();
     context.go('/articles/confirm');
@@ -353,6 +380,35 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
           title: titleController.text,
           contentMarkdown: contentController.text,
         );
+  }
+
+  void _startAutoSaveTimer() {
+    _autoSaveTimer?.cancel();
+    _autoSaveTimer = Timer.periodic(_autoSaveInterval, (_) {
+      unawaited(_triggerAutoSave());
+    });
+  }
+
+  Future<void> _triggerAutoSave() async {
+    if (!mounted || _isAutoSaving) {
+      return;
+    }
+
+    final userState = ref.read(userViewModelProvider);
+    if (userState.status != UserStatus.authenticated ||
+        !canManageArticlesWithRole(userState.resolvedRole)) {
+      return;
+    }
+
+    _isAutoSaving = true;
+    try {
+      await ref.read(articleWriteViewModelProvider.notifier).autoSaveDraft(
+            title: titleController.text,
+            contentMarkdown: contentController.text,
+          );
+    } finally {
+      _isAutoSaving = false;
+    }
   }
 
   String _resolveFileName(XFile file, Uint8List bytes) {
@@ -378,6 +434,10 @@ class ArticleUndoIntent extends Intent {
 
 class ArticleRedoIntent extends Intent {
   const ArticleRedoIntent();
+}
+
+class ArticleSaveDraftIntent extends Intent {
+  const ArticleSaveDraftIntent();
 }
 
 class _ArticleWritePermissionDeniedView extends StatelessWidget {

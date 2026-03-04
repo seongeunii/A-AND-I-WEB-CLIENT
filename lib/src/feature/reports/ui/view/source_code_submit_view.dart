@@ -13,8 +13,13 @@ import 'package:re_highlight/styles/monokai-sublime.dart';
 
 class SourceCodeSubmitView extends HookConsumerWidget {
   final Report report;
+  final bool isDarkMode;
 
-  const SourceCodeSubmitView({super.key, required this.report});
+  const SourceCodeSubmitView({
+    super.key,
+    required this.report,
+    this.isDarkMode = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -72,25 +77,25 @@ class SourceCodeSubmitView extends HookConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           '소스 코드 제출',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF000000),
+            color: isDarkMode ? Color(0xFFF5F5F5) : Color(0xFF000000),
           ),
         ),
         const SizedBox(height: 12),
         Text(
           '"${report.title}" 과제의 구현 코드를 작성해 제출해 주세요.',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Color(0xFF000000),
+            color: isDarkMode ? Color(0xFFE5E7EB) : Color(0xFF000000),
             height: 1.6,
           ),
         ),
         const SizedBox(height: 20),
-        const _GuidelineBox(),
+        _GuidelineBox(isDarkMode: isDarkMode),
         const SizedBox(height: 16),
         Wrap(
           spacing: 8,
@@ -102,15 +107,21 @@ class SourceCodeSubmitView extends HookConsumerWidget {
               selected: selected,
               onSelected: (_) => notifier.selectLanguage(language),
               selectedColor: const Color(0xFFE5E7EB),
-              backgroundColor: const Color(0xFFF3F4F6),
+              backgroundColor:
+                  isDarkMode ? const Color(0xFF3F3F46) : const Color(0xFFF3F4F6),
               side: BorderSide(
                 color: selected
-                    ? const Color(0xFF111827)
-                    : const Color(0xFFD1D5DB),
+                    ? (isDarkMode
+                        ? const Color(0xFFF5F5F5)
+                        : const Color(0xFF111827))
+                    : (isDarkMode
+                        ? const Color(0xFF52525B)
+                        : const Color(0xFFD1D5DB)),
               ),
               labelStyle: TextStyle(
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: const Color(0xFF000000),
+                color:
+                    isDarkMode ? const Color(0xFFF5F5F5) : const Color(0xFF000000),
               ),
             );
           }).toList(),
@@ -259,21 +270,27 @@ class SourceCodeSubmitView extends HookConsumerWidget {
 }
 
 class _GuidelineBox extends StatelessWidget {
-  const _GuidelineBox();
+  final bool isDarkMode;
+  const _GuidelineBox({required this.isDarkMode});
 
   @override
   Widget build(BuildContext context) {
-    const style =
-        TextStyle(fontSize: 13, color: Color(0xFF000000), height: 1.5);
+    final style = TextStyle(
+      fontSize: 13,
+      color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
+      height: 1.5,
+    );
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: isDarkMode ? const Color(0xFF27272A) : const Color(0xFFF9FAFB),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(
+          color: isDarkMode ? const Color(0xFF3F3F46) : const Color(0xFFE5E7EB),
+        ),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -281,7 +298,7 @@ class _GuidelineBox extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF000000),
+              color: isDarkMode ? Color(0xFFF5F5F5) : Color(0xFF000000),
             ),
           ),
           SizedBox(height: 8),

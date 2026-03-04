@@ -19,6 +19,9 @@ part 'article_write_view_model.g.dart';
 /// 블로그 작성/출간 상태를 관리하는 ViewModel입니다.
 @Riverpod(keepAlive: true)
 class ArticleWriteViewModel extends _$ArticleWriteViewModel {
+  String _lastSavedDraftTitle = '';
+  String _lastSavedDraftContentMarkdown = '';
+
   @override
   ArticleWriteState build() {
     return const ArticleWriteState();
@@ -145,6 +148,35 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
     );
   }
 
+  /// 현재 작성 내용을 자동 임시저장합니다.
+  ///
+  /// 제목/본문이 변경된 경우에만 저장을 시도합니다.
+  Future<bool> autoSaveDraft({
+    required String title,
+    required String contentMarkdown,
+  }) async {
+    if (state.isSubmitting || state.isUploadingImage) {
+      return false;
+    }
+
+    final normalizedTitle = title.trim();
+    final normalizedContent = contentMarkdown.trim();
+    if (normalizedTitle.isEmpty) {
+      return false;
+    }
+    if (!_hasDraftChanged(
+      title: normalizedTitle,
+      contentMarkdown: normalizedContent,
+    )) {
+      return false;
+    }
+
+    return saveDraft(
+      title: normalizedTitle,
+      contentMarkdown: normalizedContent,
+    );
+  }
+
   /// 현재 작성 내용을 출간합니다.
   Future<bool> publish({
     required String title,
@@ -177,11 +209,19 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
       errorMsg: '',
       successMsg: '',
     );
+    _markDraftSaved(
+      title: post.title,
+      contentMarkdown: post.contentMarkdown,
+    );
   }
 
   /// 작성 상태를 초기화합니다.
   void reset() {
     state = const ArticleWriteState();
+    _markDraftSaved(
+      title: '',
+      contentMarkdown: '',
+    );
   }
 
   /// 공개 코드로 협업자를 조회합니다.
@@ -307,6 +347,10 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
           isSubmitting: false,
           successMsg: successMsg,
         );
+        _markDraftSaved(
+          title: createdPost.title,
+          contentMarkdown: createdPost.contentMarkdown,
+        );
         _syncPublishedPostToList(createdPost);
         return true;
       }
@@ -331,6 +375,10 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
         collaborators: patchedPost.collaborators,
         isSubmitting: false,
         successMsg: successMsg,
+      );
+      _markDraftSaved(
+        title: patchedPost.title,
+        contentMarkdown: patchedPost.contentMarkdown,
       );
       _syncPublishedPostToList(patchedPost);
       return true;
@@ -412,5 +460,21 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
       return false;
     }
     return state.editingPostStatus.trim().toLowerCase() == 'published';
+  }
+
+  bool _hasDraftChanged({
+    required String title,
+    required String contentMarkdown,
+  }) {
+    return title != _lastSavedDraftTitle ||
+        contentMarkdown != _lastSavedDraftContentMarkdown;
+  }
+
+  void _markDraftSaved({
+    required String title,
+    required String contentMarkdown,
+  }) {
+    _lastSavedDraftTitle = title.trim();
+    _lastSavedDraftContentMarkdown = contentMarkdown.trim();
   }
 }
