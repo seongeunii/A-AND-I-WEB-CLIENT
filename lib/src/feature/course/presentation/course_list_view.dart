@@ -4,9 +4,6 @@ import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/auth_st
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/auth_view_model.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/user_view_model.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/user_view_state.dart';
-import 'package:a_and_i_report_web_server/src/feature/home/data/entities/course.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/ui/viewModel/course_list_state.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/ui/viewModel/course_list_view_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -34,7 +31,6 @@ class _CourseListViewState extends ConsumerState<CourseListView> {
     final profileImageUrl = userState.profileImageUrl;
     final width = MediaQuery.of(context).size.width;
     final isMobile = width < 768;
-    final courseListState = ref.watch(courseListViewModelProvider);
 
     return Scaffold(
       backgroundColor: palette.pageBackground,
@@ -87,10 +83,16 @@ class _CourseListViewState extends ConsumerState<CourseListView> {
                       ),
                     ),
                     SizedBox(height: isMobile ? 24 : 32),
-                    ..._buildCourseSections(
-                      context: context,
+                    _CourseCard(
                       palette: palette,
-                      courseListState: courseListState,
+                      data: _activeCourse,
+                      onTapAction: () => context.go('/report'),
+                    ),
+                    const SizedBox(height: 22),
+                    _CourseCard(
+                      palette: palette,
+                      data: _lockedCourse,
+                      onTapAction: null,
                     ),
                     SizedBox(height: isMobile ? 72 : 108),
                     _FooterSection(palette: palette),
@@ -501,63 +503,6 @@ class _FooterSection extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _CourseFeedbackCard extends StatelessWidget {
-  const _CourseFeedbackCard({
-    required this.palette,
-    required this.message,
-  });
-
-  final _CoursePalette palette;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-      decoration: BoxDecoration(
-        color: palette.cardBackground,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: palette.border),
-      ),
-      child: Text(
-        message,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: palette.textMuted,
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          height: 1.6,
-        ),
-      ),
-    );
-  }
-}
-
-class _CourseLoadingCard extends StatelessWidget {
-  const _CourseLoadingCard({required this.palette});
-
-  final _CoursePalette palette;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      decoration: BoxDecoration(
-        color: palette.cardBackground,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: palette.border),
-      ),
-      child: Center(
-        child: CircularProgressIndicator(
-          color: palette.textPrimary,
-        ),
-      ),
     );
   }
 }

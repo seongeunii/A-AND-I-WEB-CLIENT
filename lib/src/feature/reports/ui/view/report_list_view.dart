@@ -1,6 +1,5 @@
 import 'package:a_and_i_report_web_server/src/core/constants/api_url.dart';
 import 'package:a_and_i_report_web_server/src/core/providers/study_theme_provider.dart';
-import 'package:a_and_i_report_web_server/src/core/utils/api_error_mapper.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/auth_state.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/auth_view_model.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/user_view_model.dart';
@@ -19,12 +18,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 /// `report_list_view.html` 시안을 기반으로,
 /// 코스별/주차별 과제 목록을 표시합니다.
 class ReportListView extends ConsumerStatefulWidget {
-  const ReportListView({
-    super.key,
-    required this.courseSlug,
-  });
-
-  final String courseSlug;
+  const ReportListView({super.key});
 
   @override
   ConsumerState<ReportListView> createState() => _ReportListViewState();
@@ -35,8 +29,7 @@ class _ReportListViewState extends ConsumerState<ReportListView> {
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(studyDarkModeProvider);
     final palette = _Palette.fromMode(isDarkMode);
-    final reportListStateAsync =
-        ref.watch(reportListViewModelProvider(widget.courseSlug));
+    final reportListStateAsync = ref.watch(reportListViewModelProvider);
     final isLoggedIn = ref.watch(authViewModelProvider).status ==
         AuthenticationStatus.authenticated;
     final userState = ref.watch(userViewModelProvider);
@@ -49,7 +42,7 @@ class _ReportListViewState extends ConsumerState<ReportListView> {
         child: SingleChildScrollView(
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1080),
+              constraints: const BoxConstraints(maxWidth: 896),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 24),
                 child: Column(
@@ -261,11 +254,10 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
     final resolvedImageUrl = _resolveProfileImageUrl(profileImageUrl);
 
     return Padding(
-      padding: EdgeInsets.only(top: isMobile ? 16 : 22),
+      padding: const EdgeInsets.only(top: 18),
       child: Row(
         children: [
           _TopNavAction(
@@ -389,12 +381,10 @@ class _CourseSectionCard extends StatelessWidget {
   const _CourseSectionCard({
     required this.palette,
     required this.section,
-    required this.courseSlug,
   });
 
   final _Palette palette;
   final _CourseSection section;
-  final String courseSlug;
 
   @override
   Widget build(BuildContext context) {
@@ -463,7 +453,6 @@ class _CourseSectionCard extends StatelessWidget {
                 child: _WeekGroupCard(
                   palette: palette,
                   weekGroup: weekGroup,
-                  courseSlug: courseSlug,
                 ),
               );
             }).toList(),
@@ -478,12 +467,10 @@ class _WeekGroupCard extends StatelessWidget {
   const _WeekGroupCard({
     required this.palette,
     required this.weekGroup,
-    required this.courseSlug,
   });
 
   final _Palette palette;
   final _WeekGroup weekGroup;
-  final String courseSlug;
 
   @override
   Widget build(BuildContext context) {
@@ -517,7 +504,6 @@ class _WeekGroupCard extends StatelessWidget {
               child: _ReportTile(
                 palette: palette,
                 report: report,
-                courseSlug: courseSlug,
               ),
             );
           }).toList(),
@@ -582,12 +568,10 @@ class _ReportTile extends StatelessWidget {
   const _ReportTile({
     required this.palette,
     required this.report,
-    required this.courseSlug,
   });
 
   final _Palette palette;
   final ReportSummary report;
-  final String courseSlug;
 
   @override
   Widget build(BuildContext context) {
@@ -596,7 +580,7 @@ class _ReportTile extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(14),
       onTap: () => context.go(
-        '/report/${report.id}?courseSlug=${Uri.encodeComponent(courseSlug)}&endAt=${report.endAt.millisecondsSinceEpoch}&week=${report.week}&seq=${report.seq}',
+        '/report/${report.id}?endAt=${report.endAt.millisecondsSinceEpoch}',
       ),
       child: Container(
         width: double.infinity,
