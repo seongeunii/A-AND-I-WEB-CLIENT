@@ -4,7 +4,11 @@ import 'package:a_and_i_report_web_server/src/feature/home/data/repositories/cou
 
 /// 코스 목록 조회 UseCase 인터페이스입니다.
 abstract class GetCoursesUsecase {
-  Future<List<Course>> call();
+  Future<List<Course>> call({
+    String? status,
+    String? phase,
+    String? track,
+  });
 }
 
 /// 코스 목록을 조회하는 UseCase 구현체입니다.
@@ -19,7 +23,11 @@ final class GetCoursesUsecaseImpl implements GetCoursesUsecase {
         _authRepository = authRepository;
 
   @override
-  Future<List<Course>> call() async {
+  Future<List<Course>> call({
+    String? status,
+    String? phase,
+    String? track,
+  }) async {
     final token = await _authRepository.getToken();
 
     if (token == null || token.isEmpty) {
@@ -27,6 +35,11 @@ final class GetCoursesUsecaseImpl implements GetCoursesUsecase {
     }
 
     final authorization = 'Bearer $token';
-    return await _courseRepository.getCourses(authorization);
+    return await _courseRepository.getCourses(
+      authorization,
+      status: status,
+      phase: phase,
+      track: track,
+    );
   }
 }
