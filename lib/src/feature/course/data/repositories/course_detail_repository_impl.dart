@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/network/v1_response_parser.dart';
 import 'package:a_and_i_report_web_server/src/feature/course/data/dtos/course_detail_response_dto.dart';
 import 'package:a_and_i_report_web_server/src/feature/course/data/mappers/course_detail_mapper.dart';
 import 'package:a_and_i_report_web_server/src/feature/course/domain/entities/course_detail.dart';
@@ -26,31 +27,18 @@ final class CourseDetailRepositoryImpl implements CourseDetailRepository {
         return null;
       }
 
-      // API가 envelope(success/data/error) 형식인 경우
-      if (data.containsKey('success')) {
-        final envelope = CourseDetailResponseDto.fromJson(data);
-        if (!envelope.success) {
-          throw Exception(envelope.error?.message ?? '코스 조회에 실패했습니다.');
-        }
-        return envelope.data?.toEntity();
-      }
-
-      // API가 코스 객체를 직접 반환하는 경우
-      return CourseDetailDto.fromJson(data).toEntity();
+      final dto = V1ResponseParser.parseObject(data, CourseDetailDto.fromJson);
+      return dto.toEntity();
     } on DioException catch (e) {
       final errorData = e.response?.data;
       if (errorData is Map<String, dynamic>) {
-        if (errorData.containsKey('error')) {
-          final envelope = CourseDetailResponseDto.fromJson(errorData);
-          final message = envelope.error?.message;
-          if (message != null && message.isNotEmpty) {
+        try {
+          V1ResponseParser.parseObject(errorData, CourseDetailDto.fromJson);
+        } on Exception catch (error) {
+          final message = error.toString().replaceFirst('Exception: ', '');
+          if (message.isNotEmpty) {
             throw Exception(message);
           }
-        }
-
-        final message = errorData['message'];
-        if (message is String && message.isNotEmpty) {
-          throw Exception(message);
         }
       }
 

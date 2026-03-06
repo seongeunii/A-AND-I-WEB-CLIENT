@@ -5,24 +5,28 @@ import 'package:a_and_i_report_web_server/src/feature/course/domain/entities/cou
 extension CourseDetailDtoMapper on CourseDetailDto {
   CourseDetail toEntity() {
     return CourseDetail(
-      id: id,
-      slug: slug,
-      fieldTag: fieldTag,
-      startDate: startDate,
-      endDate: endDate,
+      core: CourseDetailCore(
+        id: id,
+        slug: slug,
+        fieldTag: fieldTag,
+        startDate: startDate,
+        endDate: endDate,
+        status: status,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+      ),
       metadata: CourseDetailMetadata(
         title: metadata.title,
         description: metadata.description,
         phase: metadata.phase,
         attributes: metadata.attributes,
       ),
-      status: status,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-      title: title,
-      description: description,
-      phase: phase,
-      targetTrack: targetTrack,
+      additional: CourseDetailAdditional(
+        title: title,
+        description: description,
+        phase: phase,
+        targetTrack: targetTrack,
+      ),
     );
   }
 }
