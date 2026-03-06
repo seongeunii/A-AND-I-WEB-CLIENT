@@ -9,8 +9,9 @@ import 'package:go_router/go_router.dart';
 class ReportListWidget extends StatelessWidget {
   final String label;
   final List<ReportSummary> reports;
+  final String? courseSlug;
   const ReportListWidget(
-      {super.key, required this.label, required this.reports});
+      {super.key, required this.label, required this.reports, this.courseSlug});
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +68,8 @@ class ReportListWidget extends StatelessWidget {
                   'endAt': report.endAt.millisecondsSinceEpoch.toString(),
                   'week': report.week.toString(),
                   'seq': report.seq.toString(),
+                  if (courseSlug != null && courseSlug!.isNotEmpty)
+                    'courseSlug': courseSlug!,
                 },
               ),
               child: ReportTitleRow(
