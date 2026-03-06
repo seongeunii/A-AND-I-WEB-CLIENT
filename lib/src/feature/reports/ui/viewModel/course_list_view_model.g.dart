@@ -7,7 +7,7 @@ part of 'course_list_view_model.dart';
 // **************************************************************************
 
 String _$courseListViewModelHash() =>
-    r'8eba9e2fd5b5242628761110be51670d9cf46569';
+    r'bd9fb9b14ab015af4d7cac3d1bea4843cfc0640e';
 
 /// 과정 목록을 조회하는 홈 화면 ViewModel입니다.
 ///
