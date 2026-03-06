@@ -1,17 +1,18 @@
-import 'package:a_and_i_report_web_server/src/feature/home/data/entities/course.dart';
 import 'package:a_and_i_report_web_server/src/core/widgets/responsive_layout.dart';
+import 'package:a_and_i_report_web_server/src/feature/home/data/entities/course.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/viewModel/course_phase_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class BasicReportListView extends ConsumerWidget {
-  const BasicReportListView({super.key});
+/// FRAMEWORK 과정 목록 뷰
+class FrameworkReportListView extends ConsumerWidget {
+  const FrameworkReportListView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final courseAsync = ref.watch(
       coursePhaseViewModelProvider(
-        phase: 'BASIC',
+        phase: 'FRAMEWORK',
       ),
     );
 
@@ -46,40 +47,42 @@ class _CourseInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = ResponsiveLayout.isMobile(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           course.metadata.title,
-          style: const TextStyle(
-            color: Color(0xFF111827),
-            fontSize: 18,
+          style: TextStyle(
+            color: const Color(0xFF111827),
+            fontSize: isMobile ? 16 : 18,
             fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           course.metadata.description,
-          style: const TextStyle(
-            color: Color(0xFF6B7280),
-            fontSize: 13,
+          style: TextStyle(
+            color: const Color(0xFF6B7280),
+            fontSize: isMobile ? 12 : 13,
             fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 10),
         Text(
           '기간: ${course.startDate} ~ ${course.endDate}',
-          style: const TextStyle(
-            color: Color(0xFF6B7280),
-            fontSize: 13,
+          style: TextStyle(
+            color: const Color(0xFF6B7280),
+            fontSize: isMobile ? 12 : 13,
           ),
         ),
         const SizedBox(height: 6),
         Text(
           '트랙: ${_trackLabel(course)}',
-          style: const TextStyle(
-            color: Color(0xFF6B7280),
-            fontSize: 13,
+          style: TextStyle(
+            color: const Color(0xFF6B7280),
+            fontSize: isMobile ? 12 : 13,
           ),
         ),
       ],

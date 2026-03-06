@@ -1,6 +1,6 @@
 import 'package:a_and_i_report_web_server/src/feature/home/data/entities/course.dart';
 import 'package:a_and_i_report_web_server/src/core/widgets/responsive_layout.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/ui/viewModel/course_list_view_model.dart';
+import 'package:a_and_i_report_web_server/src/feature/reports/ui/viewModel/course_phase_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -10,22 +10,19 @@ class CsReportListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final courseListAsync = ref.watch(courseListViewModelProvider);
+    final courseAsync = ref.watch(
+      coursePhaseViewModelProvider(
+        phase: 'CS',
+        track: 'NO',
+      ),
+    );
 
-    return courseListAsync.when(
-      data: (courses) {
-        Course? csCourse;
-        for (final course in courses) {
-          if (_isCsCourse(course)) {
-            csCourse = course;
-            break;
-          }
-        }
-
-        if (csCourse == null) {
+    return courseAsync.when(
+      data: (course) {
+        if (course == null) {
           return _EmptyCourseView();
         }
-        return _CourseInfoView(course: csCourse);
+        return _CourseInfoView(course: course);
       },
       loading: () => const Center(
         child: CircularProgressIndicator(),
@@ -41,21 +38,6 @@ class CsReportListView extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  bool _isCsCourse(Course course) {
-    final slug = course.slug.toLowerCase();
-    final title = course.metadata.title.toLowerCase();
-    final description = course.metadata.description.toLowerCase();
-    final fieldTag = course.fieldTag.toLowerCase();
-    final targetTrack = (course.targetTrack ?? '').toLowerCase();
-
-    return slug.contains('cs') ||
-        slug.contains('back') ||
-        title.contains('cs') ||
-        description.contains('computer science') ||
-        fieldTag == 'cs' ||
-        targetTrack == 'cs';
   }
 }
 
@@ -115,7 +97,23 @@ class _CourseInfoView extends StatelessWidget {
             fontSize: isMobile ? 12 : 13,
           ),
         ),
+        const SizedBox(height: 6),
+        Text(
+          '트랙: ${_trackLabel(course)}',
+          style: TextStyle(
+            color: const Color(0xFF6B7280),
+            fontSize: isMobile ? 12 : 13,
+          ),
+        ),
       ],
     );
+  }
+
+  String _trackLabel(Course course) {
+    final raw = (course.targetTrack ?? course.fieldTag).trim().toUpperCase();
+    if (raw == 'NO' || raw == 'FL' || raw == 'SP') {
+      return raw;
+    }
+    return 'NO';
   }
 }

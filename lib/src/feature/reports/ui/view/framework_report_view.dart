@@ -1,19 +1,18 @@
 import 'package:a_and_i_report_web_server/src/core/widgets/responsive_layout.dart';
+import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/framework_report_list_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/viewModel/course_phase_view_model.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/cs_report_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// CS 과제 뷰
-class CsReportView extends ConsumerWidget {
-  const CsReportView({super.key});
+/// FRAMEWORK 과정 뷰
+class FrameworkReportView extends ConsumerWidget {
+  const FrameworkReportView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final courseAsync = ref.watch(
       coursePhaseViewModelProvider(
-        phase: 'CS',
-        track: 'NO',
+        phase: 'FRAMEWORK',
       ),
     );
 
@@ -45,7 +44,7 @@ class CsReportView extends ConsumerWidget {
         children: [
           _header(context, statusLabel),
           SizedBox(height: ResponsiveLayout.isMobile(context) ? 16 : 20),
-          const CsReportListView(),
+          const FrameworkReportListView(),
         ],
       ),
     );
@@ -76,7 +75,7 @@ class CsReportView extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "기초 CS 과정",
+                      "FRAMEWORK 과정",
                       style: TextStyle(
                         color: const Color(0xFF111827),
                         fontSize: isMobile ? 22 : 28,
@@ -85,7 +84,7 @@ class CsReportView extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Computer Science Fundamentals",
+                      "Framework Development",
                       style: TextStyle(
                         color: const Color(0xFF9CA3AF),
                         fontSize: isMobile ? 12 : 13,

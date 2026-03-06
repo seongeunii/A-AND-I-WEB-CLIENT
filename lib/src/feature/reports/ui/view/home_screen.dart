@@ -3,6 +3,7 @@ import 'package:a_and_i_report_web_server/src/core/widgets/logo.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/home_header_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/basic_report_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/cs_report_view.dart';
+import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/framework_report_view.dart';
 import 'package:flutter/material.dart';
 
 /// 사이트 홈 UI
@@ -34,6 +35,12 @@ class HomeScreen extends StatelessWidget {
 
         // BASIC 과정 과제 목록
         BasicReportView(),
+        const SizedBox(
+          height: 20,
+        ),
+
+        // FRAMEWORK 과정 과제 목록
+        FrameworkReportView(),
         const SizedBox(
           height: 100,
         ),

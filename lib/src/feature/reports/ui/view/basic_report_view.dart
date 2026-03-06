@@ -1,12 +1,25 @@
 import 'package:a_and_i_report_web_server/src/core/widgets/responsive_layout.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/basic_report_list_view.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:a_and_i_report_web_server/src/feature/reports/ui/viewModel/course_phase_view_model.dart';
 
-class BasicReportView extends StatelessWidget {
+class BasicReportView extends ConsumerWidget {
   const BasicReportView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final courseAsync = ref.watch(
+      coursePhaseViewModelProvider(
+        phase: 'BASIC',
+      ),
+    );
+
+    final statusLabel = courseAsync.maybeWhen(
+      data: (course) => course?.status ?? '-',
+      orElse: () => '...',
+    );
+
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: ResponsiveLayout.isMobile(context) ? 16 : 20,
@@ -28,7 +41,7 @@ class BasicReportView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _header(context),
+          _header(context, statusLabel),
           SizedBox(height: ResponsiveLayout.isMobile(context) ? 16 : 20),
           const BasicReportListView(),
         ],
@@ -36,7 +49,7 @@ class BasicReportView extends StatelessWidget {
     );
   }
 
-  Widget _header(BuildContext context) {
+  Widget _header(BuildContext context, String statusLabel) {
     final isMobile = ResponsiveLayout.isMobile(context);
 
     return Row(
@@ -87,14 +100,22 @@ class BasicReportView extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: const Color(0xFFF4F4F5),
+            color: statusLabel == 'ARCHIVED'
+                ? const Color(0xFFEEF2FF)
+                : const Color(0xFFF4F4F5),
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: const Color(0xFFE4E4E7)),
+            border: Border.all(
+              color: statusLabel == 'ARCHIVED'
+                  ? const Color(0xFFC7D2FE)
+                  : const Color(0xFFE4E4E7),
+            ),
           ),
-          child: const Text(
-            'ACTIVE',
+          child: Text(
+            statusLabel,
             style: TextStyle(
-              color: Color(0xFF6B7280),
+              color: statusLabel == 'ARCHIVED'
+                  ? const Color(0xFF4338CA)
+                  : const Color(0xFF6B7280),
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
