@@ -28,11 +28,13 @@ class ReportDetailUI extends HookConsumerWidget {
         ViewStatus.success => SingleChildScrollView(
             child: ResponsiveLayout(
               mobile: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 child: ProblemDetailView(report: state.report!, endAt: endAt),
               ),
               tablet: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 48),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 48, horizontal: 48),
                 child: ProblemDetailView(report: state.report!, endAt: endAt),
               ),
               desktop: Padding(

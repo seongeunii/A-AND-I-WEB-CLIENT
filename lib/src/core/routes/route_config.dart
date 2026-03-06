@@ -178,7 +178,8 @@ GoRouter goRouter(Ref ref) {
               final endAtMs = state.uri.queryParameters['endAt'];
               final week = state.uri.queryParameters['week'];
               final seq = state.uri.queryParameters['seq'];
-              final parsedEndAtMs = endAtMs != null ? int.tryParse(endAtMs) : null;
+              final parsedEndAtMs =
+                  endAtMs != null ? int.tryParse(endAtMs) : null;
               final parsedWeek = week != null ? int.tryParse(week) : null;
               final parsedSeq = seq != null ? int.tryParse(seq) : null;
 
