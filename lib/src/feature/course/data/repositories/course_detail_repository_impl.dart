@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/network/api_exception.dart';
 import 'package:a_and_i_report_web_server/src/core/network/v1_response_parser.dart';
 import 'package:a_and_i_report_web_server/src/feature/course/data/dtos/course_detail_response_dto.dart';
 import 'package:a_and_i_report_web_server/src/feature/course/data/mappers/course_detail_mapper.dart';
@@ -24,25 +25,37 @@ final class CourseDetailRepositoryImpl implements CourseDetailRepository {
 
       final data = response.data;
       if (data == null) {
-        return null;
+        throw ApiException(
+          code: 'INVALID_ENVELOPE',
+          message: '코스 상세 응답이 비어있습니다.',
+          status: response.statusCode,
+          requestId: _requestIdFromResponse(response),
+        );
       }
 
-      final dto = V1ResponseParser.parseObject(data, CourseDetailDto.fromJson);
+      final dto = V1ResponseParser.parseObject(
+        data,
+        CourseDetailDto.fromJson,
+        status: response.statusCode,
+        requestId: _requestIdFromResponse(response),
+      );
       return dto.toEntity();
     } on DioException catch (e) {
-      final errorData = e.response?.data;
-      if (errorData is Map<String, dynamic>) {
-        try {
-          V1ResponseParser.parseObject(errorData, CourseDetailDto.fromJson);
-        } on Exception catch (error) {
-          final message = error.toString().replaceFirst('Exception: ', '');
-          if (message.isNotEmpty) {
-            throw Exception(message);
-          }
-        }
+      final apiException = e.error;
+      if (apiException is ApiException) {
+        throw apiException;
       }
 
-      throw Exception('코스 조회에 실패했습니다. (status: ${e.response?.statusCode})');
+      throw ApiException.fromDio(
+        e,
+        fallbackMessage: '코스 조회에 실패했습니다.',
+      );
     }
+  }
+
+  String _requestIdFromResponse(Response<Map<String, dynamic>> response) {
+    return response.headers.value('x-request-id') ??
+        response.requestOptions.extra['requestId']?.toString() ??
+        '';
   }
 }

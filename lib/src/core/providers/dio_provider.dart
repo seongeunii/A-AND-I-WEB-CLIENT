@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:a_and_i_report_web_server/src/core/constants/api_url.dart';
 import 'package:a_and_i_report_web_server/src/core/interceptors/auth_interceptor.dart';
+import 'package:a_and_i_report_web_server/src/core/interceptors/request_id_interceptor.dart';
 import 'package:a_and_i_report_web_server/src/core/utils/app_messenger.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/providers/local_auth_datasource_provider.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/auth_view_model.dart';
@@ -20,6 +21,8 @@ Dio dio(Ref ref) {
   final dio = Dio(BaseOptions(
     baseUrl: baseUrl,
   ));
+
+  dio.interceptors.add(RequestIdInterceptor());
 
   dio.interceptors.add(
     AuthInterceptor(

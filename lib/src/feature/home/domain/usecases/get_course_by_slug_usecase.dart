@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/network/api_exception.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/domain/repositories/auth_repository.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/data/entities/course.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/data/repositories/course_repository.dart';
@@ -29,8 +30,17 @@ final class GetCourseBySlugUsecaseImpl implements GetCourseBySlugUsecase {
     try {
       final authorization = 'Bearer $token';
       try {
-        return await courseRepository.getCourseBySlug(authorization, courseSlug);
+        return await courseRepository.getCourseBySlug(
+            authorization, courseSlug);
       } on DioException catch (e) {
+        final apiException = e.error;
+        if (apiException is ApiException && apiException.code == 'NOT_FOUND') {
+          return await courseRepository.getCourseBySlugFromCourses(
+            authorization,
+            courseSlug,
+          );
+        }
+
         final statusCode = e.response?.statusCode;
 
         // 서버 라우팅이 /v1/courses/{slug} 형태인 경우를 위한 fallback
@@ -43,16 +53,15 @@ final class GetCourseBySlugUsecaseImpl implements GetCourseBySlugUsecase {
         rethrow;
       }
     } on DioException catch (e) {
-      final data = e.response?.data;
-      if (data is Map<String, dynamic>) {
-        final message = data['message'];
-        if (message is String && message.isNotEmpty) {
-          throw Exception(message);
-        }
+      final apiException = e.error;
+      if (apiException is ApiException) {
+        throw apiException;
       }
 
-      final statusCode = e.response?.statusCode;
-      throw Exception('코스 조회에 실패했습니다. (slug: $courseSlug, status: $statusCode)');
+      throw ApiException.fromDio(
+        e,
+        fallbackMessage: '코스 조회에 실패했습니다.',
+      );
     }
   }
 }

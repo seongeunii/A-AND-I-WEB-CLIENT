@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/network/api_exception.dart';
 import 'package:a_and_i_report_web_server/src/core/network/v1_response_parser.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/data/entities/course.dart';
 import 'package:dio/dio.dart';
@@ -35,10 +36,20 @@ final class CourseRepositoryImpl implements CourseRepository {
 
     final data = response.data;
     if (data == null) {
-      return const <Course>[];
+      throw ApiException(
+        code: 'INVALID_ENVELOPE',
+        message: '코스 목록 응답이 비어있습니다.',
+        status: response.statusCode,
+        requestId: _requestIdFromResponse(response),
+      );
     }
 
-    return V1ResponseParser.parseList(data, Course.fromJson);
+    return V1ResponseParser.parseList(
+      data,
+      Course.fromJson,
+      status: response.statusCode,
+      requestId: _requestIdFromResponse(response),
+    );
   }
 
   @override
@@ -51,10 +62,20 @@ final class CourseRepositoryImpl implements CourseRepository {
 
     final data = response.data;
     if (data == null) {
-      throw Exception('코스 상세 응답이 비어있습니다.');
+      throw ApiException(
+        code: 'INVALID_ENVELOPE',
+        message: '코스 상세 응답이 비어있습니다.',
+        status: response.statusCode,
+        requestId: _requestIdFromResponse(response),
+      );
     }
 
-    return V1ResponseParser.parseObject(data, Course.fromJson);
+    return V1ResponseParser.parseObject(
+      data,
+      Course.fromJson,
+      status: response.statusCode,
+      requestId: _requestIdFromResponse(response),
+    );
   }
 
   @override
@@ -69,10 +90,20 @@ final class CourseRepositoryImpl implements CourseRepository {
 
     final data = response.data;
     if (data == null) {
-      throw Exception('코스 상세 응답이 비어있습니다.');
+      throw ApiException(
+        code: 'INVALID_ENVELOPE',
+        message: '코스 상세 응답이 비어있습니다.',
+        status: response.statusCode,
+        requestId: _requestIdFromResponse(response),
+      );
     }
 
-    return V1ResponseParser.parseObject(data, Course.fromJson);
+    return V1ResponseParser.parseObject(
+      data,
+      Course.fromJson,
+      status: response.statusCode,
+      requestId: _requestIdFromResponse(response),
+    );
   }
 
   @override
@@ -84,9 +115,25 @@ final class CourseRepositoryImpl implements CourseRepository {
 
     final data = response.data;
     if (data == null) {
-      return const <Course>[];
+      throw ApiException(
+        code: 'INVALID_ENVELOPE',
+        message: '관리자 코스 목록 응답이 비어있습니다.',
+        status: response.statusCode,
+        requestId: _requestIdFromResponse(response),
+      );
     }
 
-    return V1ResponseParser.parseList(data, Course.fromJson);
+    return V1ResponseParser.parseList(
+      data,
+      Course.fromJson,
+      status: response.statusCode,
+      requestId: _requestIdFromResponse(response),
+    );
+  }
+
+  String _requestIdFromResponse(Response<Map<String, dynamic>> response) {
+    return response.headers.value('x-request-id') ??
+        response.requestOptions.extra['requestId']?.toString() ??
+        '';
   }
 }

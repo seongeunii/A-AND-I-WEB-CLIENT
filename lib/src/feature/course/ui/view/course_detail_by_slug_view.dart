@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/network/api_error_presenter.dart';
 import 'package:a_and_i_report_web_server/src/core/widgets/responsive_layout.dart';
 import 'package:a_and_i_report_web_server/src/feature/course/domain/entities/course_detail.dart';
 import 'package:a_and_i_report_web_server/src/feature/course/ui/viewModel/course_detail_view_model.dart';
@@ -21,9 +22,24 @@ class CourseDetailBySlugView extends ConsumerWidget {
     return courseDetailAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Center(
-        child: Text(
-          '오류가 발생했습니다: ${error.toString()}',
-          style: const TextStyle(color: Colors.red),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              ApiErrorPresenter.message(error),
+              style: const TextStyle(color: Colors.red),
+            ),
+            if (ApiErrorPresenter.requestId(error) != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                '문의 코드: ${ApiErrorPresenter.requestId(error)}',
+                style: const TextStyle(
+                  color: Color(0xFF9CA3AF),
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
       data: (courseDetail) {

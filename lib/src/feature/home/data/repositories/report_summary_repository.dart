@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/network/api_exception.dart';
 import 'package:a_and_i_report_web_server/src/core/network/v1_response_parser.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/data/entities/report_summary.dart';
 import 'package:dio/dio.dart';
@@ -23,9 +24,25 @@ final class ReportSummaryRepositoryImpl implements ReportSummaryRepository {
 
     final data = response.data;
     if (data == null) {
-      return const <ReportSummary>[];
+      throw ApiException(
+        code: 'INVALID_ENVELOPE',
+        message: '과제 목록 응답이 비어있습니다.',
+        status: response.statusCode,
+        requestId: _requestIdFromResponse(response),
+      );
     }
 
-    return V1ResponseParser.parseList(data, ReportSummary.fromJson);
+    return V1ResponseParser.parseList(
+      data,
+      ReportSummary.fromJson,
+      status: response.statusCode,
+      requestId: _requestIdFromResponse(response),
+    );
+  }
+
+  String _requestIdFromResponse(Response<Map<String, dynamic>> response) {
+    return response.headers.value('x-request-id') ??
+        response.requestOptions.extra['requestId']?.toString() ??
+        '';
   }
 }
