@@ -2,7 +2,6 @@ import 'package:a_and_i_report_web_server/src/core/widgets/bottom_logo.dart';
 import 'package:a_and_i_report_web_server/src/core/widgets/logo.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/basic_report_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/framework_report_view.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/home_header_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/cs_report_view.dart';
 import 'package:flutter/material.dart';
 
@@ -23,13 +22,7 @@ class HomeMobileScreen extends StatelessWidget {
         const SizedBox(
           height: 10,
         ),
-        // CS 과제 목록
-        const HomeHeaderView(),
-        const SizedBox(
-          height: 10,
-        ),
-
-        // BASIC 과정 과제 목록
+        // CS 과정 과제 목록
         const CsReportView(),
         const SizedBox(
           height: 10,

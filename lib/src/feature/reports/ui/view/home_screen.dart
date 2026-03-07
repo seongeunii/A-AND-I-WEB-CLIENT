@@ -1,6 +1,5 @@
 import 'package:a_and_i_report_web_server/src/core/widgets/bottom_logo.dart';
 import 'package:a_and_i_report_web_server/src/core/widgets/logo.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/home_header_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/basic_report_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/cs_report_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/framework_report_view.dart';
@@ -20,12 +19,6 @@ class HomeScreen extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(vertical: 22.5),
           child: Logo(),
-        ),
-
-        // 사이트 헤더 영역
-        HomeHeaderView(),
-        const SizedBox(
-          height: 20,
         ),
         // CS 과제 목록
         CsReportView(),
