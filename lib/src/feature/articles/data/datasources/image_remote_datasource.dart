@@ -38,6 +38,17 @@ class ImageRemoteDatasourceImpl implements ImageRemoteDatasource {
     );
 
     final responseData = response.data ?? <String, dynamic>{};
-    return ImageUploadResponseDto.fromJson(responseData);
+    return ImageUploadResponseDto.fromJson(_extractPayload(responseData));
+  }
+
+  Map<String, dynamic> _extractPayload(Map<String, dynamic> responseData) {
+    final data = responseData['data'];
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    if (data is Map) {
+      return Map<String, dynamic>.from(data);
+    }
+    return responseData;
   }
 }

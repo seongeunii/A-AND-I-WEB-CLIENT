@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:js_interop';
 
 import 'package:a_and_i_report_web_server/src/core/auth/role_policy.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/user_view_model.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/user_view_state.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/ui/viewModels/article_write_view_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +14,7 @@ import 'package:a_and_i_report_web_server/src/feature/articles/presentation/widg
 import 'package:a_and_i_report_web_server/src/feature/articles/presentation/widgets/article_editor_panel.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/presentation/widgets/article_preview_panel.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:web/web.dart' as web;
 
 const String articleWriteDefaultTitle = '';
 const String articleWriteDefaultMarkdown = '';
@@ -32,6 +35,10 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
   late final UndoHistoryController contentUndoController;
   Timer? _autoSaveTimer;
   bool _isAutoSaving = false;
+  final GlobalKey _markdownAreaKey = GlobalKey();
+  bool _isMarkdownDragOver = false;
+  web.EventListener? _webDragOverListener;
+  web.EventListener? _webDropListener;
 
   @override
   void initState() {
@@ -48,10 +55,12 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
     contentFocusNode = FocusNode();
     contentUndoController = UndoHistoryController();
     _startAutoSaveTimer();
+    _bindWebDropListeners();
   }
 
   @override
   void dispose() {
+    _unbindWebDropListeners();
     _autoSaveTimer?.cancel();
     titleController.dispose();
     contentController.dispose();
@@ -159,6 +168,8 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
                                 onCodeBlock: onTapCodeBlock,
                                 onImage: () => onTapImage(context),
                                 onLink: onTapLink,
+                                markdownAreaKey: _markdownAreaKey,
+                                isMarkdownDragOver: _isMarkdownDragOver,
                               ),
                             ),
                           ),
@@ -188,6 +199,8 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
                             onCodeBlock: onTapCodeBlock,
                             onImage: () => onTapImage(context),
                             onLink: onTapLink,
+                            markdownAreaKey: _markdownAreaKey,
+                            isMarkdownDragOver: _isMarkdownDragOver,
                           ),
                         ),
                         const Divider(height: 1, color: Color(0xFFE5E7EB)),
@@ -265,6 +278,234 @@ class ArticleWriteViewState extends ConsumerState<ArticleWriteView> {
         ),
       ),
     );
+  }
+
+  void _bindWebDropListeners() {
+    if (!kIsWeb) {
+      return;
+    }
+    if (_webDragOverListener != null || _webDropListener != null) {
+      return;
+    }
+
+    _webDragOverListener = (web.DragEvent event) {
+      final hasFilePayload = _hasFilePayload(event.dataTransfer);
+      final shouldHandle =
+          hasFilePayload && _isPointerInsideMarkdownArea(event);
+      if (hasFilePayload) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      _setMarkdownDragOver(shouldHandle);
+    }.toJS;
+
+    _webDropListener = (web.DragEvent event) {
+      final hasFilePayload = _hasFilePayload(event.dataTransfer);
+      final shouldHandle =
+          hasFilePayload && _isPointerInsideMarkdownArea(event);
+      if (hasFilePayload) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      if (shouldHandle) {
+        unawaited(_handleDroppedImages(event));
+      }
+      _setMarkdownDragOver(false);
+    }.toJS;
+
+    web.document.addEventListener('dragover', _webDragOverListener);
+    web.document.addEventListener('drop', _webDropListener);
+  }
+
+  void _unbindWebDropListeners() {
+    if (!kIsWeb) {
+      return;
+    }
+
+    if (_webDragOverListener != null) {
+      web.document.removeEventListener('dragover', _webDragOverListener);
+      _webDragOverListener = null;
+    }
+    if (_webDropListener != null) {
+      web.document.removeEventListener('drop', _webDropListener);
+      _webDropListener = null;
+    }
+  }
+
+  bool _hasFilePayload(web.DataTransfer? dataTransfer) {
+    if (dataTransfer == null) {
+      return false;
+    }
+
+    final files = dataTransfer.files;
+    if (files.length > 0) {
+      return true;
+    }
+
+    final typesObject = dataTransfer.types.dartify();
+    if (typesObject is List<Object?>) {
+      for (final type in typesObject) {
+        if (type?.toString().toLowerCase() == 'files') {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  bool _isPointerInsideMarkdownArea(web.DragEvent event) {
+    final buildContext = _markdownAreaKey.currentContext;
+    if (buildContext == null) {
+      return false;
+    }
+
+    final renderObject = buildContext.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) {
+      return false;
+    }
+
+    final topLeft = renderObject.localToGlobal(Offset.zero);
+    final right = topLeft.dx + renderObject.size.width;
+    final bottom = topLeft.dy + renderObject.size.height;
+    final pointerX = event.clientX.toDouble();
+    final pointerY = event.clientY.toDouble();
+
+    return pointerX >= topLeft.dx &&
+        pointerX <= right &&
+        pointerY >= topLeft.dy &&
+        pointerY <= bottom;
+  }
+
+  List<web.File> _extractImageFiles(web.DragEvent event) {
+    final files = event.dataTransfer?.files;
+    if (files == null || files.length == 0) {
+      return const <web.File>[];
+    }
+
+    final imageFiles = <web.File>[];
+    for (int index = 0; index < files.length; index++) {
+      final file = files.item(index);
+      if (file == null) {
+        continue;
+      }
+      if (_isImageFile(file)) {
+        imageFiles.add(file);
+      }
+    }
+    return imageFiles;
+  }
+
+  bool _isImageFile(web.File file) {
+    final type = file.type.trim().toLowerCase();
+    if (type.startsWith('image/')) {
+      return true;
+    }
+
+    final lowerName = file.name.toLowerCase();
+    return lowerName.endsWith('.png') ||
+        lowerName.endsWith('.jpg') ||
+        lowerName.endsWith('.jpeg') ||
+        lowerName.endsWith('.gif') ||
+        lowerName.endsWith('.webp') ||
+        lowerName.endsWith('.bmp') ||
+        lowerName.endsWith('.svg');
+  }
+
+  Future<void> _handleDroppedImages(web.DragEvent event) async {
+    final imageFiles = _extractImageFiles(event);
+    if (!mounted) {
+      return;
+    }
+    if (imageFiles.isEmpty) {
+      _showMessage(context, '이미지 파일만 드롭할 수 있습니다.');
+      return;
+    }
+
+    int successCount = 0;
+    int failureCount = 0;
+
+    for (final file in imageFiles) {
+      try {
+        final bytes = await _readWebFileBytes(file);
+        if (!mounted) {
+          return;
+        }
+
+        final uploadedImageUrl =
+            await ref.read(articleWriteViewModelProvider.notifier).uploadImage(
+                  fileName: _resolveDroppedFileName(file, bytes),
+                  bytes: bytes,
+                );
+        if (!mounted) {
+          return;
+        }
+
+        if (uploadedImageUrl == null || uploadedImageUrl.isEmpty) {
+          failureCount += 1;
+          continue;
+        }
+
+        ArticleEditorMarkdownActions.applyUploadedImage(
+          contentController,
+          contentFocusNode,
+          imageUrl: uploadedImageUrl,
+          altText: '이미지',
+        );
+        successCount += 1;
+      } catch (_) {
+        failureCount += 1;
+      }
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    if (successCount > 0 && failureCount == 0) {
+      final message = successCount == 1
+          ? '이미지 업로드 후 본문에 삽입했습니다.'
+          : '$successCount개의 이미지를 업로드해 본문에 삽입했습니다.';
+      _showMessage(context, message);
+      return;
+    }
+
+    if (successCount > 0 && failureCount > 0) {
+      _showMessage(
+        context,
+        '$successCount개 삽입 완료, $failureCount개는 업로드에 실패했습니다.',
+      );
+      return;
+    }
+
+    final errorMsg = ref.read(articleWriteViewModelProvider).errorMsg;
+    _showMessage(
+      context,
+      errorMsg.isEmpty ? '이미지 업로드에 실패했습니다.' : errorMsg,
+    );
+  }
+
+  Future<Uint8List> _readWebFileBytes(web.File file) async {
+    final jsArrayBuffer = await file.arrayBuffer().toDart;
+    return Uint8List.view(jsArrayBuffer.toDart);
+  }
+
+  String _resolveDroppedFileName(web.File file, Uint8List bytes) {
+    final trimmedName = file.name.trim();
+    if (trimmedName.isNotEmpty) {
+      return trimmedName;
+    }
+
+    return 'image_${DateTime.now().millisecondsSinceEpoch}_${bytes.length}.png';
+  }
+
+  void _setMarkdownDragOver(bool value) {
+    if (!mounted || _isMarkdownDragOver == value) {
+      return;
+    }
+    setState(() {
+      _isMarkdownDragOver = value;
+    });
   }
 
   void onTapBold() {

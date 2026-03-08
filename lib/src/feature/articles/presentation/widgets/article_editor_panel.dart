@@ -16,6 +16,8 @@ class ArticleEditorPanel extends StatelessWidget {
     required this.onCodeBlock,
     required this.onImage,
     required this.onLink,
+    this.markdownAreaKey,
+    this.isMarkdownDragOver = false,
   });
 
   final TextEditingController titleController;
@@ -30,6 +32,8 @@ class ArticleEditorPanel extends StatelessWidget {
   final VoidCallback onCodeBlock;
   final VoidCallback onImage;
   final VoidCallback onLink;
+  final Key? markdownAreaKey;
+  final bool isMarkdownDragOver;
 
   @override
   Widget build(BuildContext context) {
@@ -154,27 +158,43 @@ class ArticleEditorPanel extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: isMobile ? 300 : 520,
-                    ),
-                    child: TextField(
-                      controller: contentController,
-                      focusNode: contentFocusNode,
-                      undoController: contentUndoController,
-                      maxLines: null,
-                      keyboardType: TextInputType.multiline,
-                      style: const TextStyle(
-                        color: Color(0xFF374151),
-                        fontSize: 16,
-                        height: 1.7,
-                        fontFamily: 'monospace',
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 120),
+                    decoration: BoxDecoration(
+                      color: isMarkdownDragOver
+                          ? const Color(0xFFF9FAFB)
+                          : Colors.transparent,
+                      border: Border.all(
+                        color: isMarkdownDragOver
+                            ? const Color(0xFF9CA3AF)
+                            : Colors.transparent,
                       ),
-                      decoration: const InputDecoration(
-                        hintText: '당신의 이야기를 적어주세요',
-                        hintStyle: TextStyle(color: Color(0xFF9CA3AF)),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: ConstrainedBox(
+                      key: markdownAreaKey,
+                      constraints: BoxConstraints(
+                        minHeight: isMobile ? 300 : 520,
+                      ),
+                      child: TextField(
+                        controller: contentController,
+                        focusNode: contentFocusNode,
+                        undoController: contentUndoController,
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        style: const TextStyle(
+                          color: Color(0xFF374151),
+                          fontSize: 16,
+                          height: 1.7,
+                          fontFamily: 'monospace',
+                        ),
+                        decoration: const InputDecoration(
+                          hintText: '당신의 이야기를 적어주세요',
+                          hintStyle: TextStyle(color: Color(0xFF9CA3AF)),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                        ),
                       ),
                     ),
                   ),
