@@ -25,6 +25,7 @@ void main() {
       addTearDown(container.dispose);
 
       final notifier = container.read(articleWriteViewModelProvider.notifier);
+      notifier.setSummary('임시 요약');
       final result = await notifier.saveDraft(
         title: '임시 제목',
         contentMarkdown: '   ',
@@ -34,6 +35,7 @@ void main() {
       expect(fakeRepository.createCallCount, 1);
       expect(fakeRepository.lastCreatePayload?.status, 'Draft');
       expect(fakeRepository.lastCreatePayload?.contentMarkdown, '');
+      expect(fakeRepository.lastCreatePayload?.summary, '임시 요약');
       expect(fakeRepository.lastCreatePayload?.imageFileName, isNull);
       expect(fakeRepository.lastCreatePayload?.imageBytes, isNull);
       expect(container.read(articleWriteViewModelProvider).errorMsg, isEmpty);
@@ -128,6 +130,7 @@ void main() {
       expect(fakeRepository.patchCallCount, 1);
       expect(fakeRepository.lastPatchPostId, 'post-edit-1');
       expect(fakeRepository.lastPatchPayload?.status, 'Published');
+      expect(fakeRepository.lastPatchPayload?.summary, '');
       expect(fakeRepository.lastPatchPayload?.collaborators.length, 1);
       expect(
         container.read(articleWriteViewModelProvider).successMsg,
@@ -172,6 +175,45 @@ void main() {
         container.read(articleWriteViewModelProvider).successMsg,
         '포스트가 출간되었습니다.',
       );
+    });
+
+    test('patch 응답 summary가 오래된 값이어도 입력한 summary를 유지한다', () async {
+      final fakeRepository = FakePostRepository()
+        ..patchResponseSummaryOverride = '기존 요약';
+      final container = ProviderContainer(
+        overrides: [
+          userViewModelProvider.overrideWith(FakeUserViewModel.new),
+          postRepositoryProvider.overrideWithValue(fakeRepository),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(articleWriteViewModelProvider.notifier);
+      notifier.startEditing(
+        Post(
+          id: 'post-edit-2',
+          title: '기존 제목',
+          contentMarkdown: '기존 본문',
+          summary: '기존 요약',
+          author: const PostAuthor(
+            id: 'user-1',
+            nickname: '멘토',
+          ),
+          status: 'Published',
+          createdAt: DateTime.parse('2026-01-01T00:00:00Z'),
+          updatedAt: DateTime.parse('2026-01-01T00:00:00Z'),
+        ),
+      );
+      notifier.setSummary('새 요약');
+
+      final result = await notifier.publish(
+        title: '수정 제목',
+        contentMarkdown: '수정 본문',
+      );
+
+      expect(result, isTrue);
+      expect(fakeRepository.lastPatchPayload?.summary, '새 요약');
+      expect(container.read(articleWriteViewModelProvider).summary, '새 요약');
     });
 
     test('자동 임시저장은 변경사항이 있을 때만 저장한다', () async {
@@ -241,6 +283,7 @@ class FakePostRepository implements PostRepository {
   CreatePostPayload? lastCreatePayload;
   String? lastPatchPostId;
   PatchPostPayload? lastPatchPayload;
+  String? patchResponseSummaryOverride;
 
   @override
   Future<Post> createPost({required CreatePostPayload payload}) async {
@@ -250,6 +293,7 @@ class FakePostRepository implements PostRepository {
       id: 'post-1',
       title: payload.title,
       contentMarkdown: payload.contentMarkdown,
+      summary: payload.summary,
       thumbnailUrl: null,
       author: PostAuthor(
         id: payload.authorId,
@@ -305,6 +349,7 @@ class FakePostRepository implements PostRepository {
       id: postId,
       title: payload.title ?? 'title',
       contentMarkdown: payload.contentMarkdown ?? 'content',
+      summary: patchResponseSummaryOverride ?? payload.summary,
       thumbnailUrl: 'https://example.com/thumbnail.webp',
       author: const PostAuthor(
         id: 'user-1',

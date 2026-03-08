@@ -55,6 +55,7 @@ void main() {
         payload: const CreatePostPayload(
           title: '새 글',
           contentMarkdown: '# hello',
+          summary: '요약',
           authorId: 'author-1',
           authorNickname: '멘토',
           authorProfileImageUrl: 'https://example.com/profile.png',
@@ -64,6 +65,7 @@ void main() {
 
       expect(datasource.createTitle, '새 글');
       expect(datasource.createContentMarkdown, '# hello');
+      expect(datasource.createSummary, '요약');
       expect(datasource.createAuthorId, 'author-1');
       expect(datasource.createAuthorNickname, '멘토');
       expect(datasource.createAuthorProfileImageUrl,
@@ -103,6 +105,7 @@ void main() {
         payload: const PatchPostPayload(
           title: '수정 제목',
           contentMarkdown: '수정 본문',
+          summary: '수정 요약',
           status: 'Published',
         ),
       );
@@ -111,6 +114,7 @@ void main() {
       expect(datasource.patchPostId, 'post-xyz');
       expect(datasource.patchTitle, '수정 제목');
       expect(datasource.patchContentMarkdown, '수정 본문');
+      expect(datasource.patchSummary, '수정 요약');
       expect(datasource.patchStatus, 'Published');
       expect(datasource.patchCollaborators, isEmpty);
       expect(datasource.patchFile, isNull);
@@ -229,6 +233,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
   String? getDraftsAuthorization;
   String? createTitle;
   String? createContentMarkdown;
+  String? createSummary;
   String? createAuthorId;
   String? createAuthorNickname;
   String? createAuthorProfileImageUrl;
@@ -238,6 +243,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
   MultipartFile? createFile;
   String? patchTitle;
   String? patchContentMarkdown;
+  String? patchSummary;
   String? patchStatus;
   List<PostAuthor> patchCollaborators = <PostAuthor>[];
   MultipartFile? patchFile;
@@ -247,6 +253,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
     String authorization,
     String title,
     String contentMarkdown,
+    String? summary,
     String authorId,
     String authorNickname,
     String? authorProfileImageUrl,
@@ -257,6 +264,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
     createAuthorization = authorization;
     createTitle = title;
     createContentMarkdown = contentMarkdown;
+    createSummary = summary;
     createAuthorId = authorId;
     createAuthorNickname = authorNickname;
     createAuthorProfileImageUrl = authorProfileImageUrl;
@@ -320,6 +328,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
     String postId,
     String? title,
     String? contentMarkdown,
+    String? summary,
     String? status,
     List<PostAuthor> collaborators,
     MultipartFile? file,
@@ -328,6 +337,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
     patchPostId = postId;
     patchTitle = title;
     patchContentMarkdown = contentMarkdown;
+    patchSummary = summary;
     patchStatus = status;
     patchCollaborators = collaborators;
     patchFile = file;
@@ -342,6 +352,7 @@ PostResponseDto _samplePost({
     id: 'post-1',
     title: 'title',
     contentMarkdown: 'content',
+    summary: '요약',
     thumbnailUrl: 'https://example.com/thumbnail.webp',
     author: const PostAuthorResponseDto(
       id: 'author-id-1',

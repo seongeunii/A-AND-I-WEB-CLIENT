@@ -8,6 +8,7 @@ class CreatePostPayload {
   const CreatePostPayload({
     required this.title,
     required this.contentMarkdown,
+    this.summary,
     required this.authorId,
     required this.authorNickname,
     this.authorProfileImageUrl,
@@ -22,6 +23,9 @@ class CreatePostPayload {
 
   /// 게시글 본문(Markdown)입니다.
   final String contentMarkdown;
+
+  /// 게시글 요약입니다.
+  final String? summary;
 
   /// 작성자 ID(UUID)입니다.
   final String authorId;

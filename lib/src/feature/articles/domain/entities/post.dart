@@ -7,6 +7,7 @@ class Post {
     required this.id,
     required this.title,
     required this.contentMarkdown,
+    this.summary,
     this.thumbnailUrl,
     required this.author,
     this.collaborators = const <PostAuthor>[],
@@ -23,6 +24,9 @@ class Post {
 
   /// 게시글 본문(Markdown)입니다.
   final String contentMarkdown;
+
+  /// 게시글 요약입니다.
+  final String? summary;
 
   /// 썸네일 이미지 URL입니다.
   final String? thumbnailUrl;

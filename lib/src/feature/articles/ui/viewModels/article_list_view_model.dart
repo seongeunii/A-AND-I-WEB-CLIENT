@@ -96,13 +96,13 @@ class ArticleListViewModel extends _$ArticleListViewModel {
   }
 
   int _compareByLatestFirst(Post a, Post b) {
-    final updatedCompare = b.updatedAt.compareTo(a.updatedAt);
-    if (updatedCompare != 0) {
-      return updatedCompare;
-    }
     final createdCompare = b.createdAt.compareTo(a.createdAt);
     if (createdCompare != 0) {
       return createdCompare;
+    }
+    final updatedCompare = b.updatedAt.compareTo(a.updatedAt);
+    if (updatedCompare != 0) {
+      return updatedCompare;
     }
     return b.id.compareTo(a.id);
   }

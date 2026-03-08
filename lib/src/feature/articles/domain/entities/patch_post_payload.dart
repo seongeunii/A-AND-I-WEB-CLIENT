@@ -8,6 +8,7 @@ class PatchPostPayload {
   const PatchPostPayload({
     this.title,
     this.contentMarkdown,
+    this.summary,
     this.status,
     this.collaborators = const <PostAuthor>[],
     this.imageFileName,
@@ -19,6 +20,9 @@ class PatchPostPayload {
 
   /// 게시글 본문(Markdown)입니다.
   final String? contentMarkdown;
+
+  /// 게시글 요약입니다.
+  final String? summary;
 
   /// 게시글 상태입니다. (예: Draft, Published, Deleted)
   final String? status;

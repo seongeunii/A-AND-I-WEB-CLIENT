@@ -198,7 +198,7 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
       editingPostStatus: post.status,
       title: post.title,
       contentMarkdown: post.contentMarkdown,
-      summary: '',
+      summary: post.summary ?? '',
       tags: const <String>[],
       collaborators: post.collaborators,
       thumbnailUrl: post.thumbnailUrl,
@@ -299,6 +299,8 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
   }) async {
     final normalizedTitle = title.trim();
     final normalizedContent = contentMarkdown.trim();
+    final normalizedSummary = state.summary.trim();
+    final summaryToUpload = normalizedSummary;
     if (normalizedTitle.isEmpty) {
       state = state.copyWith(errorMsg: '제목을 입력해주세요.', successMsg: '');
       return false;
@@ -316,6 +318,7 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
         isSubmitting: true,
         title: normalizedTitle,
         contentMarkdown: normalizedContent,
+        summary: normalizedSummary,
         errorMsg: '',
         successMsg: '',
       );
@@ -328,6 +331,7 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
               payload: CreatePostPayload(
                 title: normalizedTitle,
                 contentMarkdown: normalizedContent,
+                summary: summaryToUpload,
                 authorId: authorInfo.id,
                 authorNickname: authorInfo.nickname,
                 authorProfileImageUrl: authorInfo.profileImageUrl,
@@ -343,6 +347,7 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
           editingPostStatus: createdPost.status,
           title: createdPost.title,
           contentMarkdown: createdPost.contentMarkdown,
+          summary: summaryToUpload,
           collaborators: createdPost.collaborators,
           isSubmitting: false,
           successMsg: successMsg,
@@ -351,7 +356,10 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
           title: createdPost.title,
           contentMarkdown: createdPost.contentMarkdown,
         );
-        _syncPublishedPostToList(createdPost);
+        _syncPublishedPostToList(
+          createdPost,
+          summary: summaryToUpload,
+        );
         return true;
       }
 
@@ -360,6 +368,7 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
             payload: PatchPostPayload(
               title: normalizedTitle,
               contentMarkdown: normalizedContent,
+              summary: summaryToUpload,
               status: status,
               collaborators: state.collaborators,
               imageFileName: imageFileName,
@@ -372,6 +381,7 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
         editingPostStatus: patchedPost.status,
         title: patchedPost.title,
         contentMarkdown: patchedPost.contentMarkdown,
+        summary: summaryToUpload,
         collaborators: patchedPost.collaborators,
         isSubmitting: false,
         successMsg: successMsg,
@@ -380,7 +390,10 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
         title: patchedPost.title,
         contentMarkdown: patchedPost.contentMarkdown,
       );
-      _syncPublishedPostToList(patchedPost);
+      _syncPublishedPostToList(
+        patchedPost,
+        summary: summaryToUpload,
+      );
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -417,7 +430,10 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
     );
   }
 
-  void _syncPublishedPostToList(Post post) {
+  void _syncPublishedPostToList(
+    Post post, {
+    required String summary,
+  }) {
     if (post.status.trim().toLowerCase() != 'published') {
       return;
     }
@@ -437,6 +453,7 @@ class ArticleWriteViewModel extends _$ArticleWriteViewModel {
       id: post.id,
       title: post.title,
       contentMarkdown: post.contentMarkdown,
+      summary: summary,
       thumbnailUrl: post.thumbnailUrl,
       author: PostAuthor(
         id: post.author.id,

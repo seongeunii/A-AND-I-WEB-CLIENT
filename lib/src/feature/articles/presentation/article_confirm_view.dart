@@ -270,6 +270,9 @@ class ArticleConfirmViewState extends ConsumerState<ArticleConfirmView> {
   }
 
   Future<void> onTapPublish(BuildContext context) async {
+    ref
+        .read(articleWriteViewModelProvider.notifier)
+        .setSummary(summaryController.text);
     final composeState = ref.read(articleWriteViewModelProvider);
     final success =
         await ref.read(articleWriteViewModelProvider.notifier).publish(
@@ -295,6 +298,9 @@ class ArticleConfirmViewState extends ConsumerState<ArticleConfirmView> {
   }
 
   Future<void> onTapSaveDraft(BuildContext context) async {
+    ref
+        .read(articleWriteViewModelProvider.notifier)
+        .setSummary(summaryController.text);
     final composeState = ref.read(articleWriteViewModelProvider);
     final success =
         await ref.read(articleWriteViewModelProvider.notifier).saveDraft(

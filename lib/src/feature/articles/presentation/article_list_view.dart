@@ -99,7 +99,7 @@ class ArticleListView extends ConsumerWidget {
                       ),
                       SizedBox(height: isMobile ? 8 : 12),
                       Text(
-                        'A&I 커뮤니티의 최신 기술 동향, 연구 결과 및 활동 소식을 확인하세요.',
+                        'A&I 커뮤니티의 최신 기술 동향을 확인하세요.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: subtitleFontSize,
@@ -210,9 +210,9 @@ class ArticleCardListSection extends StatelessWidget {
     return ArticleCardView(
       id: post.id,
       category: _statusLabel(post.status),
-      date: _formatKoreanDate(post.updatedAt),
+      date: _formatKoreanDate(post.createdAt),
       title: post.title,
-      summary: _extractSummary(post.contentMarkdown),
+      summary: _resolveSummary(post),
       thumbnailUrl: _resolveThumbnailUrl(post),
       authorNickname: post.author.nickname,
       authorProfileImage: post.author.profileImage,
@@ -284,12 +284,24 @@ String _extractSummary(String markdown) {
     return '본문 내용이 없습니다.';
   }
 
+  return _truncateSummary(plainText);
+}
+
+String _resolveSummary(Post post) {
+  final providedSummary = post.summary?.trim();
+  if (providedSummary != null && providedSummary.isNotEmpty) {
+    return _truncateSummary(providedSummary);
+  }
+  return _extractSummary(post.contentMarkdown);
+}
+
+String _truncateSummary(String text) {
   const maxLength = 120;
-  if (plainText.length <= maxLength) {
-    return plainText;
+  if (text.length <= maxLength) {
+    return text;
   }
 
-  return '${plainText.substring(0, maxLength)}...';
+  return '${text.substring(0, maxLength)}...';
 }
 
 String? _extractFirstImageUrl(String markdown) {

@@ -12,6 +12,7 @@ sealed class PostResponseDto with _$PostResponseDto {
     required String id,
     required String title,
     required String contentMarkdown,
+    String? summary,
     String? thumbnailUrl,
     required PostAuthorResponseDto author,
     @Default(<PostAuthorResponseDto>[])

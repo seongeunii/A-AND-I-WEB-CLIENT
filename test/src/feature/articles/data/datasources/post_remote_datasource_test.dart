@@ -39,6 +39,7 @@ void main() {
         'Bearer access-token',
         '제목',
         '본문',
+        '요약',
         '11111111-1111-1111-1111-111111111111',
         '멘토',
         'https://example.com/profile.png',
@@ -70,6 +71,7 @@ void main() {
         <String, dynamic>{
           'title': '제목',
           'contentMarkdown': '본문',
+          'summary': '요약',
           'author': <String, dynamic>{
             'id': '11111111-1111-1111-1111-111111111111',
             'nickname': '멘토',
@@ -118,6 +120,7 @@ void main() {
         'post-id',
         '수정 제목',
         '수정 본문',
+        '수정 요약',
         'Draft',
         const <PostAuthor>[],
         null,
@@ -137,10 +140,50 @@ void main() {
         <String, dynamic>{
           'title': '수정 제목',
           'contentMarkdown': '수정 본문',
+          'summary': '수정 요약',
           'status': 'Draft',
         },
       );
       expect(files.any((entry) => entry.key == 'thumbnail'), isFalse);
+    });
+
+    test('patchPost는 빈 summary도 post(json)에 포함한다', () async {
+      FormData? capturedFormData;
+
+      final dio = Dio()
+        ..interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) {
+              capturedFormData = options.data as FormData;
+              handler.resolve(
+                Response<Map<String, dynamic>>(
+                  requestOptions: options,
+                  statusCode: 200,
+                  data: _responseJson(),
+                ),
+              );
+            },
+          ),
+        );
+
+      final datasource = PostRemoteDatasourceImpl(dio);
+      await datasource.patchPost(
+        'Bearer access-token',
+        'post-id',
+        '수정 제목',
+        '수정 본문',
+        '',
+        'Draft',
+        const <PostAuthor>[],
+        null,
+      );
+
+      final files = capturedFormData!.files;
+      final postPart = files.firstWhere((entry) => entry.key == 'post').value;
+      final payload =
+          jsonDecode(await _readMultipartAsString(postPart)) as Map<String, dynamic>;
+      expect(payload.containsKey('summary'), isTrue);
+      expect(payload['summary'], '');
     });
 
     test('getDraftPosts는 /v1/posts/drafts/me 경로와 인증 헤더로 조회한다', () async {
@@ -194,6 +237,7 @@ Map<String, dynamic> _responseJson() {
       'id': 'post-id',
       'title': '제목',
       'contentMarkdown': '본문',
+      'summary': '요약',
       'thumbnailUrl': 'https://example.com/thumbnail.webp',
       'author': <String, dynamic>{
         'id': '11111111-1111-1111-1111-111111111111',

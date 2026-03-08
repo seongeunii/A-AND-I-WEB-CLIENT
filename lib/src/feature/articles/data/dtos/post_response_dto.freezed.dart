@@ -17,6 +17,7 @@ mixin _$PostResponseDto {
   String get id;
   String get title;
   String get contentMarkdown;
+  String? get summary;
   String? get thumbnailUrl;
   PostAuthorResponseDto get author;
   List<PostAuthorResponseDto> get collaborators;
@@ -44,6 +45,7 @@ mixin _$PostResponseDto {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.contentMarkdown, contentMarkdown) ||
                 other.contentMarkdown == contentMarkdown) &&
+            (identical(other.summary, summary) || other.summary == summary) &&
             (identical(other.thumbnailUrl, thumbnailUrl) ||
                 other.thumbnailUrl == thumbnailUrl) &&
             (identical(other.author, author) || other.author == author) &&
@@ -63,6 +65,7 @@ mixin _$PostResponseDto {
       id,
       title,
       contentMarkdown,
+      summary,
       thumbnailUrl,
       author,
       const DeepCollectionEquality().hash(collaborators),
@@ -72,7 +75,7 @@ mixin _$PostResponseDto {
 
   @override
   String toString() {
-    return 'PostResponseDto(id: $id, title: $title, contentMarkdown: $contentMarkdown, thumbnailUrl: $thumbnailUrl, author: $author, collaborators: $collaborators, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'PostResponseDto(id: $id, title: $title, contentMarkdown: $contentMarkdown, summary: $summary, thumbnailUrl: $thumbnailUrl, author: $author, collaborators: $collaborators, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -86,6 +89,7 @@ abstract mixin class $PostResponseDtoCopyWith<$Res> {
       {String id,
       String title,
       String contentMarkdown,
+      String? summary,
       String? thumbnailUrl,
       PostAuthorResponseDto author,
       List<PostAuthorResponseDto> collaborators,
@@ -112,6 +116,7 @@ class _$PostResponseDtoCopyWithImpl<$Res>
     Object? id = null,
     Object? title = null,
     Object? contentMarkdown = null,
+    Object? summary = freezed,
     Object? thumbnailUrl = freezed,
     Object? author = null,
     Object? collaborators = null,
@@ -132,6 +137,10 @@ class _$PostResponseDtoCopyWithImpl<$Res>
           ? _self.contentMarkdown
           : contentMarkdown // ignore: cast_nullable_to_non_nullable
               as String,
+      summary: freezed == summary
+          ? _self.summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as String?,
       thumbnailUrl: freezed == thumbnailUrl
           ? _self.thumbnailUrl
           : thumbnailUrl // ignore: cast_nullable_to_non_nullable
@@ -265,6 +274,7 @@ extension PostResponseDtoPatterns on PostResponseDto {
             String id,
             String title,
             String contentMarkdown,
+            String? summary,
             String? thumbnailUrl,
             PostAuthorResponseDto author,
             List<PostAuthorResponseDto> collaborators,
@@ -281,6 +291,7 @@ extension PostResponseDtoPatterns on PostResponseDto {
             _that.id,
             _that.title,
             _that.contentMarkdown,
+            _that.summary,
             _that.thumbnailUrl,
             _that.author,
             _that.collaborators,
@@ -311,6 +322,7 @@ extension PostResponseDtoPatterns on PostResponseDto {
             String id,
             String title,
             String contentMarkdown,
+            String? summary,
             String? thumbnailUrl,
             PostAuthorResponseDto author,
             List<PostAuthorResponseDto> collaborators,
@@ -326,6 +338,7 @@ extension PostResponseDtoPatterns on PostResponseDto {
             _that.id,
             _that.title,
             _that.contentMarkdown,
+            _that.summary,
             _that.thumbnailUrl,
             _that.author,
             _that.collaborators,
@@ -353,6 +366,7 @@ extension PostResponseDtoPatterns on PostResponseDto {
             String id,
             String title,
             String contentMarkdown,
+            String? summary,
             String? thumbnailUrl,
             PostAuthorResponseDto author,
             List<PostAuthorResponseDto> collaborators,
@@ -368,6 +382,7 @@ extension PostResponseDtoPatterns on PostResponseDto {
             _that.id,
             _that.title,
             _that.contentMarkdown,
+            _that.summary,
             _that.thumbnailUrl,
             _that.author,
             _that.collaborators,
@@ -387,6 +402,7 @@ class _PostResponseDto implements PostResponseDto {
       {required this.id,
       required this.title,
       required this.contentMarkdown,
+      this.summary,
       this.thumbnailUrl,
       required this.author,
       final List<PostAuthorResponseDto> collaborators =
@@ -404,6 +420,8 @@ class _PostResponseDto implements PostResponseDto {
   final String title;
   @override
   final String contentMarkdown;
+  @override
+  final String? summary;
   @override
   final String? thumbnailUrl;
   @override
@@ -448,6 +466,7 @@ class _PostResponseDto implements PostResponseDto {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.contentMarkdown, contentMarkdown) ||
                 other.contentMarkdown == contentMarkdown) &&
+            (identical(other.summary, summary) || other.summary == summary) &&
             (identical(other.thumbnailUrl, thumbnailUrl) ||
                 other.thumbnailUrl == thumbnailUrl) &&
             (identical(other.author, author) || other.author == author) &&
@@ -467,6 +486,7 @@ class _PostResponseDto implements PostResponseDto {
       id,
       title,
       contentMarkdown,
+      summary,
       thumbnailUrl,
       author,
       const DeepCollectionEquality().hash(_collaborators),
@@ -476,7 +496,7 @@ class _PostResponseDto implements PostResponseDto {
 
   @override
   String toString() {
-    return 'PostResponseDto(id: $id, title: $title, contentMarkdown: $contentMarkdown, thumbnailUrl: $thumbnailUrl, author: $author, collaborators: $collaborators, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'PostResponseDto(id: $id, title: $title, contentMarkdown: $contentMarkdown, summary: $summary, thumbnailUrl: $thumbnailUrl, author: $author, collaborators: $collaborators, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -492,6 +512,7 @@ abstract mixin class _$PostResponseDtoCopyWith<$Res>
       {String id,
       String title,
       String contentMarkdown,
+      String? summary,
       String? thumbnailUrl,
       PostAuthorResponseDto author,
       List<PostAuthorResponseDto> collaborators,
@@ -519,6 +540,7 @@ class __$PostResponseDtoCopyWithImpl<$Res>
     Object? id = null,
     Object? title = null,
     Object? contentMarkdown = null,
+    Object? summary = freezed,
     Object? thumbnailUrl = freezed,
     Object? author = null,
     Object? collaborators = null,
@@ -539,6 +561,10 @@ class __$PostResponseDtoCopyWithImpl<$Res>
           ? _self.contentMarkdown
           : contentMarkdown // ignore: cast_nullable_to_non_nullable
               as String,
+      summary: freezed == summary
+          ? _self.summary
+          : summary // ignore: cast_nullable_to_non_nullable
+              as String?,
       thumbnailUrl: freezed == thumbnailUrl
           ? _self.thumbnailUrl
           : thumbnailUrl // ignore: cast_nullable_to_non_nullable

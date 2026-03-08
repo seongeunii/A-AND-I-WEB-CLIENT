@@ -19,6 +19,7 @@ abstract class PostRemoteDatasource {
     String authorization,
     String title,
     String contentMarkdown,
+    String? summary,
     String authorId,
     String authorNickname,
     String? authorProfileImageUrl,
@@ -36,6 +37,7 @@ abstract class PostRemoteDatasource {
     String postId,
     String? title,
     String? contentMarkdown,
+    String? summary,
     String? status,
     List<PostAuthor> collaborators,
     MultipartFile? thumbnail,
@@ -91,6 +93,7 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
     String authorization,
     String title,
     String contentMarkdown,
+    String? summary,
     String authorId,
     String authorNickname,
     String? authorProfileImageUrl,
@@ -101,6 +104,7 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
     final postJson = <String, dynamic>{
       'title': title,
       'contentMarkdown': contentMarkdown,
+      if (summary != null) 'summary': summary,
       'author': <String, dynamic>{
         'id': authorId,
         'nickname': authorNickname,
@@ -153,6 +157,7 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
     String postId,
     String? title,
     String? contentMarkdown,
+    String? summary,
     String? status,
     List<PostAuthor> collaborators,
     MultipartFile? thumbnail,
@@ -161,6 +166,7 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
       if (title != null && title.isNotEmpty) 'title': title,
       if (contentMarkdown != null && contentMarkdown.isNotEmpty)
         'contentMarkdown': contentMarkdown,
+      if (summary != null) 'summary': summary,
       if (collaborators.isNotEmpty)
         'collaborators': _toCollaboratorJson(collaborators),
       if (status != null && status.isNotEmpty) 'status': status,

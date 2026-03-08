@@ -11,6 +11,7 @@ _PostResponseDto _$PostResponseDtoFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       title: json['title'] as String,
       contentMarkdown: json['contentMarkdown'] as String,
+      summary: json['summary'] as String?,
       thumbnailUrl: json['thumbnailUrl'] as String?,
       author: PostAuthorResponseDto.fromJson(
           json['author'] as Map<String, dynamic>),
@@ -29,6 +30,7 @@ Map<String, dynamic> _$PostResponseDtoToJson(_PostResponseDto instance) =>
       'id': instance.id,
       'title': instance.title,
       'contentMarkdown': instance.contentMarkdown,
+      'summary': instance.summary,
       'thumbnailUrl': instance.thumbnailUrl,
       'author': instance.author,
       'collaborators': instance.collaborators,
