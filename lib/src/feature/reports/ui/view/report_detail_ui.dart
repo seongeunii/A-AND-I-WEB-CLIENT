@@ -30,7 +30,7 @@ class ReportDetailUI extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(reportDetailViewModelProvider(id));
+    final state = ref.watch(reportDetailViewModelProvider(courseSlug, id));
     final isDarkMode = ref.watch(studyDarkModeProvider);
     final isLoggedIn = ref.watch(authViewModelProvider).status ==
         AuthenticationStatus.authenticated;

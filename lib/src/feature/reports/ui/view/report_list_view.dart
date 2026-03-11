@@ -381,10 +381,12 @@ class _CourseSectionCard extends StatelessWidget {
   const _CourseSectionCard({
     required this.palette,
     required this.section,
+    required this.courseSlug,
   });
 
   final _Palette palette;
   final _CourseSection section;
+  final String courseSlug;
 
   @override
   Widget build(BuildContext context) {
@@ -453,6 +455,7 @@ class _CourseSectionCard extends StatelessWidget {
                 child: _WeekGroupCard(
                   palette: palette,
                   weekGroup: weekGroup,
+                  courseSlug: courseSlug,
                 ),
               );
             }).toList(),
@@ -467,10 +470,12 @@ class _WeekGroupCard extends StatelessWidget {
   const _WeekGroupCard({
     required this.palette,
     required this.weekGroup,
+    required this.courseSlug,
   });
 
   final _Palette palette;
   final _WeekGroup weekGroup;
+  final String courseSlug;
 
   @override
   Widget build(BuildContext context) {
@@ -504,6 +509,7 @@ class _WeekGroupCard extends StatelessWidget {
               child: _ReportTile(
                 palette: palette,
                 report: report,
+                courseSlug: courseSlug,
               ),
             );
           }).toList(),
@@ -568,10 +574,12 @@ class _ReportTile extends StatelessWidget {
   const _ReportTile({
     required this.palette,
     required this.report,
+    required this.courseSlug,
   });
 
   final _Palette palette;
   final ReportSummary report;
+  final String courseSlug;
 
   @override
   Widget build(BuildContext context) {
@@ -580,7 +588,7 @@ class _ReportTile extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(14),
       onTap: () => context.go(
-        '/report/${report.id}?endAt=${report.endAt.millisecondsSinceEpoch}',
+        '/report/${report.id}?courseSlug=${Uri.encodeComponent(courseSlug)}&endAt=${report.endAt.millisecondsSinceEpoch}&week=${report.week}&seq=${report.seq}',
       ),
       child: Container(
         width: double.infinity,
