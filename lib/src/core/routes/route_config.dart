@@ -64,6 +64,7 @@ GoRouter goRouter(Ref ref) {
       // 1. 비로그인 상태인데 보호된 페이지로 접근하려 할 때
       if (isUnauthenticated &&
           (location.startsWith('/report') ||
+              location.startsWith('/course') ||
               location.startsWith('/my-account'))) {
         final fromPath = state.uri.toString();
         return '/sign-in?from=${Uri.encodeComponent(fromPath)}';
@@ -176,14 +177,18 @@ GoRouter goRouter(Ref ref) {
         path: '/report',
         name: "멘토링 | A&I",
         pageBuilder: (context, state) {
+          final courseSlug = state.uri.queryParameters['courseSlug'] ?? '';
           html.document.title = "멘토링 | A&I";
-          return NoTransitionPage(child: const ReportListView());
+          return NoTransitionPage(
+            child: ReportListView(courseSlug: courseSlug),
+          );
         },
         routes: [
           GoRoute(
             path: ':id',
             name: '멘토링 상세 | A&I',
             pageBuilder: (context, state) {
+              final courseSlug = state.uri.queryParameters['courseSlug'] ?? '';
               final endAtMs = state.uri.queryParameters['endAt'];
               final week = state.uri.queryParameters['week'];
               final seq = state.uri.queryParameters['seq'];
@@ -195,6 +200,7 @@ GoRouter goRouter(Ref ref) {
 
               return NoTransitionPage(
                 child: ReportDetailUI(
+                  courseSlug: courseSlug,
                   id: state.pathParameters['id']!,
                   endAt: parsedEndAtMs != null
                       ? DateTime.fromMillisecondsSinceEpoch(parsedEndAtMs)

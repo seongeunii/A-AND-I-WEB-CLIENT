@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/utils/api_error_mapper.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/domain/repositories/auth_repository.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/data/entities/report_summary.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/data/repositories/report_summary_repository.dart';
@@ -18,7 +19,11 @@ final class GetReportSummaryUsecaseImpl implements GetReportSummaryUsecase {
   });
 
   @override
-  Future<List<ReportSummary>> call() async {
+  Future<List<ReportSummary>> call(String courseSlug) async {
+    if (courseSlug.trim().isEmpty) {
+      throw Exception('코스 슬러그가 없어 과제 목록을 조회할 수 없습니다.');
+    }
+
     // 세션 스토리지에서 토큰 가져오기
     final token = await authRepository.getToken();
     // 토큰이 없으면 인증되지 않은 사용자
@@ -27,11 +32,80 @@ final class GetReportSummaryUsecaseImpl implements GetReportSummaryUsecase {
     }
 
     final authorization = 'Bearer $token';
-    return await reportSummaryRepository.getReportSummaries(authorization);
+    try {
+      final weekResponse = await reportSummaryRepository.getWeeks(
+        authorization,
+        courseSlug,
+      );
+
+      if (!weekResponse.success) {
+        throw Exception(
+          ApiErrorMapper.mapApiError(
+            code: weekResponse.error?.code,
+            message: weekResponse.error?.message,
+            fallbackMessage: '주차 목록 조회에 실패했습니다.',
+          ),
+        );
+      }
+
+      final weekNumbers = weekResponse.data
+          .map((week) => week.weekNo)
+          .where((weekNo) => weekNo > 0)
+          .toList(growable: false);
+
+      if (weekNumbers.isEmpty) {
+        return const <ReportSummary>[];
+      }
+
+      final assignmentResponses = await Future.wait(
+        weekNumbers.map(
+          (weekNo) => reportSummaryRepository.getReportSummaries(
+            authorization,
+            courseSlug,
+            weekNo,
+            'PUBLISHED',
+          ),
+        ),
+      );
+
+      final reports = <ReportSummary>[];
+
+      for (final response in assignmentResponses) {
+        if (!response.success) {
+          throw Exception(
+            ApiErrorMapper.mapApiError(
+              code: response.error?.code,
+              message: response.error?.message,
+              fallbackMessage: '과제 목록 조회에 실패했습니다.',
+            ),
+          );
+        }
+
+        reports.addAll(response.data);
+      }
+
+      reports.sort((a, b) {
+        final weekCompare = a.week.compareTo(b.week);
+        if (weekCompare != 0) {
+          return weekCompare;
+        }
+
+        return a.seq.compareTo(b.seq);
+      });
+
+      return reports;
+    } catch (error) {
+      throw Exception(
+        ApiErrorMapper.map(
+          error,
+          fallbackMessage: '과제 목록 조회에 실패했습니다.',
+        ),
+      );
+    }
   }
 }
 
 /// 과제 목록 조회 UseCase 인터페이스입니다.
 abstract class GetReportSummaryUsecase {
-  Future<List<ReportSummary>> call();
+  Future<List<ReportSummary>> call(String courseSlug);
 }

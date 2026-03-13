@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/utils/api_error_mapper.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/domain/repositories/auth_repository.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/data/entities/report.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/data/repositories/report_repository.dart';
@@ -17,7 +18,7 @@ final class GetReportDetailUsecaseImpl implements GetReportDetailUsecase {
   });
 
   @override
-  Future<Report> call(String id) async {
+  Future<Report> call(String courseSlug, String assignmentId) async {
     // 세션 스토리지에서 토큰 가져오기
     final token = await authRepository.getToken();
 
@@ -27,11 +28,37 @@ final class GetReportDetailUsecaseImpl implements GetReportDetailUsecase {
     }
 
     final authorization = 'Bearer $token';
-    return await reportRepository.getReportDetailById(id, authorization);
+
+    try {
+      final response = await reportRepository.getReportDetailById(
+        courseSlug,
+        assignmentId,
+        authorization,
+      );
+
+      if (!response.success || response.data == null) {
+        throw Exception(
+          ApiErrorMapper.mapApiError(
+            code: response.error?.code,
+            message: response.error?.message,
+            fallbackMessage: '과제 상세 조회에 실패했습니다.',
+          ),
+        );
+      }
+
+      return response.data!;
+    } catch (error) {
+      throw Exception(
+        ApiErrorMapper.map(
+          error,
+          fallbackMessage: '과제 상세 조회에 실패했습니다.',
+        ),
+      );
+    }
   }
 }
 
 /// 과제 상세 정보 조회 UseCase 인터페이스입니다.
 abstract class GetReportDetailUsecase {
-  Future<Report> call(String id);
+  Future<Report> call(String courseSlug, String assignmentId);
 }

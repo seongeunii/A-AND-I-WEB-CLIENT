@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/utils/api_error_mapper.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/domain/repositories/auth_repository.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/data/entities/course.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/data/repositories/course_repository.dart';
@@ -27,6 +28,30 @@ final class GetCourseBySlugUsecaseImpl implements GetCourseBySlugUsecase {
     }
 
     final authorization = 'Bearer $token';
-    return _courseRepository.getCourseBySlug(authorization, courseSlug);
+    try {
+      final response = await _courseRepository.getCourseBySlugFromCourses(
+        authorization,
+        courseSlug,
+      );
+
+      if (!response.success || response.data == null) {
+        throw Exception(
+          ApiErrorMapper.mapApiError(
+            code: response.error?.code,
+            message: response.error?.message,
+            fallbackMessage: '코스 상세 조회에 실패했습니다.',
+          ),
+        );
+      }
+
+      return response.data!;
+    } catch (error) {
+      throw Exception(
+        ApiErrorMapper.map(
+          error,
+          fallbackMessage: '코스 상세 조회에 실패했습니다.',
+        ),
+      );
+    }
   }
 }
