@@ -151,7 +151,7 @@ class _CourseListViewState extends ConsumerState<CourseListView> {
             _CourseCard(
               palette: palette,
               data: _toCourseCardData(courses[index]),
-              onTapAction: _isCourseActive(courses[index])
+              onTapCourse: _isCourseActive(courses[index])
                   ? () => context.go(
                         '/report?courseSlug=${Uri.encodeComponent(courses[index].slug)}',
                       )
@@ -311,63 +311,65 @@ class _CourseCard extends StatelessWidget {
   const _CourseCard({
     required this.palette,
     required this.data,
-    required this.onTapAction,
+    required this.onTapCourse,
   });
 
   final _CoursePalette palette;
   final _CourseCardData data;
-  final VoidCallback? onTapAction;
+  final VoidCallback? onTapCourse;
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final isMobile = width < 768;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: palette.cardBackground,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: palette.border),
-        boxShadow: [
-          BoxShadow(
-            color: palette.cardShadow,
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: isMobile
-          ? Column(
-              children: [
-                _CourseVisual(
-                  palette: palette,
-                  icon: data.visualIcon,
-                ),
-                _CourseCardContent(
-                  palette: palette,
-                  data: data,
-                  onTapAction: onTapAction,
-                ),
-              ],
-            )
-          : Row(
-              children: [
-                SizedBox(
-                  width: 300,
-                  child: _CourseVisual(
+    return InkWell(
+      borderRadius: BorderRadius.circular(30),
+      onTap: onTapCourse,
+      child: Container(
+        decoration: BoxDecoration(
+          color: palette.cardBackground,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: palette.border),
+          boxShadow: [
+            BoxShadow(
+              color: palette.cardShadow,
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: isMobile
+            ? Column(
+                children: [
+                  _CourseVisual(
                     palette: palette,
                     icon: data.visualIcon,
                   ),
-                ),
-                Expanded(
-                  child: _CourseCardContent(
+                  _CourseCardContent(
                     palette: palette,
                     data: data,
-                    onTapAction: onTapAction,
                   ),
-                ),
-              ],
-            ),
+                ],
+              )
+            : Row(
+                children: [
+                  SizedBox(
+                    width: 300,
+                    child: _CourseVisual(
+                      palette: palette,
+                      icon: data.visualIcon,
+                    ),
+                  ),
+                  Expanded(
+                    child: _CourseCardContent(
+                      palette: palette,
+                      data: data,
+                    ),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }
@@ -414,12 +416,10 @@ class _CourseCardContent extends StatelessWidget {
   const _CourseCardContent({
     required this.palette,
     required this.data,
-    required this.onTapAction,
   });
 
   final _CoursePalette palette;
   final _CourseCardData data;
-  final VoidCallback? onTapAction;
 
   @override
   Widget build(BuildContext context) {
@@ -430,29 +430,6 @@ class _CourseCardContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: data.badgeBackground,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: data.badgeBorder),
-                ),
-                child: Text(
-                  data.badgeLabel,
-                  style: TextStyle(
-                    color: data.badgeText,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.7,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
           Text(
             data.title,
             style: TextStyle(
@@ -481,32 +458,8 @@ class _CourseCardContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          data.isActive
-              ? _buildActiveBottom(context)
-              : _buildLockedBottom(context),
+          if (!data.isActive) _buildLockedBottom(context),
         ],
-      ),
-    );
-  }
-
-  Widget _buildActiveBottom(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: FilledButton(
-        onPressed: onTapAction,
-        style: FilledButton.styleFrom(
-          backgroundColor: palette.actionButtonBackground,
-          foregroundColor: palette.actionButtonForeground,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 14,
-          ),
-        ),
-        child: const Text('학습하기'),
       ),
     );
   }
