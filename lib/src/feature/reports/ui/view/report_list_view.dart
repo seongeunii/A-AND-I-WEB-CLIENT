@@ -73,99 +73,88 @@ class _ReportListViewState extends ConsumerState<ReportListView> {
                         context.go('/course');
                       },
                     ),
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 896),
-                        child: Padding(
-                          padding: EdgeInsets.only(top: isMobile ? 34 : 48),
-                          child: Column(
-                            children: [
-                              Text(
-                                '목차',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: palette.textPrimary,
-                                  fontSize: isMobile ? 36 : 50,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -1.0,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                '학습 과정 및 과제 현황을 한눈에 확인하세요.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: palette.textMuted,
-                                  fontSize: isMobile ? 15 : 18,
-                                  height: 1.5,
-                                ),
-                              ),
-                            ],
+                    Padding(
+                      padding: EdgeInsets.only(top: isMobile ? 34 : 48),
+                      child: Column(
+                        children: [
+                          Text(
+                            '목차',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: palette.textPrimary,
+                              fontSize: isMobile ? 36 : 50,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -1.0,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 10),
+                          Text(
+                            '학습 과정 및 과제 현황을 한눈에 확인하세요.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: palette.textMuted,
+                              fontSize: isMobile ? 15 : 18,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 896),
-                        child: Column(
-                          children: [
-                            SizedBox(height: isMobile ? 24 : 30),
-                            reportListStateAsync.when(
-                              data: (state) {
-                                if (state.errorMsg.isNotEmpty) {
-                                  return _FeedbackCard(
-                                    palette: palette,
-                                    message: state.errorMsg,
-                                  );
-                                }
-
-                                final sections = _buildSections(state.reports);
-                                if (sections.isEmpty) {
-                                  return _FeedbackCard(
-                                    palette: palette,
-                                    message: '표시할 과제가 없습니다.',
-                                  );
-                                }
-
-                                return Column(
-                                  children: [
-                                    ...sections.map(
-                                      (section) => Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 22),
-                                        child: _CourseSectionCard(
-                                          palette: palette,
-                                          section: section,
-                                          courseSlug: widget.courseSlug,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: isMobile ? 56 : 80),
-                                    _Footer(palette: palette),
-                                    const SizedBox(height: 20),
-                                  ],
-                                );
-                              },
-                              loading: () => Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: isMobile ? 52 : 68,
-                                ),
-                                child: CircularProgressIndicator(
-                                  color: palette.textPrimary,
-                                ),
-                              ),
-                              error: (error, _) => _FeedbackCard(
+                    Column(
+                      children: [
+                        SizedBox(height: isMobile ? 24 : 30),
+                        reportListStateAsync.when(
+                          data: (state) {
+                            if (state.errorMsg.isNotEmpty) {
+                              return _FeedbackCard(
                                 palette: palette,
-                                message: ApiErrorMapper.map(
-                                  error,
-                                  fallbackMessage: '과제 목록을 불러오지 못했습니다.',
+                                message: state.errorMsg,
+                              );
+                            }
+
+                            final sections = _buildSections(state.reports);
+                            if (sections.isEmpty) {
+                              return _FeedbackCard(
+                                palette: palette,
+                                message: '표시할 과제가 없습니다.',
+                              );
+                            }
+
+                            return Column(
+                              children: [
+                                ...sections.map(
+                                  (section) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 22),
+                                    child: _CourseSectionCard(
+                                      palette: palette,
+                                      section: section,
+                                      courseSlug: widget.courseSlug,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                SizedBox(height: isMobile ? 56 : 80),
+                                _Footer(palette: palette),
+                                const SizedBox(height: 20),
+                              ],
+                            );
+                          },
+                          loading: () => Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: isMobile ? 52 : 68,
                             ),
-                          ],
+                            child: CircularProgressIndicator(
+                              color: palette.textPrimary,
+                            ),
+                          ),
+                          error: (error, _) => _FeedbackCard(
+                            palette: palette,
+                            message: ApiErrorMapper.map(
+                              error,
+                              fallbackMessage: '과제 목록을 불러오지 못했습니다.',
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -418,13 +407,6 @@ class _CourseSectionCard extends StatelessWidget {
         color: palette.cardBackground,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: palette.border),
-        boxShadow: [
-          BoxShadow(
-            color: palette.cardShadow,
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,11 +415,14 @@ class _CourseSectionCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 6,
-                height: isMobile ? 30 : 36,
-                decoration: BoxDecoration(
-                  color: palette.textPrimary,
-                  borderRadius: BorderRadius.circular(999),
+                padding: EdgeInsets.only(top: isMobile ? 5 : 7),
+                child: Container(
+                  width: 6,
+                  height: isMobile ? 30 : 36,
+                  decoration: BoxDecoration(
+                    color: palette.textPrimary,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
                 ),
               ),
               const SizedBox(width: 14),
