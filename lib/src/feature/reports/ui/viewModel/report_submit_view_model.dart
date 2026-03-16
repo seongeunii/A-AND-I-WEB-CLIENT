@@ -174,7 +174,7 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
   void _applyResult(SubmissionResult result) {
     final nextStatus = _mapSubmissionStatus(result.status);
     final passedCount =
-        result.testCases.where((testCase) => testCase.status == 'ACCEPTED').length;
+        result.testCases.where((testCase) => testCase.status == 'PASSED').length;
     final totalCount = result.testCases.length;
     final score = totalCount == 0 ? 0 : ((passedCount / totalCount) * 100).round();
 
@@ -230,7 +230,7 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
     final feedbacks = <String>[];
     for (final testCase in result.testCases) {
       final status = testCase.status ?? 'UNKNOWN';
-      if (status == 'ACCEPTED') {
+      if (status == 'PASSED') {
         feedbacks.add(
           '${testCase.caseId ?? '-'}번 테스트 케이스를 통과했습니다.',
         );
