@@ -126,13 +126,17 @@ class _CourseListViewState extends ConsumerState<CourseListView> {
             error,
             fallbackMessage: '코스 목록을 불러오지 못했습니다.',
           ),
-        ];
-      case CourseListViewStatus.done:
-        final courses = List<Course>.of(courseListState.courses)
-          ..sort((prev, curr) =>
-              prev.metadata.title.compareTo(curr.metadata.title));
-        if (courses.isEmpty) {
-          return [
+        ),
+      ],
+      data: (courses) {
+        final sortedCourses = List<Course>.of(courses)
+          ..sort(
+            (prev, curr) =>
+                prev.metadata.title.compareTo(curr.metadata.title),
+          );
+
+        if (sortedCourses.isEmpty) {
+          return <Widget>[
             _CourseFeedbackCard(
               palette: palette,
               message: '표시할 코스가 없습니다.',

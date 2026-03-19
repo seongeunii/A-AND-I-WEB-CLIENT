@@ -6,7 +6,7 @@ part of 'apply_view.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$applyViewHash() => r'28cbbf88b839163bbe23984ddd1fac08af48c214';
+String _$applyViewHash() => r'98df69f2ee2ac92fed1716ca468d510e5cc8b78e';
 
 /// See also [ApplyView].
 @ProviderFor(ApplyView)
