@@ -6,36 +6,115 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'report_summary_response_dto.freezed.dart';
 part 'report_summary_response_dto.g.dart';
 
-/// 주차 목록 API 응답 DTO입니다.
+/// 코스 목차 API 응답 DTO입니다.
 @freezed
-abstract class WeekListResponseDto with _$WeekListResponseDto {
-  /// 주차 목록 API 응답 DTO를 생성합니다.
-  const factory WeekListResponseDto({
+abstract class CourseOutlineResponseDto with _$CourseOutlineResponseDto {
+  /// 코스 목차 API 응답 DTO를 생성합니다.
+  const factory CourseOutlineResponseDto({
     required bool success,
-    required List<CourseWeekDto> data,
+    CourseOutlineDataDto? data,
     ErrorData? error,
     String? timestamp,
-  }) = _WeekListResponseDto;
+  }) = _CourseOutlineResponseDto;
 
-  factory WeekListResponseDto.fromJson(Map<String, dynamic> json) =>
-      _$WeekListResponseDtoFromJson(json);
-}
-
-/// 주차 정보 DTO입니다.
-@freezed
-abstract class CourseWeekDto with _$CourseWeekDto {
-  /// 주차 정보 DTO를 생성합니다.
-  const factory CourseWeekDto({
-    required String id,
-    required int weekNo,
-    required String title,
-    required DateTime? startDate,
-    required DateTime? endDate,
-  }) = _CourseWeekDto;
+  const CourseOutlineResponseDto._();
 
   /// JSON 응답을 DTO로 변환합니다.
-  factory CourseWeekDto.fromJson(Map<String, dynamic> json) =>
-      _$CourseWeekDtoFromJson(json);
+  factory CourseOutlineResponseDto.fromJson(Map<String, dynamic> json) =>
+      _$CourseOutlineResponseDtoFromJson(json);
+
+  /// 목차 응답을 화면용 요약 목록으로 변환합니다.
+  List<ReportSummary> toSummaries() {
+    final outline = data;
+    if (outline == null) {
+      return const <ReportSummary>[];
+    }
+
+    final reportType = _parseReportType(outline.course.phase);
+    if (reportType == null) {
+      return const <ReportSummary>[];
+    }
+
+    return outline.assignments
+        .map(
+          (assignment) => assignment.toSummary(reportType),
+        )
+        .whereType<ReportSummary>()
+        .toList(growable: false);
+  }
+}
+
+/// 코스 목차 데이터 DTO입니다.
+@freezed
+abstract class CourseOutlineDataDto with _$CourseOutlineDataDto {
+  /// 코스 목차 데이터 DTO를 생성합니다.
+  const factory CourseOutlineDataDto({
+    required CourseOutlineHeaderDto course,
+    @Default(0) int totalAssignments,
+    @Default(<CourseOutlineAssignmentDto>[]) List<CourseOutlineAssignmentDto> assignments,
+  }) = _CourseOutlineDataDto;
+
+  /// JSON 응답을 DTO로 변환합니다.
+  factory CourseOutlineDataDto.fromJson(Map<String, dynamic> json) =>
+      _$CourseOutlineDataDtoFromJson(json);
+}
+
+/// 목차 헤더 코스 DTO입니다.
+@freezed
+abstract class CourseOutlineHeaderDto with _$CourseOutlineHeaderDto {
+  /// 목차 헤더 코스 DTO를 생성합니다.
+  const factory CourseOutlineHeaderDto({
+    required String id,
+    required String slug,
+    required String fieldTag,
+    required String title,
+    required String description,
+    required String phase,
+  }) = _CourseOutlineHeaderDto;
+
+  /// JSON 응답을 DTO로 변환합니다.
+  factory CourseOutlineHeaderDto.fromJson(Map<String, dynamic> json) =>
+      _$CourseOutlineHeaderDtoFromJson(json);
+}
+
+/// 목차 과제 항목 DTO입니다.
+@freezed
+abstract class CourseOutlineAssignmentDto with _$CourseOutlineAssignmentDto {
+  /// 목차 과제 항목 DTO를 생성합니다.
+  const factory CourseOutlineAssignmentDto({
+    required String assignmentId,
+    required int weekNo,
+    required int orderInWeek,
+    required String title,
+    required String difficulty,
+    required DateTime startAt,
+    required DateTime endAt,
+    @Default(false) bool checked,
+  }) = _CourseOutlineAssignmentDto;
+
+  const CourseOutlineAssignmentDto._();
+
+  /// JSON 응답을 DTO로 변환합니다.
+  factory CourseOutlineAssignmentDto.fromJson(Map<String, dynamic> json) =>
+      _$CourseOutlineAssignmentDtoFromJson(json);
+
+  /// 화면용 요약 엔티티로 변환합니다.
+  ReportSummary? toSummary(ReportType reportType) {
+    final level = _parseLevel(difficulty);
+    if (level == null) {
+      return null;
+    }
+
+    return ReportSummary(
+      id: assignmentId,
+      week: weekNo,
+      seq: orderInWeek,
+      title: title,
+      level: level,
+      reportType: reportType,
+      endAt: endAt,
+    );
+  }
 }
 
 /// 주차별 과제 목록 API 응답 DTO입니다.
@@ -76,7 +155,7 @@ abstract class ReportSummaryResponseDto with _$ReportSummaryResponseDto {
     final attributes =
         metadata is Map<String, dynamic> ? metadata['attributes'] : null;
 
-    final id = json['id']?.toString();
+    final id = json['assignmentId']?.toString() ?? json['id']?.toString();
     final week = _asInt(json['weekNo']);
     final seq = _asInt(json['orderInWeek']) ?? 0;
     final title =
@@ -85,7 +164,9 @@ abstract class ReportSummaryResponseDto with _$ReportSummaryResponseDto {
       metadata is Map<String, dynamic> ? metadata['difficulty'] : null,
     );
     final reportType = _parseReportType(
-      attributes is Map<String, dynamic> ? attributes['reportType'] : null,
+      attributes is Map<String, dynamic>
+          ? attributes['legacyReportType'] ?? attributes['reportType']
+          : null,
     );
     final endAt = _parseDateTime(json['endAt']);
 
@@ -137,9 +218,9 @@ Level? _parseLevel(Object? value) {
   }
 
   return switch (normalized) {
-    'VERYHIGH' => Level.VERYHIGH,
+    'VERY_HIGH' || 'VERYHIGH' => Level.VERYHIGH,
     'HIGH' => Level.HIGH,
-    'MEDIUM' => Level.MEDIUM,
+    'MID' || 'MEDIUM' => Level.MEDIUM,
     'LOW' => Level.LOW,
     _ => null,
   };
@@ -154,6 +235,7 @@ ReportType? _parseReportType(Object? value) {
   return switch (normalized) {
     'CS' => ReportType.CS,
     'BASIC' => ReportType.BASIC,
+    'FRAMEWORK' => ReportType.BASIC,
     _ => null,
   };
 }

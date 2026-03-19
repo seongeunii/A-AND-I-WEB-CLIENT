@@ -18,7 +18,7 @@ class _ReportSummaryRepository implements ReportSummaryRepository {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<WeekListResponseDto> getWeeks(
+  Future<CourseOutlineResponseDto> getOutline(
     String authorization,
     String courseSlug,
   ) async {
@@ -30,7 +30,7 @@ class _ReportSummaryRepository implements ReportSummaryRepository {
     };
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<WeekListResponseDto>(
+    final _options = _setStreamType<CourseOutlineResponseDto>(
       Options(
         method: 'GET',
         headers: _headers,
@@ -39,57 +39,16 @@ class _ReportSummaryRepository implements ReportSummaryRepository {
       )
           .compose(
             _dio.options,
-            '/v1/courses/${courseSlug}/weeks',
+            '/v1/courses/${courseSlug}/outline',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late WeekListResponseDto _value;
+    late CourseOutlineResponseDto _value;
     try {
-      _value = WeekListResponseDto.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<ReportSummaryResponseDto> getReportSummaries(
-    String authorization,
-    String courseSlug,
-    int weekNo,
-    String status,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'status': status};
-    final _headers = <String, dynamic>{
-      r'Content-Type': 'application/json',
-      r'Authorization': authorization,
-    };
-    _headers.removeWhere((k, v) => v == null);
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<ReportSummaryResponseDto>(
-      Options(
-        method: 'GET',
-        headers: _headers,
-        extra: _extra,
-        contentType: 'application/json',
-      )
-          .compose(
-            _dio.options,
-            '/v1/courses/${courseSlug}/weeks/${weekNo}/assignments',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ReportSummaryResponseDto _value;
-    try {
-      _value = ReportSummaryResponseDto.fromJson(_result.data!);
+      _value = CourseOutlineResponseDto.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

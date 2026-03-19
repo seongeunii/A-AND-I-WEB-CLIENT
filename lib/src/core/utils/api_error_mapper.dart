@@ -65,33 +65,47 @@ final class ApiErrorMapper {
     final message = errorMap is Map<String, dynamic>
         ? errorMap['message']?.toString()
         : null;
+    final topLevelError = data is Map<String, dynamic> ? data['error']?.toString() : null;
+    final requestId = data is Map<String, dynamic> ? data['requestId']?.toString() : null;
+    final resolvedMessage = message?.isNotEmpty == true ? message : topLevelError;
+    final fallbackWithRequestId = requestId?.isNotEmpty == true
+        ? '$fallbackMessage (requestId: $requestId)'
+        : fallbackMessage;
 
     final statusCode = error.response?.statusCode;
     if (statusCode != null) {
       return switch (statusCode) {
         400 => mapApiError(
             code: code,
-            message: message,
-            fallbackMessage: '요청 값이 올바르지 않습니다.',
+            message: resolvedMessage,
+            fallbackMessage: requestId?.isNotEmpty == true
+                ? '요청 값이 올바르지 않습니다. (requestId: $requestId)'
+                : '요청 값이 올바르지 않습니다.',
           ),
         401 => '로그인이 필요하거나 인증이 만료되었습니다.',
         403 => '요청을 수행할 권한이 없습니다.',
-        404 => message?.isNotEmpty == true ? message! : '요청한 리소스를 찾을 수 없습니다.',
-        409 => message?.isNotEmpty == true ? message! : '이미 존재하거나 현재 상태에서 처리할 수 없습니다.',
-        422 => message?.isNotEmpty == true ? message! : '요청은 유효하지만 처리할 수 없습니다.',
+        404 => resolvedMessage?.isNotEmpty == true
+            ? resolvedMessage!
+            : '요청한 리소스를 찾을 수 없습니다.',
+        409 => resolvedMessage?.isNotEmpty == true
+            ? resolvedMessage!
+            : '이미 존재하거나 현재 상태에서 처리할 수 없습니다.',
+        422 => resolvedMessage?.isNotEmpty == true
+            ? resolvedMessage!
+            : '요청은 유효하지만 처리할 수 없습니다.',
         500 => '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
         _ => mapApiError(
             code: code,
-            message: message,
-            fallbackMessage: fallbackMessage,
+            message: resolvedMessage,
+            fallbackMessage: fallbackWithRequestId,
           ),
       };
     }
 
     return mapApiError(
       code: code,
-      message: message,
-      fallbackMessage: fallbackMessage,
+      message: resolvedMessage,
+      fallbackMessage: fallbackWithRequestId,
     );
   }
 

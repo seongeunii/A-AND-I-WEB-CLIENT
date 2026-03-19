@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:a_and_i_report_web_server/src/core/utils/api_error_mapper.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/data/entities/submission_result.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/providers/create_submission_usecase_provider.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/providers/get_submission_result_usecase_provider.dart';
@@ -87,10 +88,13 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
       return false;
     }
 
-    // TODO(choseoungeun): assignment detail 응답에 problemId가 항상 내려오면 fallback을 제거합니다.
-    final resolvedProblemId = problemId?.trim().isNotEmpty == true
-        ? problemId!.trim()
-        : 'quiz-101';
+    // TODO(choseoungeun): assignment detail 응답에 judge catalog 기준 problemId가
+    // 항상 내려오면 임시 fallback을 제거합니다.
+    final normalizedProblemId = problemId?.trim();
+    final resolvedProblemId =
+        normalizedProblemId != null && normalizedProblemId.startsWith('quiz-')
+            ? normalizedProblemId
+            : 'quiz-101';
 
     state = state.copyWith(
       isSubmitting: true,
@@ -122,14 +126,16 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
       _startPolling(response.submissionId);
       return true;
     } catch (error) {
+      final message = ApiErrorMapper.map(
+        error,
+        fallbackMessage: '소스 코드 제출에 실패했습니다.',
+      );
       state = state.copyWith(
         isSubmitting: false,
         isPolling: false,
         submissionStatus: SubmissionStatus.error,
-        errorMsg: error.toString().replaceFirst('Exception: ', ''),
-        feedbacks: <String>[
-          error.toString().replaceFirst('Exception: ', ''),
-        ],
+        errorMsg: message,
+        feedbacks: <String>[message],
       );
       return false;
     }
@@ -162,11 +168,16 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
 
       _applyResult(result);
     } catch (error) {
+      final message = ApiErrorMapper.map(
+        error,
+        fallbackMessage: '채점 결과를 불러오지 못했습니다.',
+      );
       _pollingTimer?.cancel();
       state = state.copyWith(
         isPolling: false,
         submissionStatus: SubmissionStatus.error,
-        errorMsg: error.toString().replaceFirst('Exception: ', ''),
+        errorMsg: message,
+        feedbacks: <String>[message],
       );
     }
   }
@@ -174,7 +185,7 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
   void _applyResult(SubmissionResult result) {
     final nextStatus = _mapSubmissionStatus(result.status);
     final passedCount =
-        result.testCases.where((testCase) => testCase.status == 'ACCEPTED').length;
+        result.testCases.where((testCase) => testCase.status == 'PASSED').length;
     final totalCount = result.testCases.length;
     final score = totalCount == 0 ? 0 : ((passedCount / totalCount) * 100).round();
 
@@ -230,7 +241,7 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
     final feedbacks = <String>[];
     for (final testCase in result.testCases) {
       final status = testCase.status ?? 'UNKNOWN';
-      if (status == 'ACCEPTED') {
+      if (status == 'PASSED') {
         feedbacks.add(
           '${testCase.caseId ?? '-'}번 테스트 케이스를 통과했습니다.',
         );

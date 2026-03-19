@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$SubmissionResultResponseDto {
   String get submissionId;
   String get status;
+  @JsonKey(fromJson: _parseTestCases)
   List<SubmissionTestCaseResult> get testCases;
 
   /// Create a copy of SubmissionResultResponseDto
@@ -26,6 +27,9 @@ mixin _$SubmissionResultResponseDto {
       get copyWith => _$SubmissionResultResponseDtoCopyWithImpl<
               SubmissionResultResponseDto>(
           this as SubmissionResultResponseDto, _$identity);
+
+  /// Serializes this SubmissionResultResponseDto to a JSON map.
+  Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
@@ -38,6 +42,7 @@ mixin _$SubmissionResultResponseDto {
             const DeepCollectionEquality().equals(other.testCases, testCases));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, submissionId, status,
       const DeepCollectionEquality().hash(testCases));
@@ -58,6 +63,7 @@ abstract mixin class $SubmissionResultResponseDtoCopyWith<$Res> {
   $Res call(
       {String submissionId,
       String status,
+      @JsonKey(fromJson: _parseTestCases)
       List<SubmissionTestCaseResult> testCases});
 }
 
@@ -188,7 +194,10 @@ extension SubmissionResultResponseDtoPatterns on SubmissionResultResponseDto {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String submissionId, String status,
+    TResult Function(
+            String submissionId,
+            String status,
+            @JsonKey(fromJson: _parseTestCases)
             List<SubmissionTestCaseResult> testCases)?
         $default, {
     required TResult orElse(),
@@ -217,7 +226,10 @@ extension SubmissionResultResponseDtoPatterns on SubmissionResultResponseDto {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String submissionId, String status,
+    TResult Function(
+            String submissionId,
+            String status,
+            @JsonKey(fromJson: _parseTestCases)
             List<SubmissionTestCaseResult> testCases)
         $default,
   ) {
@@ -244,7 +256,10 @@ extension SubmissionResultResponseDtoPatterns on SubmissionResultResponseDto {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String submissionId, String status,
+    TResult? Function(
+            String submissionId,
+            String status,
+            @JsonKey(fromJson: _parseTestCases)
             List<SubmissionTestCaseResult> testCases)?
         $default,
   ) {
@@ -259,15 +274,18 @@ extension SubmissionResultResponseDtoPatterns on SubmissionResultResponseDto {
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _SubmissionResultResponseDto extends SubmissionResultResponseDto {
   const _SubmissionResultResponseDto(
       {required this.submissionId,
       required this.status,
+      @JsonKey(fromJson: _parseTestCases)
       final List<SubmissionTestCaseResult> testCases =
           const <SubmissionTestCaseResult>[]})
       : _testCases = testCases,
         super._();
+  factory _SubmissionResultResponseDto.fromJson(Map<String, dynamic> json) =>
+      _$SubmissionResultResponseDtoFromJson(json);
 
   @override
   final String submissionId;
@@ -275,7 +293,7 @@ class _SubmissionResultResponseDto extends SubmissionResultResponseDto {
   final String status;
   final List<SubmissionTestCaseResult> _testCases;
   @override
-  @JsonKey()
+  @JsonKey(fromJson: _parseTestCases)
   List<SubmissionTestCaseResult> get testCases {
     if (_testCases is EqualUnmodifiableListView) return _testCases;
     // ignore: implicit_dynamic_type
@@ -292,6 +310,13 @@ class _SubmissionResultResponseDto extends SubmissionResultResponseDto {
           _SubmissionResultResponseDto>(this, _$identity);
 
   @override
+  Map<String, dynamic> toJson() {
+    return _$SubmissionResultResponseDtoToJson(
+      this,
+    );
+  }
+
+  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
@@ -303,6 +328,7 @@ class _SubmissionResultResponseDto extends SubmissionResultResponseDto {
                 .equals(other._testCases, _testCases));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, submissionId, status,
       const DeepCollectionEquality().hash(_testCases));
@@ -325,6 +351,7 @@ abstract mixin class _$SubmissionResultResponseDtoCopyWith<$Res>
   $Res call(
       {String submissionId,
       String status,
+      @JsonKey(fromJson: _parseTestCases)
       List<SubmissionTestCaseResult> testCases});
 }
 

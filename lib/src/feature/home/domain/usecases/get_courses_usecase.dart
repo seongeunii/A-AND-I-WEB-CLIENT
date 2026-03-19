@@ -68,37 +68,7 @@ final class GetCoursesUsecaseImpl implements GetCoursesUsecase {
       }
     }
 
-    final legacyCourses = await _fetchLegacyCourses(authorization);
-    if (legacyCourses.isNotEmpty) {
-      return legacyCourses;
-    }
-
     return const [];
-  }
-
-  Future<List<Course>> _fetchLegacyCourses(String authorization) async {
-    const legacyCourseSlugs = <String>[
-      '3rd-cs-basic',
-    ];
-
-    final courses = <Course>[];
-
-    for (final slug in legacyCourseSlugs) {
-      try {
-        final response = await _courseRepository.getCourseBySlugFromCourses(
-          authorization,
-          slug,
-        );
-
-        if (response.success && response.data != null) {
-          courses.add(response.data!);
-        }
-      } catch (_) {
-        // 레거시 코스가 없거나 접근 불가한 경우 다음 slug를 계속 시도한다.
-      }
-    }
-
-    return _deduplicateCourses(courses);
   }
 
   List<Course> _deduplicateCourses(List<Course> courses) {

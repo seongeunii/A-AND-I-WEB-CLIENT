@@ -33,56 +33,22 @@ final class GetReportSummaryUsecaseImpl implements GetReportSummaryUsecase {
 
     final authorization = 'Bearer $token';
     try {
-      final weekResponse = await reportSummaryRepository.getWeeks(
+      final outlineResponse = await reportSummaryRepository.getOutline(
         authorization,
         courseSlug,
       );
 
-      if (!weekResponse.success) {
+      if (!outlineResponse.success) {
         throw Exception(
           ApiErrorMapper.mapApiError(
-            code: weekResponse.error?.code,
-            message: weekResponse.error?.message,
-            fallbackMessage: '주차 목록 조회에 실패했습니다.',
+            code: outlineResponse.error?.code,
+            message: outlineResponse.error?.message,
+            fallbackMessage: '코스 목차 조회에 실패했습니다.',
           ),
         );
       }
 
-      final weekNumbers = weekResponse.data
-          .map((week) => week.weekNo)
-          .where((weekNo) => weekNo > 0)
-          .toList(growable: false);
-
-      if (weekNumbers.isEmpty) {
-        return const <ReportSummary>[];
-      }
-
-      final assignmentResponses = await Future.wait(
-        weekNumbers.map(
-          (weekNo) => reportSummaryRepository.getReportSummaries(
-            authorization,
-            courseSlug,
-            weekNo,
-            'PUBLISHED',
-          ),
-        ),
-      );
-
-      final reports = <ReportSummary>[];
-
-      for (final response in assignmentResponses) {
-        if (!response.success) {
-          throw Exception(
-            ApiErrorMapper.mapApiError(
-              code: response.error?.code,
-              message: response.error?.message,
-              fallbackMessage: '과제 목록 조회에 실패했습니다.',
-            ),
-          );
-        }
-
-        reports.addAll(response.data);
-      }
+      final reports = outlineResponse.toSummaries();
 
       reports.sort((a, b) {
         final weekCompare = a.week.compareTo(b.week);
@@ -98,7 +64,7 @@ final class GetReportSummaryUsecaseImpl implements GetReportSummaryUsecase {
       throw Exception(
         ApiErrorMapper.map(
           error,
-          fallbackMessage: '과제 목록 조회에 실패했습니다.',
+          fallbackMessage: '코스 목차를 불러오지 못했습니다.',
         ),
       );
     }

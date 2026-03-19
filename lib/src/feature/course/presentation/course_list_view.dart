@@ -126,8 +126,8 @@ class _CourseListViewState extends ConsumerState<CourseListView> {
         ];
       case CourseListViewStatus.done:
         final courses = List<Course>.of(courseListState.courses)
-          ..sort((a, b) => a.metadata.title.compareTo(b.metadata.title));
-
+          ..sort((prev, curr) =>
+              prev.metadata.title.compareTo(curr.metadata.title));
         if (courses.isEmpty) {
           return [
             _CourseFeedbackCard(

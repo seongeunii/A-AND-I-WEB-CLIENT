@@ -13,30 +13,30 @@ part of 'report_summary_response_dto.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$WeekListResponseDto {
+mixin _$CourseOutlineResponseDto {
   bool get success;
-  List<CourseWeekDto> get data;
+  CourseOutlineDataDto? get data;
   ErrorData? get error;
   String? get timestamp;
 
-  /// Create a copy of WeekListResponseDto
+  /// Create a copy of CourseOutlineResponseDto
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $WeekListResponseDtoCopyWith<WeekListResponseDto> get copyWith =>
-      _$WeekListResponseDtoCopyWithImpl<WeekListResponseDto>(
-          this as WeekListResponseDto, _$identity);
+  $CourseOutlineResponseDtoCopyWith<CourseOutlineResponseDto> get copyWith =>
+      _$CourseOutlineResponseDtoCopyWithImpl<CourseOutlineResponseDto>(
+          this as CourseOutlineResponseDto, _$identity);
 
-  /// Serializes this WeekListResponseDto to a JSON map.
+  /// Serializes this CourseOutlineResponseDto to a JSON map.
   Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is WeekListResponseDto &&
+            other is CourseOutlineResponseDto &&
             (identical(other.success, success) || other.success == success) &&
-            const DeepCollectionEquality().equals(other.data, data) &&
+            (identical(other.data, data) || other.data == data) &&
             (identical(other.error, error) || other.error == error) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp));
@@ -44,45 +44,45 @@ mixin _$WeekListResponseDto {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, success,
-      const DeepCollectionEquality().hash(data), error, timestamp);
+  int get hashCode => Object.hash(runtimeType, success, data, error, timestamp);
 
   @override
   String toString() {
-    return 'WeekListResponseDto(success: $success, data: $data, error: $error, timestamp: $timestamp)';
+    return 'CourseOutlineResponseDto(success: $success, data: $data, error: $error, timestamp: $timestamp)';
   }
 }
 
 /// @nodoc
-abstract mixin class $WeekListResponseDtoCopyWith<$Res> {
-  factory $WeekListResponseDtoCopyWith(
-          WeekListResponseDto value, $Res Function(WeekListResponseDto) _then) =
-      _$WeekListResponseDtoCopyWithImpl;
+abstract mixin class $CourseOutlineResponseDtoCopyWith<$Res> {
+  factory $CourseOutlineResponseDtoCopyWith(CourseOutlineResponseDto value,
+          $Res Function(CourseOutlineResponseDto) _then) =
+      _$CourseOutlineResponseDtoCopyWithImpl;
   @useResult
   $Res call(
       {bool success,
-      List<CourseWeekDto> data,
+      CourseOutlineDataDto? data,
       ErrorData? error,
       String? timestamp});
 
+  $CourseOutlineDataDtoCopyWith<$Res>? get data;
   $ErrorDataCopyWith<$Res>? get error;
 }
 
 /// @nodoc
-class _$WeekListResponseDtoCopyWithImpl<$Res>
-    implements $WeekListResponseDtoCopyWith<$Res> {
-  _$WeekListResponseDtoCopyWithImpl(this._self, this._then);
+class _$CourseOutlineResponseDtoCopyWithImpl<$Res>
+    implements $CourseOutlineResponseDtoCopyWith<$Res> {
+  _$CourseOutlineResponseDtoCopyWithImpl(this._self, this._then);
 
-  final WeekListResponseDto _self;
-  final $Res Function(WeekListResponseDto) _then;
+  final CourseOutlineResponseDto _self;
+  final $Res Function(CourseOutlineResponseDto) _then;
 
-  /// Create a copy of WeekListResponseDto
+  /// Create a copy of CourseOutlineResponseDto
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? success = null,
-    Object? data = null,
+    Object? data = freezed,
     Object? error = freezed,
     Object? timestamp = freezed,
   }) {
@@ -91,10 +91,10 @@ class _$WeekListResponseDtoCopyWithImpl<$Res>
           ? _self.success
           : success // ignore: cast_nullable_to_non_nullable
               as bool,
-      data: null == data
+      data: freezed == data
           ? _self.data
           : data // ignore: cast_nullable_to_non_nullable
-              as List<CourseWeekDto>,
+              as CourseOutlineDataDto?,
       error: freezed == error
           ? _self.error
           : error // ignore: cast_nullable_to_non_nullable
@@ -106,7 +106,21 @@ class _$WeekListResponseDtoCopyWithImpl<$Res>
     ));
   }
 
-  /// Create a copy of WeekListResponseDto
+  /// Create a copy of CourseOutlineResponseDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CourseOutlineDataDtoCopyWith<$Res>? get data {
+    if (_self.data == null) {
+      return null;
+    }
+
+    return $CourseOutlineDataDtoCopyWith<$Res>(_self.data!, (value) {
+      return _then(_self.copyWith(data: value));
+    });
+  }
+
+  /// Create a copy of CourseOutlineResponseDto
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -121,8 +135,8 @@ class _$WeekListResponseDtoCopyWithImpl<$Res>
   }
 }
 
-/// Adds pattern-matching-related methods to [WeekListResponseDto].
-extension WeekListResponseDtoPatterns on WeekListResponseDto {
+/// Adds pattern-matching-related methods to [CourseOutlineResponseDto].
+extension CourseOutlineResponseDtoPatterns on CourseOutlineResponseDto {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -137,12 +151,12 @@ extension WeekListResponseDtoPatterns on WeekListResponseDto {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_WeekListResponseDto value)? $default, {
+    TResult Function(_CourseOutlineResponseDto value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _WeekListResponseDto() when $default != null:
+      case _CourseOutlineResponseDto() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -164,11 +178,11 @@ extension WeekListResponseDtoPatterns on WeekListResponseDto {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_WeekListResponseDto value) $default,
+    TResult Function(_CourseOutlineResponseDto value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _WeekListResponseDto():
+      case _CourseOutlineResponseDto():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -189,11 +203,11 @@ extension WeekListResponseDtoPatterns on WeekListResponseDto {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_WeekListResponseDto value)? $default,
+    TResult? Function(_CourseOutlineResponseDto value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _WeekListResponseDto() when $default != null:
+      case _CourseOutlineResponseDto() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -214,14 +228,14 @@ extension WeekListResponseDtoPatterns on WeekListResponseDto {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(bool success, List<CourseWeekDto> data, ErrorData? error,
+    TResult Function(bool success, CourseOutlineDataDto? data, ErrorData? error,
             String? timestamp)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _WeekListResponseDto() when $default != null:
+      case _CourseOutlineResponseDto() when $default != null:
         return $default(
             _that.success, _that.data, _that.error, _that.timestamp);
       case _:
@@ -244,13 +258,13 @@ extension WeekListResponseDtoPatterns on WeekListResponseDto {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(bool success, List<CourseWeekDto> data, ErrorData? error,
+    TResult Function(bool success, CourseOutlineDataDto? data, ErrorData? error,
             String? timestamp)
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _WeekListResponseDto():
+      case _CourseOutlineResponseDto():
         return $default(
             _that.success, _that.data, _that.error, _that.timestamp);
       case _:
@@ -272,13 +286,13 @@ extension WeekListResponseDtoPatterns on WeekListResponseDto {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(bool success, List<CourseWeekDto> data, ErrorData? error,
-            String? timestamp)?
+    TResult? Function(bool success, CourseOutlineDataDto? data,
+            ErrorData? error, String? timestamp)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _WeekListResponseDto() when $default != null:
+      case _CourseOutlineResponseDto() when $default != null:
         return $default(
             _that.success, _that.data, _that.error, _that.timestamp);
       case _:
@@ -289,43 +303,34 @@ extension WeekListResponseDtoPatterns on WeekListResponseDto {
 
 /// @nodoc
 @JsonSerializable()
-class _WeekListResponseDto implements WeekListResponseDto {
-  const _WeekListResponseDto(
-      {required this.success,
-      required final List<CourseWeekDto> data,
-      this.error,
-      this.timestamp})
-      : _data = data;
-  factory _WeekListResponseDto.fromJson(Map<String, dynamic> json) =>
-      _$WeekListResponseDtoFromJson(json);
+class _CourseOutlineResponseDto extends CourseOutlineResponseDto {
+  const _CourseOutlineResponseDto(
+      {required this.success, this.data, this.error, this.timestamp})
+      : super._();
+  factory _CourseOutlineResponseDto.fromJson(Map<String, dynamic> json) =>
+      _$CourseOutlineResponseDtoFromJson(json);
 
   @override
   final bool success;
-  final List<CourseWeekDto> _data;
   @override
-  List<CourseWeekDto> get data {
-    if (_data is EqualUnmodifiableListView) return _data;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_data);
-  }
-
+  final CourseOutlineDataDto? data;
   @override
   final ErrorData? error;
   @override
   final String? timestamp;
 
-  /// Create a copy of WeekListResponseDto
+  /// Create a copy of CourseOutlineResponseDto
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$WeekListResponseDtoCopyWith<_WeekListResponseDto> get copyWith =>
-      __$WeekListResponseDtoCopyWithImpl<_WeekListResponseDto>(
+  _$CourseOutlineResponseDtoCopyWith<_CourseOutlineResponseDto> get copyWith =>
+      __$CourseOutlineResponseDtoCopyWithImpl<_CourseOutlineResponseDto>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$WeekListResponseDtoToJson(
+    return _$CourseOutlineResponseDtoToJson(
       this,
     );
   }
@@ -334,9 +339,9 @@ class _WeekListResponseDto implements WeekListResponseDto {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _WeekListResponseDto &&
+            other is _CourseOutlineResponseDto &&
             (identical(other.success, success) || other.success == success) &&
-            const DeepCollectionEquality().equals(other._data, _data) &&
+            (identical(other.data, data) || other.data == data) &&
             (identical(other.error, error) || other.error == error) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp));
@@ -344,60 +349,61 @@ class _WeekListResponseDto implements WeekListResponseDto {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, success,
-      const DeepCollectionEquality().hash(_data), error, timestamp);
+  int get hashCode => Object.hash(runtimeType, success, data, error, timestamp);
 
   @override
   String toString() {
-    return 'WeekListResponseDto(success: $success, data: $data, error: $error, timestamp: $timestamp)';
+    return 'CourseOutlineResponseDto(success: $success, data: $data, error: $error, timestamp: $timestamp)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$WeekListResponseDtoCopyWith<$Res>
-    implements $WeekListResponseDtoCopyWith<$Res> {
-  factory _$WeekListResponseDtoCopyWith(_WeekListResponseDto value,
-          $Res Function(_WeekListResponseDto) _then) =
-      __$WeekListResponseDtoCopyWithImpl;
+abstract mixin class _$CourseOutlineResponseDtoCopyWith<$Res>
+    implements $CourseOutlineResponseDtoCopyWith<$Res> {
+  factory _$CourseOutlineResponseDtoCopyWith(_CourseOutlineResponseDto value,
+          $Res Function(_CourseOutlineResponseDto) _then) =
+      __$CourseOutlineResponseDtoCopyWithImpl;
   @override
   @useResult
   $Res call(
       {bool success,
-      List<CourseWeekDto> data,
+      CourseOutlineDataDto? data,
       ErrorData? error,
       String? timestamp});
 
+  @override
+  $CourseOutlineDataDtoCopyWith<$Res>? get data;
   @override
   $ErrorDataCopyWith<$Res>? get error;
 }
 
 /// @nodoc
-class __$WeekListResponseDtoCopyWithImpl<$Res>
-    implements _$WeekListResponseDtoCopyWith<$Res> {
-  __$WeekListResponseDtoCopyWithImpl(this._self, this._then);
+class __$CourseOutlineResponseDtoCopyWithImpl<$Res>
+    implements _$CourseOutlineResponseDtoCopyWith<$Res> {
+  __$CourseOutlineResponseDtoCopyWithImpl(this._self, this._then);
 
-  final _WeekListResponseDto _self;
-  final $Res Function(_WeekListResponseDto) _then;
+  final _CourseOutlineResponseDto _self;
+  final $Res Function(_CourseOutlineResponseDto) _then;
 
-  /// Create a copy of WeekListResponseDto
+  /// Create a copy of CourseOutlineResponseDto
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $Res call({
     Object? success = null,
-    Object? data = null,
+    Object? data = freezed,
     Object? error = freezed,
     Object? timestamp = freezed,
   }) {
-    return _then(_WeekListResponseDto(
+    return _then(_CourseOutlineResponseDto(
       success: null == success
           ? _self.success
           : success // ignore: cast_nullable_to_non_nullable
               as bool,
-      data: null == data
-          ? _self._data
+      data: freezed == data
+          ? _self.data
           : data // ignore: cast_nullable_to_non_nullable
-              as List<CourseWeekDto>,
+              as CourseOutlineDataDto?,
       error: freezed == error
           ? _self.error
           : error // ignore: cast_nullable_to_non_nullable
@@ -409,7 +415,21 @@ class __$WeekListResponseDtoCopyWithImpl<$Res>
     ));
   }
 
-  /// Create a copy of WeekListResponseDto
+  /// Create a copy of CourseOutlineResponseDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CourseOutlineDataDtoCopyWith<$Res>? get data {
+    if (_self.data == null) {
+      return null;
+    }
+
+    return $CourseOutlineDataDtoCopyWith<$Res>(_self.data!, (value) {
+      return _then(_self.copyWith(data: value));
+    });
+  }
+
+  /// Create a copy of CourseOutlineResponseDto
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -425,108 +445,105 @@ class __$WeekListResponseDtoCopyWithImpl<$Res>
 }
 
 /// @nodoc
-mixin _$CourseWeekDto {
-  String get id;
-  int get weekNo;
-  String get title;
-  DateTime? get startDate;
-  DateTime? get endDate;
+mixin _$CourseOutlineDataDto {
+  CourseOutlineHeaderDto get course;
+  int get totalAssignments;
+  List<CourseOutlineAssignmentDto> get assignments;
 
-  /// Create a copy of CourseWeekDto
+  /// Create a copy of CourseOutlineDataDto
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $CourseWeekDtoCopyWith<CourseWeekDto> get copyWith =>
-      _$CourseWeekDtoCopyWithImpl<CourseWeekDto>(
-          this as CourseWeekDto, _$identity);
+  $CourseOutlineDataDtoCopyWith<CourseOutlineDataDto> get copyWith =>
+      _$CourseOutlineDataDtoCopyWithImpl<CourseOutlineDataDto>(
+          this as CourseOutlineDataDto, _$identity);
 
-  /// Serializes this CourseWeekDto to a JSON map.
+  /// Serializes this CourseOutlineDataDto to a JSON map.
   Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is CourseWeekDto &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.weekNo, weekNo) || other.weekNo == weekNo) &&
-            (identical(other.title, title) || other.title == title) &&
-            (identical(other.startDate, startDate) ||
-                other.startDate == startDate) &&
-            (identical(other.endDate, endDate) || other.endDate == endDate));
+            other is CourseOutlineDataDto &&
+            (identical(other.course, course) || other.course == course) &&
+            (identical(other.totalAssignments, totalAssignments) ||
+                other.totalAssignments == totalAssignments) &&
+            const DeepCollectionEquality()
+                .equals(other.assignments, assignments));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, weekNo, title, startDate, endDate);
+  int get hashCode => Object.hash(runtimeType, course, totalAssignments,
+      const DeepCollectionEquality().hash(assignments));
 
   @override
   String toString() {
-    return 'CourseWeekDto(id: $id, weekNo: $weekNo, title: $title, startDate: $startDate, endDate: $endDate)';
+    return 'CourseOutlineDataDto(course: $course, totalAssignments: $totalAssignments, assignments: $assignments)';
   }
 }
 
 /// @nodoc
-abstract mixin class $CourseWeekDtoCopyWith<$Res> {
-  factory $CourseWeekDtoCopyWith(
-          CourseWeekDto value, $Res Function(CourseWeekDto) _then) =
-      _$CourseWeekDtoCopyWithImpl;
+abstract mixin class $CourseOutlineDataDtoCopyWith<$Res> {
+  factory $CourseOutlineDataDtoCopyWith(CourseOutlineDataDto value,
+          $Res Function(CourseOutlineDataDto) _then) =
+      _$CourseOutlineDataDtoCopyWithImpl;
   @useResult
   $Res call(
-      {String id,
-      int weekNo,
-      String title,
-      DateTime? startDate,
-      DateTime? endDate});
+      {CourseOutlineHeaderDto course,
+      int totalAssignments,
+      List<CourseOutlineAssignmentDto> assignments});
+
+  $CourseOutlineHeaderDtoCopyWith<$Res> get course;
 }
 
 /// @nodoc
-class _$CourseWeekDtoCopyWithImpl<$Res>
-    implements $CourseWeekDtoCopyWith<$Res> {
-  _$CourseWeekDtoCopyWithImpl(this._self, this._then);
+class _$CourseOutlineDataDtoCopyWithImpl<$Res>
+    implements $CourseOutlineDataDtoCopyWith<$Res> {
+  _$CourseOutlineDataDtoCopyWithImpl(this._self, this._then);
 
-  final CourseWeekDto _self;
-  final $Res Function(CourseWeekDto) _then;
+  final CourseOutlineDataDto _self;
+  final $Res Function(CourseOutlineDataDto) _then;
 
-  /// Create a copy of CourseWeekDto
+  /// Create a copy of CourseOutlineDataDto
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? weekNo = null,
-    Object? title = null,
-    Object? startDate = freezed,
-    Object? endDate = freezed,
+    Object? course = null,
+    Object? totalAssignments = null,
+    Object? assignments = null,
   }) {
     return _then(_self.copyWith(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      weekNo: null == weekNo
-          ? _self.weekNo
-          : weekNo // ignore: cast_nullable_to_non_nullable
+      course: null == course
+          ? _self.course
+          : course // ignore: cast_nullable_to_non_nullable
+              as CourseOutlineHeaderDto,
+      totalAssignments: null == totalAssignments
+          ? _self.totalAssignments
+          : totalAssignments // ignore: cast_nullable_to_non_nullable
               as int,
-      title: null == title
-          ? _self.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String,
-      startDate: freezed == startDate
-          ? _self.startDate
-          : startDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      endDate: freezed == endDate
-          ? _self.endDate
-          : endDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+      assignments: null == assignments
+          ? _self.assignments
+          : assignments // ignore: cast_nullable_to_non_nullable
+              as List<CourseOutlineAssignmentDto>,
     ));
+  }
+
+  /// Create a copy of CourseOutlineDataDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CourseOutlineHeaderDtoCopyWith<$Res> get course {
+    return $CourseOutlineHeaderDtoCopyWith<$Res>(_self.course, (value) {
+      return _then(_self.copyWith(course: value));
+    });
   }
 }
 
-/// Adds pattern-matching-related methods to [CourseWeekDto].
-extension CourseWeekDtoPatterns on CourseWeekDto {
+/// Adds pattern-matching-related methods to [CourseOutlineDataDto].
+extension CourseOutlineDataDtoPatterns on CourseOutlineDataDto {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -541,12 +558,12 @@ extension CourseWeekDtoPatterns on CourseWeekDto {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_CourseWeekDto value)? $default, {
+    TResult Function(_CourseOutlineDataDto value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _CourseWeekDto() when $default != null:
+      case _CourseOutlineDataDto() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -568,11 +585,11 @@ extension CourseWeekDtoPatterns on CourseWeekDto {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_CourseWeekDto value) $default,
+    TResult Function(_CourseOutlineDataDto value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CourseWeekDto():
+      case _CourseOutlineDataDto():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -593,11 +610,11 @@ extension CourseWeekDtoPatterns on CourseWeekDto {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_CourseWeekDto value)? $default,
+    TResult? Function(_CourseOutlineDataDto value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CourseWeekDto() when $default != null:
+      case _CourseOutlineDataDto() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -618,16 +635,16 @@ extension CourseWeekDtoPatterns on CourseWeekDto {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String id, int weekNo, String title, DateTime? startDate,
-            DateTime? endDate)?
+    TResult Function(CourseOutlineHeaderDto course, int totalAssignments,
+            List<CourseOutlineAssignmentDto> assignments)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _CourseWeekDto() when $default != null:
-        return $default(_that.id, _that.weekNo, _that.title, _that.startDate,
-            _that.endDate);
+      case _CourseOutlineDataDto() when $default != null:
+        return $default(
+            _that.course, _that.totalAssignments, _that.assignments);
       case _:
         return orElse();
     }
@@ -648,15 +665,15 @@ extension CourseWeekDtoPatterns on CourseWeekDto {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String id, int weekNo, String title, DateTime? startDate,
-            DateTime? endDate)
+    TResult Function(CourseOutlineHeaderDto course, int totalAssignments,
+            List<CourseOutlineAssignmentDto> assignments)
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CourseWeekDto():
-        return $default(_that.id, _that.weekNo, _that.title, _that.startDate,
-            _that.endDate);
+      case _CourseOutlineDataDto():
+        return $default(
+            _that.course, _that.totalAssignments, _that.assignments);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -676,15 +693,15 @@ extension CourseWeekDtoPatterns on CourseWeekDto {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String id, int weekNo, String title, DateTime? startDate,
-            DateTime? endDate)?
+    TResult? Function(CourseOutlineHeaderDto course, int totalAssignments,
+            List<CourseOutlineAssignmentDto> assignments)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CourseWeekDto() when $default != null:
-        return $default(_that.id, _that.weekNo, _that.title, _that.startDate,
-            _that.endDate);
+      case _CourseOutlineDataDto() when $default != null:
+        return $default(
+            _that.course, _that.totalAssignments, _that.assignments);
       case _:
         return null;
     }
@@ -693,38 +710,42 @@ extension CourseWeekDtoPatterns on CourseWeekDto {
 
 /// @nodoc
 @JsonSerializable()
-class _CourseWeekDto implements CourseWeekDto {
-  const _CourseWeekDto(
-      {required this.id,
-      required this.weekNo,
-      required this.title,
-      required this.startDate,
-      required this.endDate});
-  factory _CourseWeekDto.fromJson(Map<String, dynamic> json) =>
-      _$CourseWeekDtoFromJson(json);
+class _CourseOutlineDataDto implements CourseOutlineDataDto {
+  const _CourseOutlineDataDto(
+      {required this.course,
+      this.totalAssignments = 0,
+      final List<CourseOutlineAssignmentDto> assignments =
+          const <CourseOutlineAssignmentDto>[]})
+      : _assignments = assignments;
+  factory _CourseOutlineDataDto.fromJson(Map<String, dynamic> json) =>
+      _$CourseOutlineDataDtoFromJson(json);
 
   @override
-  final String id;
+  final CourseOutlineHeaderDto course;
   @override
-  final int weekNo;
+  @JsonKey()
+  final int totalAssignments;
+  final List<CourseOutlineAssignmentDto> _assignments;
   @override
-  final String title;
-  @override
-  final DateTime? startDate;
-  @override
-  final DateTime? endDate;
+  @JsonKey()
+  List<CourseOutlineAssignmentDto> get assignments {
+    if (_assignments is EqualUnmodifiableListView) return _assignments;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_assignments);
+  }
 
-  /// Create a copy of CourseWeekDto
+  /// Create a copy of CourseOutlineDataDto
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$CourseWeekDtoCopyWith<_CourseWeekDto> get copyWith =>
-      __$CourseWeekDtoCopyWithImpl<_CourseWeekDto>(this, _$identity);
+  _$CourseOutlineDataDtoCopyWith<_CourseOutlineDataDto> get copyWith =>
+      __$CourseOutlineDataDtoCopyWithImpl<_CourseOutlineDataDto>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$CourseWeekDtoToJson(
+    return _$CourseOutlineDataDtoToJson(
       this,
     );
   }
@@ -733,82 +754,986 @@ class _CourseWeekDto implements CourseWeekDto {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _CourseWeekDto &&
+            other is _CourseOutlineDataDto &&
+            (identical(other.course, course) || other.course == course) &&
+            (identical(other.totalAssignments, totalAssignments) ||
+                other.totalAssignments == totalAssignments) &&
+            const DeepCollectionEquality()
+                .equals(other._assignments, _assignments));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, course, totalAssignments,
+      const DeepCollectionEquality().hash(_assignments));
+
+  @override
+  String toString() {
+    return 'CourseOutlineDataDto(course: $course, totalAssignments: $totalAssignments, assignments: $assignments)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$CourseOutlineDataDtoCopyWith<$Res>
+    implements $CourseOutlineDataDtoCopyWith<$Res> {
+  factory _$CourseOutlineDataDtoCopyWith(_CourseOutlineDataDto value,
+          $Res Function(_CourseOutlineDataDto) _then) =
+      __$CourseOutlineDataDtoCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {CourseOutlineHeaderDto course,
+      int totalAssignments,
+      List<CourseOutlineAssignmentDto> assignments});
+
+  @override
+  $CourseOutlineHeaderDtoCopyWith<$Res> get course;
+}
+
+/// @nodoc
+class __$CourseOutlineDataDtoCopyWithImpl<$Res>
+    implements _$CourseOutlineDataDtoCopyWith<$Res> {
+  __$CourseOutlineDataDtoCopyWithImpl(this._self, this._then);
+
+  final _CourseOutlineDataDto _self;
+  final $Res Function(_CourseOutlineDataDto) _then;
+
+  /// Create a copy of CourseOutlineDataDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? course = null,
+    Object? totalAssignments = null,
+    Object? assignments = null,
+  }) {
+    return _then(_CourseOutlineDataDto(
+      course: null == course
+          ? _self.course
+          : course // ignore: cast_nullable_to_non_nullable
+              as CourseOutlineHeaderDto,
+      totalAssignments: null == totalAssignments
+          ? _self.totalAssignments
+          : totalAssignments // ignore: cast_nullable_to_non_nullable
+              as int,
+      assignments: null == assignments
+          ? _self._assignments
+          : assignments // ignore: cast_nullable_to_non_nullable
+              as List<CourseOutlineAssignmentDto>,
+    ));
+  }
+
+  /// Create a copy of CourseOutlineDataDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CourseOutlineHeaderDtoCopyWith<$Res> get course {
+    return $CourseOutlineHeaderDtoCopyWith<$Res>(_self.course, (value) {
+      return _then(_self.copyWith(course: value));
+    });
+  }
+}
+
+/// @nodoc
+mixin _$CourseOutlineHeaderDto {
+  String get id;
+  String get slug;
+  String get fieldTag;
+  String get title;
+  String get description;
+  String get phase;
+
+  /// Create a copy of CourseOutlineHeaderDto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $CourseOutlineHeaderDtoCopyWith<CourseOutlineHeaderDto> get copyWith =>
+      _$CourseOutlineHeaderDtoCopyWithImpl<CourseOutlineHeaderDto>(
+          this as CourseOutlineHeaderDto, _$identity);
+
+  /// Serializes this CourseOutlineHeaderDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is CourseOutlineHeaderDto &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.weekNo, weekNo) || other.weekNo == weekNo) &&
+            (identical(other.slug, slug) || other.slug == slug) &&
+            (identical(other.fieldTag, fieldTag) ||
+                other.fieldTag == fieldTag) &&
             (identical(other.title, title) || other.title == title) &&
-            (identical(other.startDate, startDate) ||
-                other.startDate == startDate) &&
-            (identical(other.endDate, endDate) || other.endDate == endDate));
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.phase, phase) || other.phase == phase));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, weekNo, title, startDate, endDate);
+      Object.hash(runtimeType, id, slug, fieldTag, title, description, phase);
 
   @override
   String toString() {
-    return 'CourseWeekDto(id: $id, weekNo: $weekNo, title: $title, startDate: $startDate, endDate: $endDate)';
+    return 'CourseOutlineHeaderDto(id: $id, slug: $slug, fieldTag: $fieldTag, title: $title, description: $description, phase: $phase)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$CourseWeekDtoCopyWith<$Res>
-    implements $CourseWeekDtoCopyWith<$Res> {
-  factory _$CourseWeekDtoCopyWith(
-          _CourseWeekDto value, $Res Function(_CourseWeekDto) _then) =
-      __$CourseWeekDtoCopyWithImpl;
+abstract mixin class $CourseOutlineHeaderDtoCopyWith<$Res> {
+  factory $CourseOutlineHeaderDtoCopyWith(CourseOutlineHeaderDto value,
+          $Res Function(CourseOutlineHeaderDto) _then) =
+      _$CourseOutlineHeaderDtoCopyWithImpl;
+  @useResult
+  $Res call(
+      {String id,
+      String slug,
+      String fieldTag,
+      String title,
+      String description,
+      String phase});
+}
+
+/// @nodoc
+class _$CourseOutlineHeaderDtoCopyWithImpl<$Res>
+    implements $CourseOutlineHeaderDtoCopyWith<$Res> {
+  _$CourseOutlineHeaderDtoCopyWithImpl(this._self, this._then);
+
+  final CourseOutlineHeaderDto _self;
+  final $Res Function(CourseOutlineHeaderDto) _then;
+
+  /// Create a copy of CourseOutlineHeaderDto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? slug = null,
+    Object? fieldTag = null,
+    Object? title = null,
+    Object? description = null,
+    Object? phase = null,
+  }) {
+    return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      slug: null == slug
+          ? _self.slug
+          : slug // ignore: cast_nullable_to_non_nullable
+              as String,
+      fieldTag: null == fieldTag
+          ? _self.fieldTag
+          : fieldTag // ignore: cast_nullable_to_non_nullable
+              as String,
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: null == description
+          ? _self.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String,
+      phase: null == phase
+          ? _self.phase
+          : phase // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [CourseOutlineHeaderDto].
+extension CourseOutlineHeaderDtoPatterns on CourseOutlineHeaderDto {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_CourseOutlineHeaderDto value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineHeaderDto() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_CourseOutlineHeaderDto value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineHeaderDto():
+        return $default(_that);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_CourseOutlineHeaderDto value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineHeaderDto() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(String id, String slug, String fieldTag, String title,
+            String description, String phase)?
+        $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineHeaderDto() when $default != null:
+        return $default(_that.id, _that.slug, _that.fieldTag, _that.title,
+            _that.description, _that.phase);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(String id, String slug, String fieldTag, String title,
+            String description, String phase)
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineHeaderDto():
+        return $default(_that.id, _that.slug, _that.fieldTag, _that.title,
+            _that.description, _that.phase);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(String id, String slug, String fieldTag, String title,
+            String description, String phase)?
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineHeaderDto() when $default != null:
+        return $default(_that.id, _that.slug, _that.fieldTag, _that.title,
+            _that.description, _that.phase);
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _CourseOutlineHeaderDto implements CourseOutlineHeaderDto {
+  const _CourseOutlineHeaderDto(
+      {required this.id,
+      required this.slug,
+      required this.fieldTag,
+      required this.title,
+      required this.description,
+      required this.phase});
+  factory _CourseOutlineHeaderDto.fromJson(Map<String, dynamic> json) =>
+      _$CourseOutlineHeaderDtoFromJson(json);
+
+  @override
+  final String id;
+  @override
+  final String slug;
+  @override
+  final String fieldTag;
+  @override
+  final String title;
+  @override
+  final String description;
+  @override
+  final String phase;
+
+  /// Create a copy of CourseOutlineHeaderDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$CourseOutlineHeaderDtoCopyWith<_CourseOutlineHeaderDto> get copyWith =>
+      __$CourseOutlineHeaderDtoCopyWithImpl<_CourseOutlineHeaderDto>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$CourseOutlineHeaderDtoToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _CourseOutlineHeaderDto &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.slug, slug) || other.slug == slug) &&
+            (identical(other.fieldTag, fieldTag) ||
+                other.fieldTag == fieldTag) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.phase, phase) || other.phase == phase));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, id, slug, fieldTag, title, description, phase);
+
+  @override
+  String toString() {
+    return 'CourseOutlineHeaderDto(id: $id, slug: $slug, fieldTag: $fieldTag, title: $title, description: $description, phase: $phase)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$CourseOutlineHeaderDtoCopyWith<$Res>
+    implements $CourseOutlineHeaderDtoCopyWith<$Res> {
+  factory _$CourseOutlineHeaderDtoCopyWith(_CourseOutlineHeaderDto value,
+          $Res Function(_CourseOutlineHeaderDto) _then) =
+      __$CourseOutlineHeaderDtoCopyWithImpl;
   @override
   @useResult
   $Res call(
       {String id,
-      int weekNo,
+      String slug,
+      String fieldTag,
       String title,
-      DateTime? startDate,
-      DateTime? endDate});
+      String description,
+      String phase});
 }
 
 /// @nodoc
-class __$CourseWeekDtoCopyWithImpl<$Res>
-    implements _$CourseWeekDtoCopyWith<$Res> {
-  __$CourseWeekDtoCopyWithImpl(this._self, this._then);
+class __$CourseOutlineHeaderDtoCopyWithImpl<$Res>
+    implements _$CourseOutlineHeaderDtoCopyWith<$Res> {
+  __$CourseOutlineHeaderDtoCopyWithImpl(this._self, this._then);
 
-  final _CourseWeekDto _self;
-  final $Res Function(_CourseWeekDto) _then;
+  final _CourseOutlineHeaderDto _self;
+  final $Res Function(_CourseOutlineHeaderDto) _then;
 
-  /// Create a copy of CourseWeekDto
+  /// Create a copy of CourseOutlineHeaderDto
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
-    Object? weekNo = null,
+    Object? slug = null,
+    Object? fieldTag = null,
     Object? title = null,
-    Object? startDate = freezed,
-    Object? endDate = freezed,
+    Object? description = null,
+    Object? phase = null,
   }) {
-    return _then(_CourseWeekDto(
+    return _then(_CourseOutlineHeaderDto(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      slug: null == slug
+          ? _self.slug
+          : slug // ignore: cast_nullable_to_non_nullable
+              as String,
+      fieldTag: null == fieldTag
+          ? _self.fieldTag
+          : fieldTag // ignore: cast_nullable_to_non_nullable
+              as String,
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: null == description
+          ? _self.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String,
+      phase: null == phase
+          ? _self.phase
+          : phase // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+mixin _$CourseOutlineAssignmentDto {
+  String get assignmentId;
+  int get weekNo;
+  int get orderInWeek;
+  String get title;
+  String get difficulty;
+  DateTime get startAt;
+  DateTime get endAt;
+  bool get checked;
+
+  /// Create a copy of CourseOutlineAssignmentDto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $CourseOutlineAssignmentDtoCopyWith<CourseOutlineAssignmentDto>
+      get copyWith =>
+          _$CourseOutlineAssignmentDtoCopyWithImpl<CourseOutlineAssignmentDto>(
+              this as CourseOutlineAssignmentDto, _$identity);
+
+  /// Serializes this CourseOutlineAssignmentDto to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is CourseOutlineAssignmentDto &&
+            (identical(other.assignmentId, assignmentId) ||
+                other.assignmentId == assignmentId) &&
+            (identical(other.weekNo, weekNo) || other.weekNo == weekNo) &&
+            (identical(other.orderInWeek, orderInWeek) ||
+                other.orderInWeek == orderInWeek) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.difficulty, difficulty) ||
+                other.difficulty == difficulty) &&
+            (identical(other.startAt, startAt) || other.startAt == startAt) &&
+            (identical(other.endAt, endAt) || other.endAt == endAt) &&
+            (identical(other.checked, checked) || other.checked == checked));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, assignmentId, weekNo,
+      orderInWeek, title, difficulty, startAt, endAt, checked);
+
+  @override
+  String toString() {
+    return 'CourseOutlineAssignmentDto(assignmentId: $assignmentId, weekNo: $weekNo, orderInWeek: $orderInWeek, title: $title, difficulty: $difficulty, startAt: $startAt, endAt: $endAt, checked: $checked)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $CourseOutlineAssignmentDtoCopyWith<$Res> {
+  factory $CourseOutlineAssignmentDtoCopyWith(CourseOutlineAssignmentDto value,
+          $Res Function(CourseOutlineAssignmentDto) _then) =
+      _$CourseOutlineAssignmentDtoCopyWithImpl;
+  @useResult
+  $Res call(
+      {String assignmentId,
+      int weekNo,
+      int orderInWeek,
+      String title,
+      String difficulty,
+      DateTime startAt,
+      DateTime endAt,
+      bool checked});
+}
+
+/// @nodoc
+class _$CourseOutlineAssignmentDtoCopyWithImpl<$Res>
+    implements $CourseOutlineAssignmentDtoCopyWith<$Res> {
+  _$CourseOutlineAssignmentDtoCopyWithImpl(this._self, this._then);
+
+  final CourseOutlineAssignmentDto _self;
+  final $Res Function(CourseOutlineAssignmentDto) _then;
+
+  /// Create a copy of CourseOutlineAssignmentDto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? assignmentId = null,
+    Object? weekNo = null,
+    Object? orderInWeek = null,
+    Object? title = null,
+    Object? difficulty = null,
+    Object? startAt = null,
+    Object? endAt = null,
+    Object? checked = null,
+  }) {
+    return _then(_self.copyWith(
+      assignmentId: null == assignmentId
+          ? _self.assignmentId
+          : assignmentId // ignore: cast_nullable_to_non_nullable
               as String,
       weekNo: null == weekNo
           ? _self.weekNo
           : weekNo // ignore: cast_nullable_to_non_nullable
               as int,
+      orderInWeek: null == orderInWeek
+          ? _self.orderInWeek
+          : orderInWeek // ignore: cast_nullable_to_non_nullable
+              as int,
       title: null == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
               as String,
-      startDate: freezed == startDate
-          ? _self.startDate
-          : startDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      endDate: freezed == endDate
-          ? _self.endDate
-          : endDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+      difficulty: null == difficulty
+          ? _self.difficulty
+          : difficulty // ignore: cast_nullable_to_non_nullable
+              as String,
+      startAt: null == startAt
+          ? _self.startAt
+          : startAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endAt: null == endAt
+          ? _self.endAt
+          : endAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      checked: null == checked
+          ? _self.checked
+          : checked // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [CourseOutlineAssignmentDto].
+extension CourseOutlineAssignmentDtoPatterns on CourseOutlineAssignmentDto {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_CourseOutlineAssignmentDto value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineAssignmentDto() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_CourseOutlineAssignmentDto value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineAssignmentDto():
+        return $default(_that);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_CourseOutlineAssignmentDto value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineAssignmentDto() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(
+            String assignmentId,
+            int weekNo,
+            int orderInWeek,
+            String title,
+            String difficulty,
+            DateTime startAt,
+            DateTime endAt,
+            bool checked)?
+        $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineAssignmentDto() when $default != null:
+        return $default(
+            _that.assignmentId,
+            _that.weekNo,
+            _that.orderInWeek,
+            _that.title,
+            _that.difficulty,
+            _that.startAt,
+            _that.endAt,
+            _that.checked);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(
+            String assignmentId,
+            int weekNo,
+            int orderInWeek,
+            String title,
+            String difficulty,
+            DateTime startAt,
+            DateTime endAt,
+            bool checked)
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineAssignmentDto():
+        return $default(
+            _that.assignmentId,
+            _that.weekNo,
+            _that.orderInWeek,
+            _that.title,
+            _that.difficulty,
+            _that.startAt,
+            _that.endAt,
+            _that.checked);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(
+            String assignmentId,
+            int weekNo,
+            int orderInWeek,
+            String title,
+            String difficulty,
+            DateTime startAt,
+            DateTime endAt,
+            bool checked)?
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CourseOutlineAssignmentDto() when $default != null:
+        return $default(
+            _that.assignmentId,
+            _that.weekNo,
+            _that.orderInWeek,
+            _that.title,
+            _that.difficulty,
+            _that.startAt,
+            _that.endAt,
+            _that.checked);
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _CourseOutlineAssignmentDto extends CourseOutlineAssignmentDto {
+  const _CourseOutlineAssignmentDto(
+      {required this.assignmentId,
+      required this.weekNo,
+      required this.orderInWeek,
+      required this.title,
+      required this.difficulty,
+      required this.startAt,
+      required this.endAt,
+      this.checked = false})
+      : super._();
+  factory _CourseOutlineAssignmentDto.fromJson(Map<String, dynamic> json) =>
+      _$CourseOutlineAssignmentDtoFromJson(json);
+
+  @override
+  final String assignmentId;
+  @override
+  final int weekNo;
+  @override
+  final int orderInWeek;
+  @override
+  final String title;
+  @override
+  final String difficulty;
+  @override
+  final DateTime startAt;
+  @override
+  final DateTime endAt;
+  @override
+  @JsonKey()
+  final bool checked;
+
+  /// Create a copy of CourseOutlineAssignmentDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$CourseOutlineAssignmentDtoCopyWith<_CourseOutlineAssignmentDto>
+      get copyWith => __$CourseOutlineAssignmentDtoCopyWithImpl<
+          _CourseOutlineAssignmentDto>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$CourseOutlineAssignmentDtoToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _CourseOutlineAssignmentDto &&
+            (identical(other.assignmentId, assignmentId) ||
+                other.assignmentId == assignmentId) &&
+            (identical(other.weekNo, weekNo) || other.weekNo == weekNo) &&
+            (identical(other.orderInWeek, orderInWeek) ||
+                other.orderInWeek == orderInWeek) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.difficulty, difficulty) ||
+                other.difficulty == difficulty) &&
+            (identical(other.startAt, startAt) || other.startAt == startAt) &&
+            (identical(other.endAt, endAt) || other.endAt == endAt) &&
+            (identical(other.checked, checked) || other.checked == checked));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, assignmentId, weekNo,
+      orderInWeek, title, difficulty, startAt, endAt, checked);
+
+  @override
+  String toString() {
+    return 'CourseOutlineAssignmentDto(assignmentId: $assignmentId, weekNo: $weekNo, orderInWeek: $orderInWeek, title: $title, difficulty: $difficulty, startAt: $startAt, endAt: $endAt, checked: $checked)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$CourseOutlineAssignmentDtoCopyWith<$Res>
+    implements $CourseOutlineAssignmentDtoCopyWith<$Res> {
+  factory _$CourseOutlineAssignmentDtoCopyWith(
+          _CourseOutlineAssignmentDto value,
+          $Res Function(_CourseOutlineAssignmentDto) _then) =
+      __$CourseOutlineAssignmentDtoCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {String assignmentId,
+      int weekNo,
+      int orderInWeek,
+      String title,
+      String difficulty,
+      DateTime startAt,
+      DateTime endAt,
+      bool checked});
+}
+
+/// @nodoc
+class __$CourseOutlineAssignmentDtoCopyWithImpl<$Res>
+    implements _$CourseOutlineAssignmentDtoCopyWith<$Res> {
+  __$CourseOutlineAssignmentDtoCopyWithImpl(this._self, this._then);
+
+  final _CourseOutlineAssignmentDto _self;
+  final $Res Function(_CourseOutlineAssignmentDto) _then;
+
+  /// Create a copy of CourseOutlineAssignmentDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? assignmentId = null,
+    Object? weekNo = null,
+    Object? orderInWeek = null,
+    Object? title = null,
+    Object? difficulty = null,
+    Object? startAt = null,
+    Object? endAt = null,
+    Object? checked = null,
+  }) {
+    return _then(_CourseOutlineAssignmentDto(
+      assignmentId: null == assignmentId
+          ? _self.assignmentId
+          : assignmentId // ignore: cast_nullable_to_non_nullable
+              as String,
+      weekNo: null == weekNo
+          ? _self.weekNo
+          : weekNo // ignore: cast_nullable_to_non_nullable
+              as int,
+      orderInWeek: null == orderInWeek
+          ? _self.orderInWeek
+          : orderInWeek // ignore: cast_nullable_to_non_nullable
+              as int,
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      difficulty: null == difficulty
+          ? _self.difficulty
+          : difficulty // ignore: cast_nullable_to_non_nullable
+              as String,
+      startAt: null == startAt
+          ? _self.startAt
+          : startAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endAt: null == endAt
+          ? _self.endAt
+          : endAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      checked: null == checked
+          ? _self.checked
+          : checked // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
