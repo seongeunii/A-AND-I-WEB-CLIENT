@@ -180,6 +180,8 @@ class _TopBar extends StatelessWidget {
           _TopNavAction(
             icon: Icons.arrow_back_rounded,
             color: textMuted,
+            backgroundColor: iconBackground,
+            borderColor: borderColor,
             onTap: onTapBack,
           ),
           const SizedBox(width: 10),
@@ -268,11 +270,15 @@ class _TopNavAction extends StatelessWidget {
   const _TopNavAction({
     required this.icon,
     required this.color,
+    required this.backgroundColor,
+    required this.borderColor,
     required this.onTap,
   });
 
   final IconData icon;
   final Color color;
+  final Color backgroundColor;
+  final Color borderColor;
   final VoidCallback onTap;
 
   @override
@@ -280,14 +286,19 @@ class _TopNavAction extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(999),
       onTap: onTap,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: color,
-          ),
-        ],
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: borderColor),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: color,
+        ),
       ),
     );
   }

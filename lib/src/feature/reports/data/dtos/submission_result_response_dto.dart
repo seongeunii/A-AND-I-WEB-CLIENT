@@ -12,9 +12,14 @@ abstract class SubmissionResultResponseDto with _$SubmissionResultResponseDto {
   /// 제출 최종 결과 응답 DTO를 생성합니다.
   const factory SubmissionResultResponseDto({
     required String submissionId,
+    String? problemId,
+    String? language,
     required String status,
     @JsonKey(fromJson: _parseTestCases)
-    @Default(<SubmissionTestCaseResult>[]) List<SubmissionTestCaseResult> testCases,
+    @Default(<SubmissionTestCaseResult>[])
+    List<SubmissionTestCaseResult> testCases,
+    DateTime? createdAt,
+    DateTime? completedAt,
   }) = _SubmissionResultResponseDto;
 
   const SubmissionResultResponseDto._();
@@ -27,8 +32,12 @@ abstract class SubmissionResultResponseDto with _$SubmissionResultResponseDto {
   SubmissionResult toEntity() {
     return SubmissionResult(
       submissionId: submissionId,
+      problemId: problemId,
+      language: language,
       status: status,
       testCases: testCases,
+      createdAt: createdAt,
+      completedAt: completedAt,
     );
   }
 }

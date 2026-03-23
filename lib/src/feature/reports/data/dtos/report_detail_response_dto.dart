@@ -89,7 +89,11 @@ Report? _parseReport(Object? rawData) {
   final content = metadataMap?['description']?.toString();
   final level = _parseLevel(metadataMap?['difficulty']);
   final reportType = _parseReportType(
-    attributesMap?['legacyReportType'] ?? attributesMap?['reportType'],
+    attributesMap?['legacyReportType'] ??
+        attributesMap?['reportType'] ??
+        rawData['reportType'] ??
+        rawData['phase'] ??
+        rawData['courseSlug'],
   );
   final week = _asInt(rawData['weekNo']);
 
@@ -205,6 +209,14 @@ ReportType? _parseReportType(Object? value) {
   final normalized = value?.toString().trim().toUpperCase();
   if (normalized == null || normalized.isEmpty) {
     return null;
+  }
+
+  if (normalized.contains('CS')) {
+    return ReportType.CS;
+  }
+
+  if (normalized.contains('BASIC') || normalized.contains('FRAMEWORK')) {
+    return ReportType.BASIC;
   }
 
   return switch (normalized) {

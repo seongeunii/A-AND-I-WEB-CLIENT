@@ -15,8 +15,12 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SubmissionResult {
   String get submissionId;
+  String? get problemId;
+  String? get language;
   String get status;
   List<SubmissionTestCaseResult> get testCases;
+  DateTime? get createdAt;
+  DateTime? get completedAt;
 
   /// Create a copy of SubmissionResult
   /// with the given fields replaced by the non-null parameter values.
@@ -36,18 +40,33 @@ mixin _$SubmissionResult {
             other is SubmissionResult &&
             (identical(other.submissionId, submissionId) ||
                 other.submissionId == submissionId) &&
+            (identical(other.problemId, problemId) ||
+                other.problemId == problemId) &&
+            (identical(other.language, language) ||
+                other.language == language) &&
             (identical(other.status, status) || other.status == status) &&
-            const DeepCollectionEquality().equals(other.testCases, testCases));
+            const DeepCollectionEquality().equals(other.testCases, testCases) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.completedAt, completedAt) ||
+                other.completedAt == completedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, submissionId, status,
-      const DeepCollectionEquality().hash(testCases));
+  int get hashCode => Object.hash(
+      runtimeType,
+      submissionId,
+      problemId,
+      language,
+      status,
+      const DeepCollectionEquality().hash(testCases),
+      createdAt,
+      completedAt);
 
   @override
   String toString() {
-    return 'SubmissionResult(submissionId: $submissionId, status: $status, testCases: $testCases)';
+    return 'SubmissionResult(submissionId: $submissionId, problemId: $problemId, language: $language, status: $status, testCases: $testCases, createdAt: $createdAt, completedAt: $completedAt)';
   }
 }
 
@@ -59,8 +78,12 @@ abstract mixin class $SubmissionResultCopyWith<$Res> {
   @useResult
   $Res call(
       {String submissionId,
+      String? problemId,
+      String? language,
       String status,
-      List<SubmissionTestCaseResult> testCases});
+      List<SubmissionTestCaseResult> testCases,
+      DateTime? createdAt,
+      DateTime? completedAt});
 }
 
 /// @nodoc
@@ -77,14 +100,26 @@ class _$SubmissionResultCopyWithImpl<$Res>
   @override
   $Res call({
     Object? submissionId = null,
+    Object? problemId = freezed,
+    Object? language = freezed,
     Object? status = null,
     Object? testCases = null,
+    Object? createdAt = freezed,
+    Object? completedAt = freezed,
   }) {
     return _then(_self.copyWith(
       submissionId: null == submissionId
           ? _self.submissionId
           : submissionId // ignore: cast_nullable_to_non_nullable
               as String,
+      problemId: freezed == problemId
+          ? _self.problemId
+          : problemId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      language: freezed == language
+          ? _self.language
+          : language // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -93,6 +128,14 @@ class _$SubmissionResultCopyWithImpl<$Res>
           ? _self.testCases
           : testCases // ignore: cast_nullable_to_non_nullable
               as List<SubmissionTestCaseResult>,
+      createdAt: freezed == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      completedAt: freezed == completedAt
+          ? _self.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -188,15 +231,22 @@ extension SubmissionResultPatterns on SubmissionResult {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String submissionId, String status,
-            List<SubmissionTestCaseResult> testCases)?
+    TResult Function(
+            String submissionId,
+            String? problemId,
+            String? language,
+            String status,
+            List<SubmissionTestCaseResult> testCases,
+            DateTime? createdAt,
+            DateTime? completedAt)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _SubmissionResult() when $default != null:
-        return $default(_that.submissionId, _that.status, _that.testCases);
+        return $default(_that.submissionId, _that.problemId, _that.language,
+            _that.status, _that.testCases, _that.createdAt, _that.completedAt);
       case _:
         return orElse();
     }
@@ -217,14 +267,21 @@ extension SubmissionResultPatterns on SubmissionResult {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String submissionId, String status,
-            List<SubmissionTestCaseResult> testCases)
+    TResult Function(
+            String submissionId,
+            String? problemId,
+            String? language,
+            String status,
+            List<SubmissionTestCaseResult> testCases,
+            DateTime? createdAt,
+            DateTime? completedAt)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SubmissionResult():
-        return $default(_that.submissionId, _that.status, _that.testCases);
+        return $default(_that.submissionId, _that.problemId, _that.language,
+            _that.status, _that.testCases, _that.createdAt, _that.completedAt);
     }
   }
 
@@ -242,14 +299,21 @@ extension SubmissionResultPatterns on SubmissionResult {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String submissionId, String status,
-            List<SubmissionTestCaseResult> testCases)?
+    TResult? Function(
+            String submissionId,
+            String? problemId,
+            String? language,
+            String status,
+            List<SubmissionTestCaseResult> testCases,
+            DateTime? createdAt,
+            DateTime? completedAt)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SubmissionResult() when $default != null:
-        return $default(_that.submissionId, _that.status, _that.testCases);
+        return $default(_that.submissionId, _that.problemId, _that.language,
+            _that.status, _that.testCases, _that.createdAt, _that.completedAt);
       case _:
         return null;
     }
@@ -261,15 +325,23 @@ extension SubmissionResultPatterns on SubmissionResult {
 class _SubmissionResult implements SubmissionResult {
   const _SubmissionResult(
       {required this.submissionId,
+      this.problemId,
+      this.language,
       required this.status,
       final List<SubmissionTestCaseResult> testCases =
-          const <SubmissionTestCaseResult>[]})
+          const <SubmissionTestCaseResult>[],
+      this.createdAt,
+      this.completedAt})
       : _testCases = testCases;
   factory _SubmissionResult.fromJson(Map<String, dynamic> json) =>
       _$SubmissionResultFromJson(json);
 
   @override
   final String submissionId;
+  @override
+  final String? problemId;
+  @override
+  final String? language;
   @override
   final String status;
   final List<SubmissionTestCaseResult> _testCases;
@@ -280,6 +352,11 @@ class _SubmissionResult implements SubmissionResult {
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_testCases);
   }
+
+  @override
+  final DateTime? createdAt;
+  @override
+  final DateTime? completedAt;
 
   /// Create a copy of SubmissionResult
   /// with the given fields replaced by the non-null parameter values.
@@ -303,19 +380,34 @@ class _SubmissionResult implements SubmissionResult {
             other is _SubmissionResult &&
             (identical(other.submissionId, submissionId) ||
                 other.submissionId == submissionId) &&
+            (identical(other.problemId, problemId) ||
+                other.problemId == problemId) &&
+            (identical(other.language, language) ||
+                other.language == language) &&
             (identical(other.status, status) || other.status == status) &&
             const DeepCollectionEquality()
-                .equals(other._testCases, _testCases));
+                .equals(other._testCases, _testCases) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.completedAt, completedAt) ||
+                other.completedAt == completedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, submissionId, status,
-      const DeepCollectionEquality().hash(_testCases));
+  int get hashCode => Object.hash(
+      runtimeType,
+      submissionId,
+      problemId,
+      language,
+      status,
+      const DeepCollectionEquality().hash(_testCases),
+      createdAt,
+      completedAt);
 
   @override
   String toString() {
-    return 'SubmissionResult(submissionId: $submissionId, status: $status, testCases: $testCases)';
+    return 'SubmissionResult(submissionId: $submissionId, problemId: $problemId, language: $language, status: $status, testCases: $testCases, createdAt: $createdAt, completedAt: $completedAt)';
   }
 }
 
@@ -329,8 +421,12 @@ abstract mixin class _$SubmissionResultCopyWith<$Res>
   @useResult
   $Res call(
       {String submissionId,
+      String? problemId,
+      String? language,
       String status,
-      List<SubmissionTestCaseResult> testCases});
+      List<SubmissionTestCaseResult> testCases,
+      DateTime? createdAt,
+      DateTime? completedAt});
 }
 
 /// @nodoc
@@ -347,14 +443,26 @@ class __$SubmissionResultCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? submissionId = null,
+    Object? problemId = freezed,
+    Object? language = freezed,
     Object? status = null,
     Object? testCases = null,
+    Object? createdAt = freezed,
+    Object? completedAt = freezed,
   }) {
     return _then(_SubmissionResult(
       submissionId: null == submissionId
           ? _self.submissionId
           : submissionId // ignore: cast_nullable_to_non_nullable
               as String,
+      problemId: freezed == problemId
+          ? _self.problemId
+          : problemId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      language: freezed == language
+          ? _self.language
+          : language // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -363,6 +471,14 @@ class __$SubmissionResultCopyWithImpl<$Res>
           ? _self._testCases
           : testCases // ignore: cast_nullable_to_non_nullable
               as List<SubmissionTestCaseResult>,
+      createdAt: freezed == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      completedAt: freezed == completedAt
+          ? _self.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -371,7 +487,7 @@ class __$SubmissionResultCopyWithImpl<$Res>
 mixin _$SubmissionTestCaseResult {
   int? get caseId;
   String? get status;
-  int? get timeMs;
+  double? get timeMs;
   double? get memoryMb;
   String? get output;
   String? get error;
@@ -421,7 +537,7 @@ abstract mixin class $SubmissionTestCaseResultCopyWith<$Res> {
   $Res call(
       {int? caseId,
       String? status,
-      int? timeMs,
+      double? timeMs,
       double? memoryMb,
       String? output,
       String? error});
@@ -459,7 +575,7 @@ class _$SubmissionTestCaseResultCopyWithImpl<$Res>
       timeMs: freezed == timeMs
           ? _self.timeMs
           : timeMs // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as double?,
       memoryMb: freezed == memoryMb
           ? _self.memoryMb
           : memoryMb // ignore: cast_nullable_to_non_nullable
@@ -567,8 +683,8 @@ extension SubmissionTestCaseResultPatterns on SubmissionTestCaseResult {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(int? caseId, String? status, int? timeMs, double? memoryMb,
-            String? output, String? error)?
+    TResult Function(int? caseId, String? status, double? timeMs,
+            double? memoryMb, String? output, String? error)?
         $default, {
     required TResult orElse(),
   }) {
@@ -597,8 +713,8 @@ extension SubmissionTestCaseResultPatterns on SubmissionTestCaseResult {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(int? caseId, String? status, int? timeMs, double? memoryMb,
-            String? output, String? error)
+    TResult Function(int? caseId, String? status, double? timeMs,
+            double? memoryMb, String? output, String? error)
         $default,
   ) {
     final _that = this;
@@ -623,7 +739,7 @@ extension SubmissionTestCaseResultPatterns on SubmissionTestCaseResult {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(int? caseId, String? status, int? timeMs,
+    TResult? Function(int? caseId, String? status, double? timeMs,
             double? memoryMb, String? output, String? error)?
         $default,
   ) {
@@ -656,7 +772,7 @@ class _SubmissionTestCaseResult implements SubmissionTestCaseResult {
   @override
   final String? status;
   @override
-  final int? timeMs;
+  final double? timeMs;
   @override
   final double? memoryMb;
   @override
@@ -716,7 +832,7 @@ abstract mixin class _$SubmissionTestCaseResultCopyWith<$Res>
   $Res call(
       {int? caseId,
       String? status,
-      int? timeMs,
+      double? timeMs,
       double? memoryMb,
       String? output,
       String? error});
@@ -754,7 +870,7 @@ class __$SubmissionTestCaseResultCopyWithImpl<$Res>
       timeMs: freezed == timeMs
           ? _self.timeMs
           : timeMs // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as double?,
       memoryMb: freezed == memoryMb
           ? _self.memoryMb
           : memoryMb // ignore: cast_nullable_to_non_nullable

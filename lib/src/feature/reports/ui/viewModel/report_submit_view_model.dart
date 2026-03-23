@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:a_and_i_report_web_server/src/core/utils/api_error_mapper.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/data/entities/submission_result.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/providers/create_submission_usecase_provider.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/providers/get_submission_result_usecase_provider.dart';
+import 'package:a_and_i_report_web_server/src/feature/reports/providers/get_my_problem_submissions_usecase_provider.dart';
+import 'package:a_and_i_report_web_server/src/feature/reports/providers/stream_submission_events_usecase_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -33,12 +35,19 @@ abstract class ReportSubmitState with _$ReportSubmitState {
     @Default(0) int submitCount,
     @Default(0) int score,
     @Default(<String>[]) List<String> feedbacks,
+    @Default(<SubmissionTestCaseResult>[])
+    List<SubmissionTestCaseResult> testCaseResults,
+    @Default(<SubmissionResult>[]) List<SubmissionResult> previousSubmissions,
     String? submissionId,
     String? streamUrl,
+    String? historyProblemId,
     String? latestVerdict,
     @Default(false) bool isSubmitting,
     @Default(false) bool isPolling,
+    @Default(false) bool isHistoryLoading,
+    @Default(false) bool hasLoadedHistory,
     @Default('') String errorMsg,
+    @Default('') String historyErrorMsg,
   }) = _ReportSubmitState;
 
   factory ReportSubmitState.initial() {
@@ -56,7 +65,7 @@ abstract class ReportSubmitState with _$ReportSubmitState {
 class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
   final String reportId;
   final Ref ref;
-  Timer? _pollingTimer;
+  StreamSubscription<String>? _submissionStreamSubscription;
 
   ReportSubmitViewModel({
     required this.reportId,
@@ -81,6 +90,59 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
     updateDraft(lang, lang.template);
   }
 
+  Future<void> loadSubmissionHistory({
+    required String problemId,
+    bool forceRefresh = false,
+  }) async {
+    final normalizedProblemId = problemId.trim();
+    if (normalizedProblemId.isEmpty ||
+        state.isSubmitting ||
+        state.isPolling ||
+        state.isHistoryLoading) {
+      return;
+    }
+
+    if (!forceRefresh &&
+        state.historyProblemId == normalizedProblemId &&
+        (state.hasLoadedHistory || state.historyErrorMsg.isNotEmpty)) {
+      return;
+    }
+
+    state = state.copyWith(
+      isHistoryLoading: true,
+      hasLoadedHistory: false,
+      historyProblemId: normalizedProblemId,
+      historyErrorMsg: '',
+    );
+
+    try {
+      final previousSubmissions = await ref
+          .read(getMyProblemSubmissionsUsecaseProvider)
+          .call(normalizedProblemId);
+
+      final sortedSubmissions = [...previousSubmissions]..sort((a, b) {
+          final aTime = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final bTime = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          return bTime.compareTo(aTime);
+        });
+
+      state = state.copyWith(
+        isHistoryLoading: false,
+        hasLoadedHistory: true,
+        previousSubmissions: sortedSubmissions,
+        historyErrorMsg: '',
+      );
+    } catch (error) {
+      state = state.copyWith(
+        isHistoryLoading: false,
+        historyErrorMsg: ApiErrorMapper.map(
+          error,
+          fallbackMessage: '이전 채점 기록을 불러오지 못했습니다.',
+        ),
+      );
+    }
+  }
+
   Future<bool> submitCurrentDraft({String? problemId}) async {
     final lang = state.selectedLanguage;
     final code = (state.draftCodeByLanguage[lang] ?? '').trim();
@@ -88,28 +150,34 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
       return false;
     }
 
-    // TODO(choseoungeun): assignment detail 응답에 judge catalog 기준 problemId가
-    // 항상 내려오면 임시 fallback을 제거합니다.
     final normalizedProblemId = problemId?.trim();
-    final resolvedProblemId =
-        normalizedProblemId != null && normalizedProblemId.startsWith('quiz-')
-            ? normalizedProblemId
-            : 'quiz-101';
+    if (normalizedProblemId == null || normalizedProblemId.isEmpty) {
+      state = state.copyWith(
+        isSubmitting: false,
+        isPolling: false,
+        submissionStatus: SubmissionStatus.error,
+        errorMsg: '현재 과제 ID를 확인할 수 없습니다.',
+        feedbacks: const <String>['현재 과제 ID를 확인할 수 없습니다.'],
+      );
+      return false;
+    }
 
     state = state.copyWith(
       isSubmitting: true,
       errorMsg: '',
+      historyProblemId: normalizedProblemId,
       latestSubmittedCode: code,
       latestSubmittedLanguage: lang,
       submittedAt: DateTime.now(),
       submitCount: state.submitCount + 1,
       submissionStatus: SubmissionStatus.submitting,
       feedbacks: const <String>['제출 요청을 전송하고 있습니다.'],
+      testCaseResults: const <SubmissionTestCaseResult>[],
     );
 
     try {
       final response = await ref.read(createSubmissionUsecaseProvider).call(
-            problemId: resolvedProblemId,
+            problemId: normalizedProblemId,
             language: lang.apiValue,
             code: code,
           );
@@ -120,10 +188,10 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
         submissionId: response.submissionId,
         streamUrl: response.streamUrl,
         submissionStatus: SubmissionStatus.queued,
-        feedbacks: const <String>['채점 대기열에 등록되었습니다. 결과를 조회 중입니다.'],
+        feedbacks: const <String>['채점 스트림을 연결하고 있습니다.'],
       );
 
-      _startPolling(response.submissionId);
+      await _startStreaming(response.streamUrl);
       return true;
     } catch (error) {
       final message = ApiErrorMapper.map(
@@ -141,38 +209,36 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
     }
   }
 
-  void _startPolling(String submissionId) {
-    _pollingTimer?.cancel();
-    _pollingTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      await refreshSubmissionResult(submissionId);
-    });
-  }
-
-  Future<void> refreshSubmissionResult([String? submissionId]) async {
-    final targetSubmissionId = submissionId ?? state.submissionId;
-    if (targetSubmissionId == null || targetSubmissionId.isEmpty) {
-      return;
-    }
-
+  Future<void> _startStreaming(String streamUrl) async {
+    await _submissionStreamSubscription?.cancel();
     try {
-      final result =
-          await ref.read(getSubmissionResultUsecaseProvider).call(targetSubmissionId);
-      if (result == null) {
-        state = state.copyWith(
-          isPolling: true,
-          submissionStatus: SubmissionStatus.judging,
-          feedbacks: const <String>['채점이 진행 중입니다. 잠시만 기다려주세요.'],
-        );
-        return;
-      }
-
-      _applyResult(result);
+      final eventStream =
+          await ref.read(streamSubmissionEventsUsecaseProvider).call(streamUrl);
+      _submissionStreamSubscription = eventStream.listen(
+        _handleStreamEvent,
+        onError: (error, _) {
+          final message = ApiErrorMapper.map(
+            error,
+            fallbackMessage: '채점 스트림을 연결하지 못했습니다.',
+          );
+          state = state.copyWith(
+            isPolling: false,
+            submissionStatus: SubmissionStatus.error,
+            errorMsg: message,
+            feedbacks: [...state.feedbacks, message],
+          );
+        },
+        onDone: () {
+          state = state.copyWith(
+            isPolling: false,
+          );
+        },
+      );
     } catch (error) {
       final message = ApiErrorMapper.map(
         error,
-        fallbackMessage: '채점 결과를 불러오지 못했습니다.',
+        fallbackMessage: '채점 스트림을 연결하지 못했습니다.',
       );
-      _pollingTimer?.cancel();
       state = state.copyWith(
         isPolling: false,
         submissionStatus: SubmissionStatus.error,
@@ -182,25 +248,241 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
     }
   }
 
-  void _applyResult(SubmissionResult result) {
+  void _handleStreamEvent(String payload) {
+    final envelope = _parseStreamEnvelope(payload);
+    if (envelope != null) {
+      final eventName = envelope.event;
+      final eventData = envelope.data;
+
+      if (eventName == 'test_case_result' &&
+          eventData is Map<String, dynamic>) {
+        final testCaseResult = _parseTestCaseResult(eventData);
+        final nextTestCaseResults = _upsertTestCaseResult(
+          state.testCaseResults,
+          testCaseResult,
+        );
+        state = state.copyWith(
+          isPolling: true,
+          submissionStatus: SubmissionStatus.judging,
+          latestVerdict: testCaseResult.status,
+          testCaseResults: nextTestCaseResults,
+          feedbacks: [
+            ...state.feedbacks,
+            _formatTestCaseResultLine(testCaseResult),
+          ],
+          errorMsg: '',
+        );
+        return;
+      }
+
+      if (eventName == 'done' && eventData is Map<String, dynamic>) {
+        final overallStatus = eventData['overallStatus']?.toString().trim();
+        final submissionId =
+            eventData['submissionId']?.toString().trim() ?? state.submissionId;
+        if (overallStatus != null && overallStatus.isNotEmpty) {
+          final nextStatus = _mapSubmissionStatus(overallStatus);
+          final score = _calculateScore(
+            testCaseResults: state.testCaseResults,
+            finalStatus: nextStatus,
+          );
+          final historyProblemId = state.historyProblemId;
+          _submissionStreamSubscription?.cancel();
+          state = state.copyWith(
+            isPolling: false,
+            submissionStatus: nextStatus,
+            latestVerdict: overallStatus,
+            submissionId: submissionId,
+            score: score,
+            feedbacks: [
+              ...state.feedbacks,
+              _completionMessage(nextStatus),
+            ],
+            errorMsg: '',
+          );
+          if (historyProblemId != null && historyProblemId.isNotEmpty) {
+            unawaited(
+              loadSubmissionHistory(
+                problemId: historyProblemId,
+                forceRefresh: true,
+              ),
+            );
+          }
+          return;
+        }
+      }
+    }
+
+    final nextFeedbacks = [...state.feedbacks];
+    final displayLines = _extractDisplayLines(payload);
+    for (final line in displayLines) {
+      if (line.trim().isNotEmpty) {
+        nextFeedbacks.add(line.trim());
+      }
+    }
+
+    final result = _parseSubmissionResult(payload);
+    if (result != null) {
+      _applyResultSnapshot(result, feedbacks: nextFeedbacks);
+      return;
+    }
+
+    final inferredStatus = _inferStatusFromPayload(payload);
+    if (inferredStatus != null) {
+      state = state.copyWith(
+        isPolling: !_isTerminal(inferredStatus),
+        submissionStatus: inferredStatus,
+        latestVerdict: payload.trim(),
+        feedbacks: nextFeedbacks,
+        errorMsg: '',
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      feedbacks: nextFeedbacks,
+      errorMsg: '',
+    );
+  }
+
+  void _applyResultSnapshot(
+    SubmissionResult result, {
+    required List<String> feedbacks,
+  }) {
     final nextStatus = _mapSubmissionStatus(result.status);
-    final passedCount =
-        result.testCases.where((testCase) => testCase.status == 'PASSED').length;
-    final totalCount = result.testCases.length;
-    final score = totalCount == 0 ? 0 : ((passedCount / totalCount) * 100).round();
+    final nextTestCaseResults =
+        result.testCases.isEmpty ? state.testCaseResults : result.testCases;
+    final score = _calculateScore(
+      testCaseResults: nextTestCaseResults,
+      finalStatus: nextStatus,
+    );
 
     if (_isTerminal(nextStatus)) {
-      _pollingTimer?.cancel();
+      final historyProblemId = state.historyProblemId;
+      _submissionStreamSubscription?.cancel();
+      if (historyProblemId != null && historyProblemId.isNotEmpty) {
+        unawaited(
+          loadSubmissionHistory(
+            problemId: historyProblemId,
+            forceRefresh: true,
+          ),
+        );
+      }
     }
 
     state = state.copyWith(
       isPolling: !_isTerminal(nextStatus),
       submissionStatus: nextStatus,
       latestVerdict: result.status,
+      submissionId: result.submissionId,
       score: score,
-      feedbacks: _buildFeedbacks(result),
+      feedbacks: feedbacks,
+      testCaseResults: nextTestCaseResults,
       errorMsg: '',
     );
+  }
+
+  SubmissionResult? _parseSubmissionResult(String payload) {
+    final decoded = _tryDecodeJson(payload);
+    if (decoded is! Map<String, dynamic>) {
+      return null;
+    }
+
+    final source = _extractSourceMap(decoded) ?? decoded;
+    final status = source['status']?.toString().trim();
+    final submissionId =
+        source['submissionId']?.toString().trim() ?? state.submissionId;
+
+    if (status == null ||
+        status.isEmpty ||
+        submissionId == null ||
+        submissionId.isEmpty) {
+      return null;
+    }
+
+    final rawTestCases = source['testCases'];
+    final testCases = rawTestCases is List
+        ? rawTestCases
+            .whereType<Map<String, dynamic>>()
+            .map(SubmissionTestCaseResult.fromJson)
+            .toList(growable: false)
+        : const <SubmissionTestCaseResult>[];
+
+    return SubmissionResult(
+      submissionId: submissionId,
+      status: status,
+      testCases: testCases,
+    );
+  }
+
+  List<String> _extractDisplayLines(String payload) {
+    final trimmed = payload.trim();
+    if (trimmed.isEmpty) {
+      return const <String>[];
+    }
+
+    final decoded = _tryDecodeJson(trimmed);
+    if (decoded is Map<String, dynamic>) {
+      final source = _extractSourceMap(decoded) ?? decoded;
+      final lines = <String>[];
+
+      final message = source['message']?.toString().trim();
+      if (message != null && message.isNotEmpty) {
+        lines.add(message);
+      }
+
+      final status = source['status']?.toString().trim();
+      if ((message == null || message.isEmpty) &&
+          status != null &&
+          status.isNotEmpty) {
+        lines.add('상태: $status');
+      }
+
+      return lines.isEmpty ? <String>[trimmed] : lines;
+    }
+
+    return trimmed
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  SubmissionStatus? _inferStatusFromPayload(String payload) {
+    final normalized = payload.trim().toUpperCase();
+    if (normalized.isEmpty) {
+      return null;
+    }
+
+    if (normalized.contains('QUEUED') || normalized.contains('PENDING')) {
+      return SubmissionStatus.queued;
+    }
+
+    if (normalized.contains('RUNNING') || normalized.contains('JUDGING')) {
+      return SubmissionStatus.judging;
+    }
+
+    if (normalized.contains('ACCEPTED') || normalized.contains('PASSED')) {
+      return SubmissionStatus.accepted;
+    }
+
+    if (normalized.contains('WRONG_ANSWER') ||
+        normalized.contains('COMPILE_ERROR') ||
+        normalized.contains('RUNTIME_ERROR') ||
+        normalized.contains('TIME_LIMIT_EXCEEDED') ||
+        normalized.contains('MEMORY_LIMIT_EXCEEDED') ||
+        normalized.contains('FAILED')) {
+      return SubmissionStatus.failed;
+    }
+
+    return null;
+  }
+
+  Object? _tryDecodeJson(String value) {
+    try {
+      return jsonDecode(value);
+    } catch (_) {
+      return null;
+    }
   }
 
   SubmissionStatus _mapSubmissionStatus(String rawStatus) {
@@ -226,54 +508,164 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
       SubmissionStatus.accepted ||
       SubmissionStatus.failed ||
       SubmissionStatus.error ||
-      SubmissionStatus.notSubmitted => true,
+      SubmissionStatus.notSubmitted =>
+        true,
       SubmissionStatus.submitting ||
       SubmissionStatus.queued ||
-      SubmissionStatus.judging => false,
+      SubmissionStatus.judging =>
+        false,
     };
   }
 
-  List<String> _buildFeedbacks(SubmissionResult result) {
-    if (result.testCases.isEmpty) {
-      return <String>['채점 결과를 확인했습니다.'];
+  _SubmissionStreamEnvelope? _parseStreamEnvelope(String payload) {
+    final decoded = _tryDecodeJson(payload);
+    if (decoded is! Map<String, dynamic>) {
+      return null;
     }
 
-    final feedbacks = <String>[];
-    for (final testCase in result.testCases) {
-      final status = testCase.status ?? 'UNKNOWN';
-      if (status == 'PASSED') {
-        feedbacks.add(
-          '${testCase.caseId ?? '-'}번 테스트 케이스를 통과했습니다.',
-        );
-        continue;
-      }
-
-      if ((testCase.error ?? '').isNotEmpty) {
-        feedbacks.add(testCase.error!);
-        continue;
-      }
-
-      if ((testCase.output ?? '').isNotEmpty) {
-        feedbacks.add(
-          '${testCase.caseId ?? '-'}번 테스트 케이스 출력: ${testCase.output}',
-        );
-        continue;
-      }
-
-      feedbacks.add('${testCase.caseId ?? '-'}번 테스트 케이스 결과: $status');
+    final event = decoded['event']?.toString().trim();
+    if (event == null || event.isEmpty) {
+      return null;
     }
-    return feedbacks;
+
+    return _SubmissionStreamEnvelope(
+      event: event,
+      data: decoded['data'],
+    );
+  }
+
+  Map<String, dynamic>? _extractSourceMap(Map<String, dynamic> decoded) {
+    final eventData = decoded['data'];
+    if (eventData is Map<String, dynamic>) {
+      return eventData;
+    }
+
+    return null;
+  }
+
+  SubmissionTestCaseResult _parseTestCaseResult(Map<String, dynamic> json) {
+    return SubmissionTestCaseResult(
+      caseId: _asInt(json['caseId']),
+      status: json['status']?.toString(),
+      timeMs: _asDouble(json['timeMs']),
+      memoryMb: _asDouble(json['memoryMb']),
+      output: json['output']?.toString(),
+      error: json['error']?.toString(),
+    );
+  }
+
+  List<SubmissionTestCaseResult> _upsertTestCaseResult(
+    List<SubmissionTestCaseResult> current,
+    SubmissionTestCaseResult next,
+  ) {
+    final nextCaseId = next.caseId;
+    if (nextCaseId == null) {
+      return [...current, next];
+    }
+
+    final copied = [...current];
+    final index = copied.indexWhere((item) => item.caseId == nextCaseId);
+    if (index >= 0) {
+      copied[index] = next;
+      return copied;
+    }
+
+    copied.add(next);
+    copied.sort((a, b) => (a.caseId ?? 0).compareTo(b.caseId ?? 0));
+    return copied;
+  }
+
+  String _formatTestCaseResultLine(SubmissionTestCaseResult result) {
+    final caseLabel =
+        result.caseId == null ? '테스트 케이스' : '${result.caseId}번 테스트';
+    final status = result.status ?? 'UNKNOWN';
+    final metrics = <String>[];
+    if (result.timeMs != null) {
+      metrics.add('${result.timeMs!.toStringAsFixed(2)}ms');
+    }
+    if (result.memoryMb != null) {
+      metrics.add('${result.memoryMb!.toStringAsFixed(1)}MB');
+    }
+
+    if (metrics.isEmpty) {
+      return '$caseLabel: $status';
+    }
+
+    return '$caseLabel: $status (${metrics.join(', ')})';
+  }
+
+  int _calculateScore({
+    required List<SubmissionTestCaseResult> testCaseResults,
+    required SubmissionStatus finalStatus,
+  }) {
+    if (testCaseResults.isEmpty) {
+      return finalStatus == SubmissionStatus.accepted ? 100 : 0;
+    }
+
+    final passedCount =
+        testCaseResults.where((testCase) => testCase.status == 'PASSED').length;
+    return ((passedCount / testCaseResults.length) * 100).round();
+  }
+
+  String _completionMessage(SubmissionStatus status) {
+    return switch (status) {
+      SubmissionStatus.accepted => '채점이 완료되었습니다. 정답입니다!',
+      SubmissionStatus.failed ||
+      SubmissionStatus.error =>
+        '채점이 완료되었습니다. 오답입니다.',
+      SubmissionStatus.notSubmitted ||
+      SubmissionStatus.submitting ||
+      SubmissionStatus.queued ||
+      SubmissionStatus.judging =>
+        '채점이 완료되었습니다.',
+    };
+  }
+
+  int? _asInt(Object? value) {
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+    if (value is String) {
+      return int.tryParse(value);
+    }
+    return null;
+  }
+
+  double? _asDouble(Object? value) {
+    if (value is double) {
+      return value;
+    }
+    if (value is num) {
+      return value.toDouble();
+    }
+    if (value is String) {
+      return double.tryParse(value);
+    }
+    return null;
   }
 
   @override
   void dispose() {
-    _pollingTimer?.cancel();
+    _submissionStreamSubscription?.cancel();
     super.dispose();
   }
 }
 
-final reportSubmitViewModelProvider =
-    StateNotifierProvider.family<ReportSubmitViewModel, ReportSubmitState, String>(
+class _SubmissionStreamEnvelope {
+  const _SubmissionStreamEnvelope({
+    required this.event,
+    required this.data,
+  });
+
+  final String event;
+  final Object? data;
+}
+
+final reportSubmitViewModelProvider = StateNotifierProvider.family<
+    ReportSubmitViewModel, ReportSubmitState, String>(
   (ref, reportId) => ReportSubmitViewModel(
     reportId: reportId,
     ref: ref,

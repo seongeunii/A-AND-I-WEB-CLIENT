@@ -14,11 +14,13 @@ import 'package:re_highlight/styles/monokai-sublime.dart';
 class SourceCodeSubmitView extends HookConsumerWidget {
   final Report report;
   final bool isDarkMode;
+  final VoidCallback? onSubmitSuccess;
 
   const SourceCodeSubmitView({
     super.key,
     required this.report,
     this.isDarkMode = false,
+    this.onSubmitSuccess,
   });
 
   @override
@@ -35,7 +37,7 @@ class SourceCodeSubmitView extends HookConsumerWidget {
             submitState.selectedLanguage.template,
         const CodeLineOptions(indentSize: 4),
       ),
-      [report.id],
+      [report.id, submitState.selectedLanguage],
     );
 
     useEffect(() {
@@ -55,12 +57,30 @@ class SourceCodeSubmitView extends HookConsumerWidget {
     }, [submitState.selectedLanguage, submitState.draftCodeByLanguage]);
 
     useEffect(() {
+      final language = submitState.selectedLanguage;
+
       void listener() {
         if (isProgrammaticUpdate.value) return;
-        notifier.updateDraft(submitState.selectedLanguage, controller.text);
-        if (showValidationError.value && controller.text.trim().isNotEmpty) {
-          showValidationError.value = false;
-        }
+        final nextText = controller.text;
+
+        Future<void>(() {
+          if (!context.mounted) return;
+
+          final latestState =
+              ref.read(reportSubmitViewModelProvider(report.id));
+          if (latestState.selectedLanguage != language) {
+            return;
+          }
+
+          final latestDraft = latestState.draftCodeByLanguage[language] ?? '';
+          if (latestDraft != nextText) {
+            notifier.updateDraft(language, nextText);
+          }
+
+          if (showValidationError.value && nextText.trim().isNotEmpty) {
+            showValidationError.value = false;
+          }
+        });
       }
 
       controller.addListener(listener);
@@ -107,8 +127,9 @@ class SourceCodeSubmitView extends HookConsumerWidget {
               selected: selected,
               onSelected: (_) => notifier.selectLanguage(language),
               selectedColor: const Color(0xFFE5E7EB),
-              backgroundColor:
-                  isDarkMode ? const Color(0xFF3F3F46) : const Color(0xFFF3F4F6),
+              backgroundColor: isDarkMode
+                  ? const Color(0xFF3F3F46)
+                  : const Color(0xFFF3F4F6),
               side: BorderSide(
                 color: selected
                     ? (isDarkMode
@@ -120,8 +141,9 @@ class SourceCodeSubmitView extends HookConsumerWidget {
               ),
               labelStyle: TextStyle(
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color:
-                    isDarkMode ? const Color(0xFFF5F5F5) : const Color(0xFF000000),
+                color: isDarkMode
+                    ? const Color(0xFFF5F5F5)
+                    : const Color(0xFF000000),
               ),
             );
           }).toList(),
@@ -180,9 +202,10 @@ class SourceCodeSubmitView extends HookConsumerWidget {
               ),
               Expanded(
                 child: CodeEditor(
+                  key: ValueKey('${report.id}-${lang.key}'),
                   controller: controller,
                   wordWrap: false,
-                  autofocus: true,
+                  autofocus: false,
                   autocompleteSymbols: true,
                   style: CodeEditorStyle(
                     fontSize: 13,
@@ -258,7 +281,9 @@ class SourceCodeSubmitView extends HookConsumerWidget {
                 ? null
                 : () async {
                     final success = await notifier.submitCurrentDraft(
-                      problemId: report.problemId,
+                      problemId: report.problemId?.trim().isNotEmpty == true
+                          ? report.problemId
+                          : report.id,
                     );
                     final latestState =
                         ref.read(reportSubmitViewModelProvider(report.id));
@@ -268,9 +293,10 @@ class SourceCodeSubmitView extends HookConsumerWidget {
                       );
                     }
                     if (success && context.mounted) {
+                      onSubmitSuccess?.call();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('제출이 접수되었습니다. 결과 탭에서 상태를 확인하세요.'),
+                          content: Text('제출이 접수되었습니다. 결과 탭으로 이동합니다.'),
                         ),
                       );
                     }

@@ -8,8 +8,13 @@ part 'submission_result.g.dart';
 sealed class SubmissionResult with _$SubmissionResult {
   const factory SubmissionResult({
     required String submissionId,
+    String? problemId,
+    String? language,
     required String status,
-    @Default(<SubmissionTestCaseResult>[]) List<SubmissionTestCaseResult> testCases,
+    @Default(<SubmissionTestCaseResult>[])
+    List<SubmissionTestCaseResult> testCases,
+    DateTime? createdAt,
+    DateTime? completedAt,
   }) = _SubmissionResult;
 
   factory SubmissionResult.fromJson(Map<String, dynamic> json) =>
@@ -22,7 +27,7 @@ sealed class SubmissionTestCaseResult with _$SubmissionTestCaseResult {
   const factory SubmissionTestCaseResult({
     int? caseId,
     String? status,
-    int? timeMs,
+    double? timeMs,
     double? memoryMb,
     String? output,
     String? error,

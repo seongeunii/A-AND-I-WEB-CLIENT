@@ -41,6 +41,7 @@ class ProblemDetailView extends HookWidget {
           report: report,
           selectedTab: selectedTab.value,
           isDarkMode: isDarkMode,
+          onMoveToResultTab: () => selectedTab.value = 2,
         ),
         const SizedBox(height: 64),
         const BottomLogo(),
@@ -131,11 +132,13 @@ class _ContentCard extends StatelessWidget {
   final Report report;
   final int selectedTab;
   final bool isDarkMode;
+  final VoidCallback onMoveToResultTab;
 
   const _ContentCard({
     required this.report,
     required this.selectedTab,
     required this.isDarkMode,
+    required this.onMoveToResultTab,
   });
 
   @override
@@ -149,13 +152,16 @@ class _ContentCard extends StatelessWidget {
           bottomRight: Radius.circular(16),
         ),
         border: Border.all(
-          color:
-              isDarkMode ? const Color(0xFF27272A) : const Color(0xFFE5E7EB),
+          color: isDarkMode ? const Color(0xFF27272A) : const Color(0xFFE5E7EB),
         ),
       ),
       child: switch (selectedTab) {
         0 => _ProblemTab(report: report, isDarkMode: isDarkMode),
-        1 => SourceCodeSubmitView(report: report, isDarkMode: isDarkMode),
+        1 => SourceCodeSubmitView(
+            report: report,
+            isDarkMode: isDarkMode,
+            onSubmitSuccess: onMoveToResultTab,
+          ),
         2 => ReportSubmitResultView(report: report, isDarkMode: isDarkMode),
         _ => _ComingSoon(isDarkMode: isDarkMode),
       },
@@ -179,7 +185,8 @@ class _ProblemTab extends StatelessWidget {
           report.content,
           style: TextStyle(
             fontSize: 14,
-            color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
+            color:
+                isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
             height: 1.7,
           ),
         ),
@@ -223,7 +230,8 @@ class _ComingSoon extends StatelessWidget {
           '준비 중입니다.',
           style: TextStyle(
             fontSize: 14,
-            color: isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
+            color:
+                isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
           ),
         ),
       ),
@@ -262,15 +270,17 @@ class _DeadlineTimer extends HookWidget {
           Icon(
             Icons.schedule,
             size: 15,
-            color: isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF9CA3AF),
+            color:
+                isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF9CA3AF),
           ),
           const SizedBox(width: 5),
           Text(
             '종료됨',
             style: TextStyle(
               fontSize: 13,
-              color:
-                  isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF9CA3AF),
+              color: isDarkMode
+                  ? const Color(0xFFA1A1AA)
+                  : const Color(0xFF9CA3AF),
             ),
           ),
         ],
@@ -295,8 +305,9 @@ class _DeadlineTimer extends HookWidget {
             text: '마감까지 ',
             style: TextStyle(
               fontSize: 13,
-              color:
-                  isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF6B7280),
+              color: isDarkMode
+                  ? const Color(0xFFA1A1AA)
+                  : const Color(0xFF6B7280),
             ),
             children: [
               TextSpan(
@@ -304,8 +315,9 @@ class _DeadlineTimer extends HookWidget {
                 style: TextStyle(
                   fontFamily: 'monospace',
                   fontWeight: FontWeight.w600,
-                  color:
-                      isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
+                  color: isDarkMode
+                      ? const Color(0xFFE5E7EB)
+                      : const Color(0xFF000000),
                 ),
               ),
             ],

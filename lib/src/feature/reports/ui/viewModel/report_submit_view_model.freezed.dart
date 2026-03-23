@@ -23,12 +23,18 @@ mixin _$ReportSubmitState {
   int get submitCount;
   int get score;
   List<String> get feedbacks;
+  List<SubmissionTestCaseResult> get testCaseResults;
+  List<SubmissionResult> get previousSubmissions;
   String? get submissionId;
   String? get streamUrl;
+  String? get historyProblemId;
   String? get latestVerdict;
   bool get isSubmitting;
   bool get isPolling;
+  bool get isHistoryLoading;
+  bool get hasLoadedHistory;
   String get errorMsg;
+  String get historyErrorMsg;
 
   /// Create a copy of ReportSubmitState
   /// with the given fields replaced by the non-null parameter values.
@@ -60,42 +66,61 @@ mixin _$ReportSubmitState {
                 other.submitCount == submitCount) &&
             (identical(other.score, score) || other.score == score) &&
             const DeepCollectionEquality().equals(other.feedbacks, feedbacks) &&
+            const DeepCollectionEquality()
+                .equals(other.testCaseResults, testCaseResults) &&
+            const DeepCollectionEquality()
+                .equals(other.previousSubmissions, previousSubmissions) &&
             (identical(other.submissionId, submissionId) ||
                 other.submissionId == submissionId) &&
             (identical(other.streamUrl, streamUrl) ||
                 other.streamUrl == streamUrl) &&
+            (identical(other.historyProblemId, historyProblemId) ||
+                other.historyProblemId == historyProblemId) &&
             (identical(other.latestVerdict, latestVerdict) ||
                 other.latestVerdict == latestVerdict) &&
             (identical(other.isSubmitting, isSubmitting) ||
                 other.isSubmitting == isSubmitting) &&
             (identical(other.isPolling, isPolling) ||
                 other.isPolling == isPolling) &&
+            (identical(other.isHistoryLoading, isHistoryLoading) ||
+                other.isHistoryLoading == isHistoryLoading) &&
+            (identical(other.hasLoadedHistory, hasLoadedHistory) ||
+                other.hasLoadedHistory == hasLoadedHistory) &&
             (identical(other.errorMsg, errorMsg) ||
-                other.errorMsg == errorMsg));
+                other.errorMsg == errorMsg) &&
+            (identical(other.historyErrorMsg, historyErrorMsg) ||
+                other.historyErrorMsg == historyErrorMsg));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      selectedLanguage,
-      const DeepCollectionEquality().hash(draftCodeByLanguage),
-      submissionStatus,
-      latestSubmittedCode,
-      latestSubmittedLanguage,
-      submittedAt,
-      submitCount,
-      score,
-      const DeepCollectionEquality().hash(feedbacks),
-      submissionId,
-      streamUrl,
-      latestVerdict,
-      isSubmitting,
-      isPolling,
-      errorMsg);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        selectedLanguage,
+        const DeepCollectionEquality().hash(draftCodeByLanguage),
+        submissionStatus,
+        latestSubmittedCode,
+        latestSubmittedLanguage,
+        submittedAt,
+        submitCount,
+        score,
+        const DeepCollectionEquality().hash(feedbacks),
+        const DeepCollectionEquality().hash(testCaseResults),
+        const DeepCollectionEquality().hash(previousSubmissions),
+        submissionId,
+        streamUrl,
+        historyProblemId,
+        latestVerdict,
+        isSubmitting,
+        isPolling,
+        isHistoryLoading,
+        hasLoadedHistory,
+        errorMsg,
+        historyErrorMsg
+      ]);
 
   @override
   String toString() {
-    return 'ReportSubmitState(selectedLanguage: $selectedLanguage, draftCodeByLanguage: $draftCodeByLanguage, submissionStatus: $submissionStatus, latestSubmittedCode: $latestSubmittedCode, latestSubmittedLanguage: $latestSubmittedLanguage, submittedAt: $submittedAt, submitCount: $submitCount, score: $score, feedbacks: $feedbacks, submissionId: $submissionId, streamUrl: $streamUrl, latestVerdict: $latestVerdict, isSubmitting: $isSubmitting, isPolling: $isPolling, errorMsg: $errorMsg)';
+    return 'ReportSubmitState(selectedLanguage: $selectedLanguage, draftCodeByLanguage: $draftCodeByLanguage, submissionStatus: $submissionStatus, latestSubmittedCode: $latestSubmittedCode, latestSubmittedLanguage: $latestSubmittedLanguage, submittedAt: $submittedAt, submitCount: $submitCount, score: $score, feedbacks: $feedbacks, testCaseResults: $testCaseResults, previousSubmissions: $previousSubmissions, submissionId: $submissionId, streamUrl: $streamUrl, historyProblemId: $historyProblemId, latestVerdict: $latestVerdict, isSubmitting: $isSubmitting, isPolling: $isPolling, isHistoryLoading: $isHistoryLoading, hasLoadedHistory: $hasLoadedHistory, errorMsg: $errorMsg, historyErrorMsg: $historyErrorMsg)';
   }
 }
 
@@ -115,12 +140,18 @@ abstract mixin class $ReportSubmitStateCopyWith<$Res> {
       int submitCount,
       int score,
       List<String> feedbacks,
+      List<SubmissionTestCaseResult> testCaseResults,
+      List<SubmissionResult> previousSubmissions,
       String? submissionId,
       String? streamUrl,
+      String? historyProblemId,
       String? latestVerdict,
       bool isSubmitting,
       bool isPolling,
-      String errorMsg});
+      bool isHistoryLoading,
+      bool hasLoadedHistory,
+      String errorMsg,
+      String historyErrorMsg});
 }
 
 /// @nodoc
@@ -145,12 +176,18 @@ class _$ReportSubmitStateCopyWithImpl<$Res>
     Object? submitCount = null,
     Object? score = null,
     Object? feedbacks = null,
+    Object? testCaseResults = null,
+    Object? previousSubmissions = null,
     Object? submissionId = freezed,
     Object? streamUrl = freezed,
+    Object? historyProblemId = freezed,
     Object? latestVerdict = freezed,
     Object? isSubmitting = null,
     Object? isPolling = null,
+    Object? isHistoryLoading = null,
+    Object? hasLoadedHistory = null,
     Object? errorMsg = null,
+    Object? historyErrorMsg = null,
   }) {
     return _then(_self.copyWith(
       selectedLanguage: null == selectedLanguage
@@ -189,6 +226,14 @@ class _$ReportSubmitStateCopyWithImpl<$Res>
           ? _self.feedbacks
           : feedbacks // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      testCaseResults: null == testCaseResults
+          ? _self.testCaseResults
+          : testCaseResults // ignore: cast_nullable_to_non_nullable
+              as List<SubmissionTestCaseResult>,
+      previousSubmissions: null == previousSubmissions
+          ? _self.previousSubmissions
+          : previousSubmissions // ignore: cast_nullable_to_non_nullable
+              as List<SubmissionResult>,
       submissionId: freezed == submissionId
           ? _self.submissionId
           : submissionId // ignore: cast_nullable_to_non_nullable
@@ -196,6 +241,10 @@ class _$ReportSubmitStateCopyWithImpl<$Res>
       streamUrl: freezed == streamUrl
           ? _self.streamUrl
           : streamUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      historyProblemId: freezed == historyProblemId
+          ? _self.historyProblemId
+          : historyProblemId // ignore: cast_nullable_to_non_nullable
               as String?,
       latestVerdict: freezed == latestVerdict
           ? _self.latestVerdict
@@ -209,9 +258,21 @@ class _$ReportSubmitStateCopyWithImpl<$Res>
           ? _self.isPolling
           : isPolling // ignore: cast_nullable_to_non_nullable
               as bool,
+      isHistoryLoading: null == isHistoryLoading
+          ? _self.isHistoryLoading
+          : isHistoryLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      hasLoadedHistory: null == hasLoadedHistory
+          ? _self.hasLoadedHistory
+          : hasLoadedHistory // ignore: cast_nullable_to_non_nullable
+              as bool,
       errorMsg: null == errorMsg
           ? _self.errorMsg
           : errorMsg // ignore: cast_nullable_to_non_nullable
+              as String,
+      historyErrorMsg: null == historyErrorMsg
+          ? _self.historyErrorMsg
+          : historyErrorMsg // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
@@ -320,12 +381,18 @@ extension ReportSubmitStatePatterns on ReportSubmitState {
             int submitCount,
             int score,
             List<String> feedbacks,
+            List<SubmissionTestCaseResult> testCaseResults,
+            List<SubmissionResult> previousSubmissions,
             String? submissionId,
             String? streamUrl,
+            String? historyProblemId,
             String? latestVerdict,
             bool isSubmitting,
             bool isPolling,
-            String errorMsg)?
+            bool isHistoryLoading,
+            bool hasLoadedHistory,
+            String errorMsg,
+            String historyErrorMsg)?
         $default, {
     required TResult orElse(),
   }) {
@@ -342,12 +409,18 @@ extension ReportSubmitStatePatterns on ReportSubmitState {
             _that.submitCount,
             _that.score,
             _that.feedbacks,
+            _that.testCaseResults,
+            _that.previousSubmissions,
             _that.submissionId,
             _that.streamUrl,
+            _that.historyProblemId,
             _that.latestVerdict,
             _that.isSubmitting,
             _that.isPolling,
-            _that.errorMsg);
+            _that.isHistoryLoading,
+            _that.hasLoadedHistory,
+            _that.errorMsg,
+            _that.historyErrorMsg);
       case _:
         return orElse();
     }
@@ -378,12 +451,18 @@ extension ReportSubmitStatePatterns on ReportSubmitState {
             int submitCount,
             int score,
             List<String> feedbacks,
+            List<SubmissionTestCaseResult> testCaseResults,
+            List<SubmissionResult> previousSubmissions,
             String? submissionId,
             String? streamUrl,
+            String? historyProblemId,
             String? latestVerdict,
             bool isSubmitting,
             bool isPolling,
-            String errorMsg)
+            bool isHistoryLoading,
+            bool hasLoadedHistory,
+            String errorMsg,
+            String historyErrorMsg)
         $default,
   ) {
     final _that = this;
@@ -399,12 +478,18 @@ extension ReportSubmitStatePatterns on ReportSubmitState {
             _that.submitCount,
             _that.score,
             _that.feedbacks,
+            _that.testCaseResults,
+            _that.previousSubmissions,
             _that.submissionId,
             _that.streamUrl,
+            _that.historyProblemId,
             _that.latestVerdict,
             _that.isSubmitting,
             _that.isPolling,
-            _that.errorMsg);
+            _that.isHistoryLoading,
+            _that.hasLoadedHistory,
+            _that.errorMsg,
+            _that.historyErrorMsg);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -434,12 +519,18 @@ extension ReportSubmitStatePatterns on ReportSubmitState {
             int submitCount,
             int score,
             List<String> feedbacks,
+            List<SubmissionTestCaseResult> testCaseResults,
+            List<SubmissionResult> previousSubmissions,
             String? submissionId,
             String? streamUrl,
+            String? historyProblemId,
             String? latestVerdict,
             bool isSubmitting,
             bool isPolling,
-            String errorMsg)?
+            bool isHistoryLoading,
+            bool hasLoadedHistory,
+            String errorMsg,
+            String historyErrorMsg)?
         $default,
   ) {
     final _that = this;
@@ -455,12 +546,18 @@ extension ReportSubmitStatePatterns on ReportSubmitState {
             _that.submitCount,
             _that.score,
             _that.feedbacks,
+            _that.testCaseResults,
+            _that.previousSubmissions,
             _that.submissionId,
             _that.streamUrl,
+            _that.historyProblemId,
             _that.latestVerdict,
             _that.isSubmitting,
             _that.isPolling,
-            _that.errorMsg);
+            _that.isHistoryLoading,
+            _that.hasLoadedHistory,
+            _that.errorMsg,
+            _that.historyErrorMsg);
       case _:
         return null;
     }
@@ -480,14 +577,24 @@ class _ReportSubmitState implements ReportSubmitState {
       this.submitCount = 0,
       this.score = 0,
       final List<String> feedbacks = const <String>[],
+      final List<SubmissionTestCaseResult> testCaseResults =
+          const <SubmissionTestCaseResult>[],
+      final List<SubmissionResult> previousSubmissions =
+          const <SubmissionResult>[],
       this.submissionId,
       this.streamUrl,
+      this.historyProblemId,
       this.latestVerdict,
       this.isSubmitting = false,
       this.isPolling = false,
-      this.errorMsg = ''})
+      this.isHistoryLoading = false,
+      this.hasLoadedHistory = false,
+      this.errorMsg = '',
+      this.historyErrorMsg = ''})
       : _draftCodeByLanguage = draftCodeByLanguage,
-        _feedbacks = feedbacks;
+        _feedbacks = feedbacks,
+        _testCaseResults = testCaseResults,
+        _previousSubmissions = previousSubmissions;
 
   @override
   final SubmitLanguage selectedLanguage;
@@ -525,10 +632,31 @@ class _ReportSubmitState implements ReportSubmitState {
     return EqualUnmodifiableListView(_feedbacks);
   }
 
+  final List<SubmissionTestCaseResult> _testCaseResults;
+  @override
+  @JsonKey()
+  List<SubmissionTestCaseResult> get testCaseResults {
+    if (_testCaseResults is EqualUnmodifiableListView) return _testCaseResults;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_testCaseResults);
+  }
+
+  final List<SubmissionResult> _previousSubmissions;
+  @override
+  @JsonKey()
+  List<SubmissionResult> get previousSubmissions {
+    if (_previousSubmissions is EqualUnmodifiableListView)
+      return _previousSubmissions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_previousSubmissions);
+  }
+
   @override
   final String? submissionId;
   @override
   final String? streamUrl;
+  @override
+  final String? historyProblemId;
   @override
   final String? latestVerdict;
   @override
@@ -539,7 +667,16 @@ class _ReportSubmitState implements ReportSubmitState {
   final bool isPolling;
   @override
   @JsonKey()
+  final bool isHistoryLoading;
+  @override
+  @JsonKey()
+  final bool hasLoadedHistory;
+  @override
+  @JsonKey()
   final String errorMsg;
+  @override
+  @JsonKey()
+  final String historyErrorMsg;
 
   /// Create a copy of ReportSubmitState
   /// with the given fields replaced by the non-null parameter values.
@@ -572,42 +709,61 @@ class _ReportSubmitState implements ReportSubmitState {
             (identical(other.score, score) || other.score == score) &&
             const DeepCollectionEquality()
                 .equals(other._feedbacks, _feedbacks) &&
+            const DeepCollectionEquality()
+                .equals(other._testCaseResults, _testCaseResults) &&
+            const DeepCollectionEquality()
+                .equals(other._previousSubmissions, _previousSubmissions) &&
             (identical(other.submissionId, submissionId) ||
                 other.submissionId == submissionId) &&
             (identical(other.streamUrl, streamUrl) ||
                 other.streamUrl == streamUrl) &&
+            (identical(other.historyProblemId, historyProblemId) ||
+                other.historyProblemId == historyProblemId) &&
             (identical(other.latestVerdict, latestVerdict) ||
                 other.latestVerdict == latestVerdict) &&
             (identical(other.isSubmitting, isSubmitting) ||
                 other.isSubmitting == isSubmitting) &&
             (identical(other.isPolling, isPolling) ||
                 other.isPolling == isPolling) &&
+            (identical(other.isHistoryLoading, isHistoryLoading) ||
+                other.isHistoryLoading == isHistoryLoading) &&
+            (identical(other.hasLoadedHistory, hasLoadedHistory) ||
+                other.hasLoadedHistory == hasLoadedHistory) &&
             (identical(other.errorMsg, errorMsg) ||
-                other.errorMsg == errorMsg));
+                other.errorMsg == errorMsg) &&
+            (identical(other.historyErrorMsg, historyErrorMsg) ||
+                other.historyErrorMsg == historyErrorMsg));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      selectedLanguage,
-      const DeepCollectionEquality().hash(_draftCodeByLanguage),
-      submissionStatus,
-      latestSubmittedCode,
-      latestSubmittedLanguage,
-      submittedAt,
-      submitCount,
-      score,
-      const DeepCollectionEquality().hash(_feedbacks),
-      submissionId,
-      streamUrl,
-      latestVerdict,
-      isSubmitting,
-      isPolling,
-      errorMsg);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        selectedLanguage,
+        const DeepCollectionEquality().hash(_draftCodeByLanguage),
+        submissionStatus,
+        latestSubmittedCode,
+        latestSubmittedLanguage,
+        submittedAt,
+        submitCount,
+        score,
+        const DeepCollectionEquality().hash(_feedbacks),
+        const DeepCollectionEquality().hash(_testCaseResults),
+        const DeepCollectionEquality().hash(_previousSubmissions),
+        submissionId,
+        streamUrl,
+        historyProblemId,
+        latestVerdict,
+        isSubmitting,
+        isPolling,
+        isHistoryLoading,
+        hasLoadedHistory,
+        errorMsg,
+        historyErrorMsg
+      ]);
 
   @override
   String toString() {
-    return 'ReportSubmitState(selectedLanguage: $selectedLanguage, draftCodeByLanguage: $draftCodeByLanguage, submissionStatus: $submissionStatus, latestSubmittedCode: $latestSubmittedCode, latestSubmittedLanguage: $latestSubmittedLanguage, submittedAt: $submittedAt, submitCount: $submitCount, score: $score, feedbacks: $feedbacks, submissionId: $submissionId, streamUrl: $streamUrl, latestVerdict: $latestVerdict, isSubmitting: $isSubmitting, isPolling: $isPolling, errorMsg: $errorMsg)';
+    return 'ReportSubmitState(selectedLanguage: $selectedLanguage, draftCodeByLanguage: $draftCodeByLanguage, submissionStatus: $submissionStatus, latestSubmittedCode: $latestSubmittedCode, latestSubmittedLanguage: $latestSubmittedLanguage, submittedAt: $submittedAt, submitCount: $submitCount, score: $score, feedbacks: $feedbacks, testCaseResults: $testCaseResults, previousSubmissions: $previousSubmissions, submissionId: $submissionId, streamUrl: $streamUrl, historyProblemId: $historyProblemId, latestVerdict: $latestVerdict, isSubmitting: $isSubmitting, isPolling: $isPolling, isHistoryLoading: $isHistoryLoading, hasLoadedHistory: $hasLoadedHistory, errorMsg: $errorMsg, historyErrorMsg: $historyErrorMsg)';
   }
 }
 
@@ -629,12 +785,18 @@ abstract mixin class _$ReportSubmitStateCopyWith<$Res>
       int submitCount,
       int score,
       List<String> feedbacks,
+      List<SubmissionTestCaseResult> testCaseResults,
+      List<SubmissionResult> previousSubmissions,
       String? submissionId,
       String? streamUrl,
+      String? historyProblemId,
       String? latestVerdict,
       bool isSubmitting,
       bool isPolling,
-      String errorMsg});
+      bool isHistoryLoading,
+      bool hasLoadedHistory,
+      String errorMsg,
+      String historyErrorMsg});
 }
 
 /// @nodoc
@@ -659,12 +821,18 @@ class __$ReportSubmitStateCopyWithImpl<$Res>
     Object? submitCount = null,
     Object? score = null,
     Object? feedbacks = null,
+    Object? testCaseResults = null,
+    Object? previousSubmissions = null,
     Object? submissionId = freezed,
     Object? streamUrl = freezed,
+    Object? historyProblemId = freezed,
     Object? latestVerdict = freezed,
     Object? isSubmitting = null,
     Object? isPolling = null,
+    Object? isHistoryLoading = null,
+    Object? hasLoadedHistory = null,
     Object? errorMsg = null,
+    Object? historyErrorMsg = null,
   }) {
     return _then(_ReportSubmitState(
       selectedLanguage: null == selectedLanguage
@@ -703,6 +871,14 @@ class __$ReportSubmitStateCopyWithImpl<$Res>
           ? _self._feedbacks
           : feedbacks // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      testCaseResults: null == testCaseResults
+          ? _self._testCaseResults
+          : testCaseResults // ignore: cast_nullable_to_non_nullable
+              as List<SubmissionTestCaseResult>,
+      previousSubmissions: null == previousSubmissions
+          ? _self._previousSubmissions
+          : previousSubmissions // ignore: cast_nullable_to_non_nullable
+              as List<SubmissionResult>,
       submissionId: freezed == submissionId
           ? _self.submissionId
           : submissionId // ignore: cast_nullable_to_non_nullable
@@ -710,6 +886,10 @@ class __$ReportSubmitStateCopyWithImpl<$Res>
       streamUrl: freezed == streamUrl
           ? _self.streamUrl
           : streamUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
+      historyProblemId: freezed == historyProblemId
+          ? _self.historyProblemId
+          : historyProblemId // ignore: cast_nullable_to_non_nullable
               as String?,
       latestVerdict: freezed == latestVerdict
           ? _self.latestVerdict
@@ -723,9 +903,21 @@ class __$ReportSubmitStateCopyWithImpl<$Res>
           ? _self.isPolling
           : isPolling // ignore: cast_nullable_to_non_nullable
               as bool,
+      isHistoryLoading: null == isHistoryLoading
+          ? _self.isHistoryLoading
+          : isHistoryLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      hasLoadedHistory: null == hasLoadedHistory
+          ? _self.hasLoadedHistory
+          : hasLoadedHistory // ignore: cast_nullable_to_non_nullable
+              as bool,
       errorMsg: null == errorMsg
           ? _self.errorMsg
           : errorMsg // ignore: cast_nullable_to_non_nullable
+              as String,
+      historyErrorMsg: null == historyErrorMsg
+          ? _self.historyErrorMsg
+          : historyErrorMsg // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }

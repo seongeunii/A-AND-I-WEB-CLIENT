@@ -15,9 +15,13 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SubmissionResultResponseDto {
   String get submissionId;
+  String? get problemId;
+  String? get language;
   String get status;
   @JsonKey(fromJson: _parseTestCases)
   List<SubmissionTestCaseResult> get testCases;
+  DateTime? get createdAt;
+  DateTime? get completedAt;
 
   /// Create a copy of SubmissionResultResponseDto
   /// with the given fields replaced by the non-null parameter values.
@@ -38,18 +42,33 @@ mixin _$SubmissionResultResponseDto {
             other is SubmissionResultResponseDto &&
             (identical(other.submissionId, submissionId) ||
                 other.submissionId == submissionId) &&
+            (identical(other.problemId, problemId) ||
+                other.problemId == problemId) &&
+            (identical(other.language, language) ||
+                other.language == language) &&
             (identical(other.status, status) || other.status == status) &&
-            const DeepCollectionEquality().equals(other.testCases, testCases));
+            const DeepCollectionEquality().equals(other.testCases, testCases) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.completedAt, completedAt) ||
+                other.completedAt == completedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, submissionId, status,
-      const DeepCollectionEquality().hash(testCases));
+  int get hashCode => Object.hash(
+      runtimeType,
+      submissionId,
+      problemId,
+      language,
+      status,
+      const DeepCollectionEquality().hash(testCases),
+      createdAt,
+      completedAt);
 
   @override
   String toString() {
-    return 'SubmissionResultResponseDto(submissionId: $submissionId, status: $status, testCases: $testCases)';
+    return 'SubmissionResultResponseDto(submissionId: $submissionId, problemId: $problemId, language: $language, status: $status, testCases: $testCases, createdAt: $createdAt, completedAt: $completedAt)';
   }
 }
 
@@ -62,9 +81,13 @@ abstract mixin class $SubmissionResultResponseDtoCopyWith<$Res> {
   @useResult
   $Res call(
       {String submissionId,
+      String? problemId,
+      String? language,
       String status,
       @JsonKey(fromJson: _parseTestCases)
-      List<SubmissionTestCaseResult> testCases});
+      List<SubmissionTestCaseResult> testCases,
+      DateTime? createdAt,
+      DateTime? completedAt});
 }
 
 /// @nodoc
@@ -81,14 +104,26 @@ class _$SubmissionResultResponseDtoCopyWithImpl<$Res>
   @override
   $Res call({
     Object? submissionId = null,
+    Object? problemId = freezed,
+    Object? language = freezed,
     Object? status = null,
     Object? testCases = null,
+    Object? createdAt = freezed,
+    Object? completedAt = freezed,
   }) {
     return _then(_self.copyWith(
       submissionId: null == submissionId
           ? _self.submissionId
           : submissionId // ignore: cast_nullable_to_non_nullable
               as String,
+      problemId: freezed == problemId
+          ? _self.problemId
+          : problemId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      language: freezed == language
+          ? _self.language
+          : language // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -97,6 +132,14 @@ class _$SubmissionResultResponseDtoCopyWithImpl<$Res>
           ? _self.testCases
           : testCases // ignore: cast_nullable_to_non_nullable
               as List<SubmissionTestCaseResult>,
+      createdAt: freezed == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      completedAt: freezed == completedAt
+          ? _self.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -196,16 +239,21 @@ extension SubmissionResultResponseDtoPatterns on SubmissionResultResponseDto {
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
             String submissionId,
+            String? problemId,
+            String? language,
             String status,
             @JsonKey(fromJson: _parseTestCases)
-            List<SubmissionTestCaseResult> testCases)?
+            List<SubmissionTestCaseResult> testCases,
+            DateTime? createdAt,
+            DateTime? completedAt)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _SubmissionResultResponseDto() when $default != null:
-        return $default(_that.submissionId, _that.status, _that.testCases);
+        return $default(_that.submissionId, _that.problemId, _that.language,
+            _that.status, _that.testCases, _that.createdAt, _that.completedAt);
       case _:
         return orElse();
     }
@@ -228,15 +276,20 @@ extension SubmissionResultResponseDtoPatterns on SubmissionResultResponseDto {
   TResult when<TResult extends Object?>(
     TResult Function(
             String submissionId,
+            String? problemId,
+            String? language,
             String status,
             @JsonKey(fromJson: _parseTestCases)
-            List<SubmissionTestCaseResult> testCases)
+            List<SubmissionTestCaseResult> testCases,
+            DateTime? createdAt,
+            DateTime? completedAt)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SubmissionResultResponseDto():
-        return $default(_that.submissionId, _that.status, _that.testCases);
+        return $default(_that.submissionId, _that.problemId, _that.language,
+            _that.status, _that.testCases, _that.createdAt, _that.completedAt);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -258,15 +311,20 @@ extension SubmissionResultResponseDtoPatterns on SubmissionResultResponseDto {
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
             String submissionId,
+            String? problemId,
+            String? language,
             String status,
             @JsonKey(fromJson: _parseTestCases)
-            List<SubmissionTestCaseResult> testCases)?
+            List<SubmissionTestCaseResult> testCases,
+            DateTime? createdAt,
+            DateTime? completedAt)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SubmissionResultResponseDto() when $default != null:
-        return $default(_that.submissionId, _that.status, _that.testCases);
+        return $default(_that.submissionId, _that.problemId, _that.language,
+            _that.status, _that.testCases, _that.createdAt, _that.completedAt);
       case _:
         return null;
     }
@@ -278,10 +336,14 @@ extension SubmissionResultResponseDtoPatterns on SubmissionResultResponseDto {
 class _SubmissionResultResponseDto extends SubmissionResultResponseDto {
   const _SubmissionResultResponseDto(
       {required this.submissionId,
+      this.problemId,
+      this.language,
       required this.status,
       @JsonKey(fromJson: _parseTestCases)
       final List<SubmissionTestCaseResult> testCases =
-          const <SubmissionTestCaseResult>[]})
+          const <SubmissionTestCaseResult>[],
+      this.createdAt,
+      this.completedAt})
       : _testCases = testCases,
         super._();
   factory _SubmissionResultResponseDto.fromJson(Map<String, dynamic> json) =>
@@ -289,6 +351,10 @@ class _SubmissionResultResponseDto extends SubmissionResultResponseDto {
 
   @override
   final String submissionId;
+  @override
+  final String? problemId;
+  @override
+  final String? language;
   @override
   final String status;
   final List<SubmissionTestCaseResult> _testCases;
@@ -299,6 +365,11 @@ class _SubmissionResultResponseDto extends SubmissionResultResponseDto {
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_testCases);
   }
+
+  @override
+  final DateTime? createdAt;
+  @override
+  final DateTime? completedAt;
 
   /// Create a copy of SubmissionResultResponseDto
   /// with the given fields replaced by the non-null parameter values.
@@ -323,19 +394,34 @@ class _SubmissionResultResponseDto extends SubmissionResultResponseDto {
             other is _SubmissionResultResponseDto &&
             (identical(other.submissionId, submissionId) ||
                 other.submissionId == submissionId) &&
+            (identical(other.problemId, problemId) ||
+                other.problemId == problemId) &&
+            (identical(other.language, language) ||
+                other.language == language) &&
             (identical(other.status, status) || other.status == status) &&
             const DeepCollectionEquality()
-                .equals(other._testCases, _testCases));
+                .equals(other._testCases, _testCases) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.completedAt, completedAt) ||
+                other.completedAt == completedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, submissionId, status,
-      const DeepCollectionEquality().hash(_testCases));
+  int get hashCode => Object.hash(
+      runtimeType,
+      submissionId,
+      problemId,
+      language,
+      status,
+      const DeepCollectionEquality().hash(_testCases),
+      createdAt,
+      completedAt);
 
   @override
   String toString() {
-    return 'SubmissionResultResponseDto(submissionId: $submissionId, status: $status, testCases: $testCases)';
+    return 'SubmissionResultResponseDto(submissionId: $submissionId, problemId: $problemId, language: $language, status: $status, testCases: $testCases, createdAt: $createdAt, completedAt: $completedAt)';
   }
 }
 
@@ -350,9 +436,13 @@ abstract mixin class _$SubmissionResultResponseDtoCopyWith<$Res>
   @useResult
   $Res call(
       {String submissionId,
+      String? problemId,
+      String? language,
       String status,
       @JsonKey(fromJson: _parseTestCases)
-      List<SubmissionTestCaseResult> testCases});
+      List<SubmissionTestCaseResult> testCases,
+      DateTime? createdAt,
+      DateTime? completedAt});
 }
 
 /// @nodoc
@@ -369,14 +459,26 @@ class __$SubmissionResultResponseDtoCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? submissionId = null,
+    Object? problemId = freezed,
+    Object? language = freezed,
     Object? status = null,
     Object? testCases = null,
+    Object? createdAt = freezed,
+    Object? completedAt = freezed,
   }) {
     return _then(_SubmissionResultResponseDto(
       submissionId: null == submissionId
           ? _self.submissionId
           : submissionId // ignore: cast_nullable_to_non_nullable
               as String,
+      problemId: freezed == problemId
+          ? _self.problemId
+          : problemId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      language: freezed == language
+          ? _self.language
+          : language // ignore: cast_nullable_to_non_nullable
+              as String?,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -385,6 +487,14 @@ class __$SubmissionResultResponseDtoCopyWithImpl<$Res>
           ? _self._testCases
           : testCases // ignore: cast_nullable_to_non_nullable
               as List<SubmissionTestCaseResult>,
+      createdAt: freezed == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      completedAt: freezed == completedAt
+          ? _self.completedAt
+          : completedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }

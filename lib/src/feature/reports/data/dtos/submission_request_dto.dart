@@ -8,6 +8,7 @@ part 'submission_request_dto.g.dart';
 abstract class SubmissionRequestDto with _$SubmissionRequestDto {
   /// 제출 생성 요청 DTO를 생성합니다.
   const factory SubmissionRequestDto({
+    required String publicCode,
     required String problemId,
     required String language,
     required String code,

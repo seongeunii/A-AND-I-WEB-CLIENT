@@ -14,6 +14,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$SubmissionRequestDto {
+  String get publicCode;
   String get problemId;
   String get language;
   String get code;
@@ -35,6 +36,8 @@ mixin _$SubmissionRequestDto {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is SubmissionRequestDto &&
+            (identical(other.publicCode, publicCode) ||
+                other.publicCode == publicCode) &&
             (identical(other.problemId, problemId) ||
                 other.problemId == problemId) &&
             (identical(other.language, language) ||
@@ -46,11 +49,11 @@ mixin _$SubmissionRequestDto {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, problemId, language, code, options);
+      Object.hash(runtimeType, publicCode, problemId, language, code, options);
 
   @override
   String toString() {
-    return 'SubmissionRequestDto(problemId: $problemId, language: $language, code: $code, options: $options)';
+    return 'SubmissionRequestDto(publicCode: $publicCode, problemId: $problemId, language: $language, code: $code, options: $options)';
   }
 }
 
@@ -61,7 +64,8 @@ abstract mixin class $SubmissionRequestDtoCopyWith<$Res> {
       _$SubmissionRequestDtoCopyWithImpl;
   @useResult
   $Res call(
-      {String problemId,
+      {String publicCode,
+      String problemId,
       String language,
       String code,
       SubmissionOptionsDto options});
@@ -82,12 +86,17 @@ class _$SubmissionRequestDtoCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? publicCode = null,
     Object? problemId = null,
     Object? language = null,
     Object? code = null,
     Object? options = null,
   }) {
     return _then(_self.copyWith(
+      publicCode: null == publicCode
+          ? _self.publicCode
+          : publicCode // ignore: cast_nullable_to_non_nullable
+              as String,
       problemId: null == problemId
           ? _self.problemId
           : problemId // ignore: cast_nullable_to_non_nullable
@@ -211,16 +220,16 @@ extension SubmissionRequestDtoPatterns on SubmissionRequestDto {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String problemId, String language, String code,
-            SubmissionOptionsDto options)?
+    TResult Function(String publicCode, String problemId, String language,
+            String code, SubmissionOptionsDto options)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _SubmissionRequestDto() when $default != null:
-        return $default(
-            _that.problemId, _that.language, _that.code, _that.options);
+        return $default(_that.publicCode, _that.problemId, _that.language,
+            _that.code, _that.options);
       case _:
         return orElse();
     }
@@ -241,15 +250,15 @@ extension SubmissionRequestDtoPatterns on SubmissionRequestDto {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String problemId, String language, String code,
-            SubmissionOptionsDto options)
+    TResult Function(String publicCode, String problemId, String language,
+            String code, SubmissionOptionsDto options)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SubmissionRequestDto():
-        return $default(
-            _that.problemId, _that.language, _that.code, _that.options);
+        return $default(_that.publicCode, _that.problemId, _that.language,
+            _that.code, _that.options);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -269,15 +278,15 @@ extension SubmissionRequestDtoPatterns on SubmissionRequestDto {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String problemId, String language, String code,
-            SubmissionOptionsDto options)?
+    TResult? Function(String publicCode, String problemId, String language,
+            String code, SubmissionOptionsDto options)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SubmissionRequestDto() when $default != null:
-        return $default(
-            _that.problemId, _that.language, _that.code, _that.options);
+        return $default(_that.publicCode, _that.problemId, _that.language,
+            _that.code, _that.options);
       case _:
         return null;
     }
@@ -288,13 +297,16 @@ extension SubmissionRequestDtoPatterns on SubmissionRequestDto {
 @JsonSerializable()
 class _SubmissionRequestDto implements SubmissionRequestDto {
   const _SubmissionRequestDto(
-      {required this.problemId,
+      {required this.publicCode,
+      required this.problemId,
       required this.language,
       required this.code,
       required this.options});
   factory _SubmissionRequestDto.fromJson(Map<String, dynamic> json) =>
       _$SubmissionRequestDtoFromJson(json);
 
+  @override
+  final String publicCode;
   @override
   final String problemId;
   @override
@@ -325,6 +337,8 @@ class _SubmissionRequestDto implements SubmissionRequestDto {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _SubmissionRequestDto &&
+            (identical(other.publicCode, publicCode) ||
+                other.publicCode == publicCode) &&
             (identical(other.problemId, problemId) ||
                 other.problemId == problemId) &&
             (identical(other.language, language) ||
@@ -336,11 +350,11 @@ class _SubmissionRequestDto implements SubmissionRequestDto {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, problemId, language, code, options);
+      Object.hash(runtimeType, publicCode, problemId, language, code, options);
 
   @override
   String toString() {
-    return 'SubmissionRequestDto(problemId: $problemId, language: $language, code: $code, options: $options)';
+    return 'SubmissionRequestDto(publicCode: $publicCode, problemId: $problemId, language: $language, code: $code, options: $options)';
   }
 }
 
@@ -353,7 +367,8 @@ abstract mixin class _$SubmissionRequestDtoCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String problemId,
+      {String publicCode,
+      String problemId,
       String language,
       String code,
       SubmissionOptionsDto options});
@@ -375,12 +390,17 @@ class __$SubmissionRequestDtoCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
+    Object? publicCode = null,
     Object? problemId = null,
     Object? language = null,
     Object? code = null,
     Object? options = null,
   }) {
     return _then(_SubmissionRequestDto(
+      publicCode: null == publicCode
+          ? _self.publicCode
+          : publicCode // ignore: cast_nullable_to_non_nullable
+              as String,
       problemId: null == problemId
           ? _self.problemId
           : problemId // ignore: cast_nullable_to_non_nullable

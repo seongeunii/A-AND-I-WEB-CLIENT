@@ -8,7 +8,8 @@ part 'submission_repository.g.dart';
 /// 제출 및 채점 관련 API Repository입니다.
 @RestApi()
 abstract class SubmissionRepository {
-  factory SubmissionRepository(Dio dio, {String baseUrl}) = _SubmissionRepository;
+  factory SubmissionRepository(Dio dio, {String baseUrl}) =
+      _SubmissionRepository;
 
   /// 소스 코드 제출을 생성합니다.
   @POST('/v1/submissions')
@@ -23,6 +24,13 @@ abstract class SubmissionRepository {
   @GET('/v1/submissions/{submissionId}')
   Future<SubmissionResultResponseDto> getSubmissionResult(
     @Path('submissionId') String submissionId,
+    @Header('Authorization') String authorization,
+  );
+
+  /// 특정 문제에 대한 내 제출 목록을 조회합니다.
+  @GET('/v1/problems/{problemId}/submissions/me')
+  Future<List<SubmissionResultResponseDto>> getMyProblemSubmissions(
+    @Path('problemId') String problemId,
     @Header('Authorization') String authorization,
   );
 }

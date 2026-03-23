@@ -290,14 +290,19 @@ class _TopNavAction extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(999),
       onTap: onTap,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: palette.textMuted,
-          ),
-        ],
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(999),
+          color: palette.iconBackground,
+          border: Border.all(color: palette.border),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: palette.textMuted,
+        ),
       ),
     );
   }

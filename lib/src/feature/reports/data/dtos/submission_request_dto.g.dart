@@ -9,6 +9,7 @@ part of 'submission_request_dto.dart';
 _SubmissionRequestDto _$SubmissionRequestDtoFromJson(
         Map<String, dynamic> json) =>
     _SubmissionRequestDto(
+      publicCode: json['publicCode'] as String,
       problemId: json['problemId'] as String,
       language: json['language'] as String,
       code: json['code'] as String,
@@ -19,6 +20,7 @@ _SubmissionRequestDto _$SubmissionRequestDtoFromJson(
 Map<String, dynamic> _$SubmissionRequestDtoToJson(
         _SubmissionRequestDto instance) =>
     <String, dynamic>{
+      'publicCode': instance.publicCode,
       'problemId': instance.problemId,
       'language': instance.language,
       'code': instance.code,
