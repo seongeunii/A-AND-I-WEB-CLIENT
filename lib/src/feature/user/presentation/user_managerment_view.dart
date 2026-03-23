@@ -261,83 +261,129 @@ class UserManagermentViewState extends ConsumerState<UserManagermentView> {
 
     final passwords = await showDialog<Map<String, String>>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('비밀번호 변경'),
-        content: SizedBox(
-          width: 420,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: currentPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '현재 비밀번호',
-                  hintText: '현재 비밀번호를 입력하세요',
-                ),
+      builder: (dialogContext) {
+        var isCurrentPasswordVisible = false;
+        var isNewPasswordVisible = false;
+        var isConfirmPasswordVisible = false;
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const Text('비밀번호 변경'),
+            content: SizedBox(
+              width: 420,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: currentPasswordController,
+                    obscureText: !isCurrentPasswordVisible,
+                    decoration: InputDecoration(
+                      labelText: '현재 비밀번호',
+                      hintText: '현재 비밀번호를 입력하세요',
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setDialogState(() {
+                            isCurrentPasswordVisible =
+                                !isCurrentPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          isCurrentPasswordVisible
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: newPasswordController,
+                    obscureText: !isNewPasswordVisible,
+                    decoration: InputDecoration(
+                      labelText: '새 비밀번호',
+                      hintText: '새 비밀번호를 입력하세요',
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setDialogState(() {
+                            isNewPasswordVisible = !isNewPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          isNewPasswordVisible
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: confirmPasswordController,
+                    obscureText: !isConfirmPasswordVisible,
+                    decoration: InputDecoration(
+                      labelText: '새 비밀번호 확인',
+                      hintText: '비밀번호를 다시 입력하세요',
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setDialogState(() {
+                            isConfirmPasswordVisible =
+                                !isConfirmPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          isConfirmPasswordVisible
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: newPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '새 비밀번호',
-                  hintText: '새 비밀번호를 입력하세요',
-                ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('취소'),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '새 비밀번호 확인',
-                  hintText: '비밀번호를 다시 입력하세요',
-                ),
+              FilledButton(
+                onPressed: () {
+                  final currentPassword = currentPasswordController.text.trim();
+                  final password = newPasswordController.text.trim();
+                  final confirmPassword = confirmPasswordController.text.trim();
+
+                  if (currentPassword.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('현재 비밀번호를 입력해주세요.')),
+                    );
+                    return;
+                  }
+
+                  if (password.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('새 비밀번호를 입력해주세요.')),
+                    );
+                    return;
+                  }
+
+                  if (password != confirmPassword) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('비밀번호 확인이 일치하지 않습니다.')),
+                    );
+                    return;
+                  }
+
+                  Navigator.of(dialogContext).pop({
+                    'currentPassword': currentPassword,
+                    'newPassword': password,
+                  });
+                },
+                child: const Text('변경'),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('취소'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final currentPassword = currentPasswordController.text.trim();
-              final password = newPasswordController.text.trim();
-              final confirmPassword = confirmPasswordController.text.trim();
-
-              if (currentPassword.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('현재 비밀번호를 입력해주세요.')),
-                );
-                return;
-              }
-
-              if (password.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('새 비밀번호를 입력해주세요.')),
-                );
-                return;
-              }
-
-              if (password != confirmPassword) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('비밀번호 확인이 일치하지 않습니다.')),
-                );
-                return;
-              }
-
-              Navigator.of(dialogContext).pop({
-                'currentPassword': currentPassword,
-                'newPassword': password,
-              });
-            },
-            child: const Text('변경'),
-          ),
-        ],
-      ),
+        );
+      },
     );
 
     currentPasswordController.dispose();

@@ -22,6 +22,8 @@ class ActivatePage extends ConsumerStatefulWidget {
 
 class _ActivatePageState extends ConsumerState<ActivatePage> {
   Timer? _redirectTimer;
+  bool _isNewPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   void dispose() {
@@ -125,13 +127,28 @@ class _ActivatePageState extends ConsumerState<ActivatePage> {
               const SizedBox(height: 12),
               TextField(
                 enabled: inputsEnabled,
-                obscureText: true,
+                obscureText: !_isNewPasswordVisible,
                 textInputAction: TextInputAction.next,
                 cursorColor: HomeTheme.primary,
                 decoration: _inputDecoration(
                   label: '새 비밀번호',
                   hint: '12자 이상 입력하세요',
                   icon: Icons.lock_outline,
+                  suffixIcon: IconButton(
+                    onPressed: inputsEnabled
+                        ? () {
+                            setState(() {
+                              _isNewPasswordVisible = !_isNewPasswordVisible;
+                            });
+                          }
+                        : null,
+                    icon: Icon(
+                      _isNewPasswordVisible
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: HomeTheme.textMuted,
+                    ),
+                  ),
                 ).copyWith(errorText: state.newPasswordError),
                 onChanged: (value) {
                   bloc.onEvent(ActivateNewPasswordChanged(value));
@@ -143,13 +160,29 @@ class _ActivatePageState extends ConsumerState<ActivatePage> {
               const SizedBox(height: 12),
               TextField(
                 enabled: inputsEnabled,
-                obscureText: true,
+                obscureText: !_isConfirmPasswordVisible,
                 textInputAction: TextInputAction.done,
                 cursorColor: HomeTheme.primary,
                 decoration: _inputDecoration(
                   label: '비밀번호 확인',
                   hint: '비밀번호를 다시 입력하세요',
                   icon: Icons.verified_user_outlined,
+                  suffixIcon: IconButton(
+                    onPressed: inputsEnabled
+                        ? () {
+                            setState(() {
+                              _isConfirmPasswordVisible =
+                                  !_isConfirmPasswordVisible;
+                            });
+                          }
+                        : null,
+                    icon: Icon(
+                      _isConfirmPasswordVisible
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: HomeTheme.textMuted,
+                    ),
+                  ),
                 ).copyWith(errorText: state.confirmPasswordError),
                 onChanged: (value) {
                   bloc.onEvent(ActivateConfirmPasswordChanged(value));
@@ -217,11 +250,13 @@ class _ActivatePageState extends ConsumerState<ActivatePage> {
     required String label,
     required String hint,
     required IconData icon,
+    Widget? suffixIcon,
   }) {
     return InputDecoration(
       labelText: label,
       hintText: hint,
       prefixIcon: Icon(icon, color: HomeTheme.textMuted),
+      suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.black.withValues(alpha: 0.02),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),

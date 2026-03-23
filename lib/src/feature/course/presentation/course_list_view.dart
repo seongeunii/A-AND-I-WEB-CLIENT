@@ -131,8 +131,7 @@ class _CourseListViewState extends ConsumerState<CourseListView> {
       data: (courses) {
         final sortedCourses = List<Course>.of(courses)
           ..sort(
-            (prev, curr) =>
-                prev.metadata.title.compareTo(curr.metadata.title),
+            (prev, curr) => prev.metadata.title.compareTo(curr.metadata.title),
           );
 
         if (sortedCourses.isEmpty) {
@@ -340,8 +339,7 @@ class _CourseCard extends StatelessWidget {
             ? Column(
                 children: [
                   _CourseVisual(
-                    palette: palette,
-                    icon: data.visualIcon,
+                    phaseStyle: data.phaseStyle,
                   ),
                   _CourseCardContent(
                     palette: palette,
@@ -354,8 +352,7 @@ class _CourseCard extends StatelessWidget {
                   SizedBox(
                     width: 300,
                     child: _CourseVisual(
-                      palette: palette,
-                      icon: data.visualIcon,
+                      phaseStyle: data.phaseStyle,
                     ),
                   ),
                   Expanded(
@@ -427,12 +424,10 @@ class _CourseFeedbackCard extends StatelessWidget {
 
 class _CourseVisual extends StatelessWidget {
   const _CourseVisual({
-    required this.palette,
-    required this.icon,
+    required this.phaseStyle,
   });
 
-  final _CoursePalette palette;
-  final IconData icon;
+  final _CoursePhaseStyle phaseStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -443,17 +438,13 @@ class _CourseVisual extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
-            gradient: LinearGradient(
-              colors: [palette.visualStart, palette.visualEnd],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: phaseStyle.visualEnd,
           ),
           child: Center(
             child: Icon(
-              icon,
+              phaseStyle.icon,
               size: 84,
-              color: palette.visualIcon,
+              color: phaseStyle.iconColor,
             ),
           ),
         ),
@@ -572,13 +563,25 @@ class _CourseCardData {
     required this.title,
     required this.description,
     required this.period,
-    required this.visualIcon,
+    required this.phaseStyle,
   });
 
   final String title;
   final String description;
   final String period;
-  final IconData visualIcon;
+  final _CoursePhaseStyle phaseStyle;
+}
+
+class _CoursePhaseStyle {
+  const _CoursePhaseStyle({
+    required this.icon,
+    required this.visualEnd,
+    required this.iconColor,
+  });
+
+  final IconData icon;
+  final Color visualEnd;
+  final Color iconColor;
 }
 
 class _CoursePalette {
@@ -593,9 +596,6 @@ class _CoursePalette {
     required this.logoBackground,
     required this.logoForeground,
     required this.iconBackground,
-    required this.visualStart,
-    required this.visualEnd,
-    required this.visualIcon,
     required this.actionButtonBackground,
     required this.actionButtonForeground,
     required this.lockedButtonBackground,
@@ -614,9 +614,6 @@ class _CoursePalette {
   final Color logoBackground;
   final Color logoForeground;
   final Color iconBackground;
-  final Color visualStart;
-  final Color visualEnd;
-  final Color visualIcon;
   final Color actionButtonBackground;
   final Color actionButtonForeground;
   final Color lockedButtonBackground;
@@ -637,9 +634,6 @@ class _CoursePalette {
         logoBackground: Color(0xFFF5F5F5),
         logoForeground: Color(0xFF111111),
         iconBackground: Color(0xFF18181B),
-        visualStart: Color(0xFF3F3F46),
-        visualEnd: Color(0xFF27272A),
-        visualIcon: Color(0x33FFFFFF),
         actionButtonBackground: Color(0xFFF5F5F5),
         actionButtonForeground: Color(0xFF111111),
         lockedButtonBackground: Color(0xFF27272A),
@@ -660,9 +654,6 @@ class _CoursePalette {
       logoBackground: Color(0xFF111111),
       logoForeground: Color(0xFFFFFFFF),
       iconBackground: Color(0xFFFFFFFF),
-      visualStart: Color(0xFFE4E4E7),
-      visualEnd: Color(0xFFD4D4D8),
-      visualIcon: Color(0x33000000),
       actionButtonBackground: Color(0xFF111111),
       actionButtonForeground: Color(0xFFFFFFFF),
       lockedButtonBackground: Color(0xFFF4F4F5),
@@ -693,35 +684,43 @@ String? _resolveProfileImageUrl(String? imagePath) {
 }
 
 _CourseCardData _toCourseCardData(Course course) {
+  final phaseStyle = _coursePhaseStyle(course);
+
   return _CourseCardData(
     title: course.metadata.title,
     description: course.metadata.description,
     period: '기간: ${course.startDate} ~ ${course.endDate}',
-    visualIcon: _courseIcon(course),
+    phaseStyle: phaseStyle,
   );
 }
 
-IconData _courseIcon(Course course) {
-  final slug = course.slug.toLowerCase();
-  final fieldTag = course.fieldTag.toLowerCase();
-  final title = course.metadata.title.toLowerCase();
-  final description = course.metadata.description.toLowerCase();
+_CoursePhaseStyle _coursePhaseStyle(Course course) {
+  final phase = (course.phase ?? course.metadata.phase).trim().toLowerCase();
 
-  if (slug.contains('ai') ||
-      fieldTag.contains('ai') ||
-      title.contains('ai') ||
-      description.contains('딥러닝') ||
-      description.contains('머신러닝')) {
-    return Icons.smart_toy_rounded;
+  switch (phase) {
+    case 'basic':
+      return const _CoursePhaseStyle(
+        icon: Icons.terminal,
+        visualEnd: Color(0xFFCFE2FF),
+        iconColor: Color(0xFF3B82F6),
+      );
+    case 'cs':
+      return const _CoursePhaseStyle(
+        icon: Icons.storage,
+        visualEnd: Color(0xFF8FBCFF),
+        iconColor: Color(0xFF2563EB),
+      );
+    case 'framework':
+      return const _CoursePhaseStyle(
+        icon: Icons.layers,
+        visualEnd: Color(0xFF3B82F6),
+        iconColor: Color(0xFF1E3A8A),
+      );
+    default:
+      return const _CoursePhaseStyle(
+        icon: Icons.auto_stories_rounded,
+        visualEnd: Color(0xFFCFCFD6),
+        iconColor: Color(0xFF52525B),
+      );
   }
-
-  if (slug.contains('cs') ||
-      fieldTag.contains('cs') ||
-      description.contains('computer science') ||
-      description.contains('자료구조') ||
-      description.contains('운영체제')) {
-    return Icons.code_rounded;
-  }
-
-  return Icons.auto_stories_rounded;
 }

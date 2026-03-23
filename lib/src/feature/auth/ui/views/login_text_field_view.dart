@@ -13,6 +13,7 @@ class LoginTextFieldView extends HookConsumerWidget {
     final loginUiViewModel = ref.read(loginUiViewModelProvider.notifier);
     final accountController = useTextEditingController();
     final passwordController = useTextEditingController();
+    final isPasswordVisible = useState<bool>(false);
     return Column(
       children: [
         TextField(
@@ -66,7 +67,7 @@ class LoginTextFieldView extends HookConsumerWidget {
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
-          obscureText: true,
+          obscureText: !isPasswordVisible.value,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.black.withValues(alpha: 0.02),
@@ -78,6 +79,17 @@ class LoginTextFieldView extends HookConsumerWidget {
             hintStyle: const TextStyle(
               color: HomeTheme.textMuted,
               fontWeight: FontWeight.w500,
+            ),
+            suffixIcon: IconButton(
+              onPressed: () {
+                isPasswordVisible.value = !isPasswordVisible.value;
+              },
+              icon: Icon(
+                isPasswordVisible.value
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: HomeTheme.textMuted,
+              ),
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
