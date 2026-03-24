@@ -143,11 +143,16 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
       }
 
       final latestSubmission =
-          latestSubmissionDetail ?? latestSubmissionSummary;
+          latestSubmissionDetail == null || latestSubmissionSummary == null
+              ? latestSubmissionDetail ?? latestSubmissionSummary
+              : _mergeSubmissionSnapshots(
+                  summary: latestSubmissionSummary,
+                  detail: latestSubmissionDetail,
+                );
       final resolvedSubmissions = latestSubmissionDetail == null
           ? sortedSubmissions
           : [
-              latestSubmissionDetail,
+              latestSubmission!,
               ...sortedSubmissions.skip(1),
             ];
 
@@ -453,6 +458,21 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
     }
     feedbacks.add(_completionMessage(_mapSubmissionStatus(result.status)));
     return feedbacks;
+  }
+
+  SubmissionResult _mergeSubmissionSnapshots({
+    required SubmissionResult summary,
+    required SubmissionResult detail,
+  }) {
+    return detail.copyWith(
+      problemId: detail.problemId ?? summary.problemId,
+      language: detail.language ?? summary.language,
+      status: detail.status.isEmpty ? summary.status : detail.status,
+      testCases:
+          detail.testCases.isEmpty ? summary.testCases : detail.testCases,
+      createdAt: detail.createdAt ?? summary.createdAt,
+      completedAt: detail.completedAt ?? summary.completedAt,
+    );
   }
 
   SubmissionResult? _parseSubmissionResult(String payload) {
