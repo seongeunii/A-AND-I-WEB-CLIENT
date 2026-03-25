@@ -912,6 +912,7 @@ class _SubmissionHistoryRow extends StatelessWidget {
         .where((testCase) => (testCase.status ?? '').toUpperCase() == 'PASSED')
         .length;
     final totalCount = submission.testCases.length;
+    final maxTestCaseTimeLabel = _maxTestCaseTimeLabel(submission.testCases);
 
     return Container(
       width: double.infinity,
@@ -1034,13 +1035,9 @@ class _SubmissionHistoryRow extends StatelessWidget {
                 icon: Icons.checklist_rounded,
                 isDarkMode: isDarkMode,
               ),
-              if (submission.completedAt != null &&
-                  submission.createdAt != null)
+              if (maxTestCaseTimeLabel != null)
                 _MetricChip(
-                  label: _durationLabel(
-                    submission.createdAt!,
-                    submission.completedAt!,
-                  ),
+                  label: maxTestCaseTimeLabel,
                   icon: Icons.bolt_rounded,
                   isDarkMode: isDarkMode,
                 ),
@@ -1251,13 +1248,28 @@ String _languageLabel(String? rawLanguage) {
   return _languageEffectMeta(rawLanguage).label;
 }
 
-String _durationLabel(DateTime createdAt, DateTime completedAt) {
-  final duration = completedAt.difference(createdAt);
-  final milliseconds = duration.inMilliseconds;
-  if (milliseconds < 1000) {
-    return '${milliseconds}ms';
+String? _maxTestCaseTimeLabel(List<SubmissionTestCaseResult> testCases) {
+  double? maxTimeMs;
+
+  for (final testCase in testCases) {
+    final timeMs = testCase.timeMs;
+    if (timeMs == null) {
+      continue;
+    }
+    if (maxTimeMs == null || timeMs > maxTimeMs) {
+      maxTimeMs = timeMs;
+    }
   }
-  final seconds = milliseconds / 1000;
+
+  if (maxTimeMs == null) {
+    return null;
+  }
+
+  if (maxTimeMs < 1000) {
+    return '${maxTimeMs.toStringAsFixed(maxTimeMs >= 100 ? 0 : 2)}ms';
+  }
+
+  final seconds = maxTimeMs / 1000;
   return '${seconds.toStringAsFixed(seconds >= 10 ? 1 : 2)}s';
 }
 
