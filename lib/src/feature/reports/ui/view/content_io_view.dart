@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/core/utils/app_messenger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -27,9 +28,13 @@ class ContentIOView extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: InkWell(
-                            onTap: () {
-                              Clipboard.setData(
-                                  ClipboardData(text: contents[index].$1));
+                            onTap: () async {
+                              await Clipboard.setData(
+                                ClipboardData(text: contents[index].$1),
+                              );
+                              showGlobalSnackBar(
+                                '예제 입력 ${index + 1}를 복사했습니다.',
+                              );
                             },
                             child: Icon(
                               Icons.copy,

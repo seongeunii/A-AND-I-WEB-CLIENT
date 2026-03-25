@@ -1,4 +1,5 @@
 import 'package:a_and_i_report_web_server/src/core/theme/code_font.dart';
+import 'package:a_and_i_report_web_server/src/core/utils/app_messenger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -57,14 +58,18 @@ class _IOExample extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color:
-                      isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF6B7280),
+                  color: isDarkMode
+                      ? const Color(0xFFA1A1AA)
+                      : const Color(0xFF6B7280),
                   letterSpacing: 1.2,
                 ),
               ),
               const Spacer(),
               InkWell(
-                onTap: () => Clipboard.setData(ClipboardData(text: input)),
+                onTap: () async {
+                  await Clipboard.setData(ClipboardData(text: input));
+                  showGlobalSnackBar('예제 입력 $index를 복사했습니다.');
+                },
                 borderRadius: BorderRadius.circular(6),
                 child: const Padding(
                   padding: EdgeInsets.all(4),
@@ -78,18 +83,23 @@ class _IOExample extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: isDarkMode ? const Color(0xFF27272A) : const Color(0xFFF9FAFB),
+              color: isDarkMode
+                  ? const Color(0xFF27272A)
+                  : const Color(0xFFF9FAFB),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isDarkMode ? const Color(0xFF3F3F46) : const Color(0xFFF3F4F6),
+                color: isDarkMode
+                    ? const Color(0xFF3F3F46)
+                    : const Color(0xFFF3F4F6),
               ),
             ),
             child: SelectableText(
               input,
               style: vscodeCodeTextStyle(TextStyle(
                 fontSize: 13,
-                color:
-                    isDarkMode ? const Color(0xFFE5E7EB) : const Color(0xFF000000),
+                color: isDarkMode
+                    ? const Color(0xFFE5E7EB)
+                    : const Color(0xFF000000),
                 height: 1.6,
               )),
             ),
@@ -100,8 +110,9 @@ class _IOExample extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color:
-                  isDarkMode ? const Color(0xFFA1A1AA) : const Color(0xFF6B7280),
+              color: isDarkMode
+                  ? const Color(0xFFA1A1AA)
+                  : const Color(0xFF6B7280),
               letterSpacing: 1.2,
             ),
           ),
@@ -110,7 +121,9 @@ class _IOExample extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
             decoration: BoxDecoration(
-              color: isDarkMode ? const Color(0xFF3F3F46) : const Color(0xFFF3F4F6),
+              color: isDarkMode
+                  ? const Color(0xFF3F3F46)
+                  : const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -118,8 +131,9 @@ class _IOExample extends StatelessWidget {
               style: vscodeCodeTextStyle(TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color:
-                    isDarkMode ? const Color(0xFFF5F5F5) : const Color(0xFF000000),
+                color: isDarkMode
+                    ? const Color(0xFFF5F5F5)
+                    : const Color(0xFF000000),
               )),
             ),
           ),

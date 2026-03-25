@@ -6,6 +6,7 @@ import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/p
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post_author.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post_page.dart';
+import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post_type.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/repositories/post_repository.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/providers/article_post_providers.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/ui/viewModels/article_write_view_model.dart';
@@ -33,6 +34,7 @@ void main() {
 
       expect(result, isTrue);
       expect(fakeRepository.createCallCount, 1);
+      expect(fakeRepository.lastCreatePayload?.type, PostType.blog);
       expect(fakeRepository.lastCreatePayload?.status, 'Draft');
       expect(fakeRepository.lastCreatePayload?.contentMarkdown, '');
       expect(fakeRepository.lastCreatePayload?.summary, '임시 요약');
@@ -59,6 +61,7 @@ void main() {
 
       expect(result, isTrue);
       expect(fakeRepository.createCallCount, 1);
+      expect(fakeRepository.lastCreatePayload?.type, PostType.blog);
       expect(fakeRepository.lastCreatePayload?.status, 'Published');
       expect(container.read(articleWriteViewModelProvider).errorMsg, isEmpty);
     });
@@ -101,6 +104,7 @@ void main() {
       notifier.startEditing(
         Post(
           id: 'post-edit-1',
+          type: PostType.blog,
           title: '기존 제목',
           contentMarkdown: '기존 본문',
           thumbnailUrl: 'https://example.com/thumbnail.webp',
@@ -152,6 +156,7 @@ void main() {
       notifier.startEditing(
         Post(
           id: 'post-draft-1',
+          type: PostType.blog,
           title: '임시 제목',
           contentMarkdown: '임시 본문',
           author: const PostAuthor(
@@ -252,6 +257,7 @@ class FakePostRepository implements PostRepository {
     lastCreatePayload = payload;
     return Post(
       id: 'post-1',
+      type: payload.type,
       title: payload.title,
       contentMarkdown: payload.contentMarkdown,
       summary: payload.summary,
@@ -271,7 +277,11 @@ class FakePostRepository implements PostRepository {
   Future<void> deletePost({required String postId}) async {}
 
   @override
-  Future<PostPage> getDraftPosts({int page = 0, int size = 20}) async {
+  Future<PostPage> getDraftPosts({
+    int page = 0,
+    int size = 20,
+    PostType? type,
+  }) async {
     return const PostPage(
       items: <Post>[],
       page: 0,
@@ -282,13 +292,16 @@ class FakePostRepository implements PostRepository {
   }
 
   @override
-  Future<Post> getPost({required String postId}) async {
+  Future<Post> getPost({
+    required String postId,
+    required PostType type,
+  }) async {
     throw UnimplementedError();
   }
 
   @override
   Future<PostPage> getPosts(
-      {int page = 0, int size = 20, String? status}) async {
+      {int page = 0, int size = 20, PostType? type, String? status}) async {
     return const PostPage(
       items: <Post>[],
       page: 0,
@@ -308,6 +321,7 @@ class FakePostRepository implements PostRepository {
     lastPatchPayload = payload;
     return Post(
       id: postId,
+      type: payload.type ?? PostType.blog,
       title: payload.title ?? 'title',
       contentMarkdown: payload.contentMarkdown ?? 'content',
       summary: patchResponseSummaryOverride ?? payload.summary,

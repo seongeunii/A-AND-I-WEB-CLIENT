@@ -1,5 +1,6 @@
 import 'package:a_and_i_report_web_server/src/feature/auth/domain/repositories/auth_repository.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/data/datasources/submission_stream_remote_datasource.dart';
+import 'package:a_and_i_report_web_server/src/feature/reports/data/datasources/submission_stream_remote_datasource_stub.dart'
+    if (dart.library.js_interop) 'package:a_and_i_report_web_server/src/feature/reports/data/datasources/submission_stream_remote_datasource.dart';
 
 /// 제출 결과 SSE 이벤트를 구독하는 유스케이스입니다.
 final class StreamSubmissionEventsUsecaseImpl

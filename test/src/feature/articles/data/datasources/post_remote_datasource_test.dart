@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:a_and_i_report_web_server/src/feature/articles/data/datasources/post_remote_datasource.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post_author.dart';
+import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post_type.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -39,6 +40,7 @@ void main() {
         'Bearer access-token',
         '제목',
         '본문',
+        PostType.blog,
         '요약',
         '11111111-1111-1111-1111-111111111111',
         '멘토',
@@ -69,6 +71,7 @@ void main() {
       expect(
         jsonDecode(await _readMultipartAsString(postPart)),
         <String, dynamic>{
+          'type': 'Blog',
           'title': '제목',
           'contentMarkdown': '본문',
           'summary': '요약',
@@ -118,6 +121,7 @@ void main() {
       await datasource.patchPost(
         'Bearer access-token',
         'post-id',
+        null,
         '수정 제목',
         '수정 본문',
         '수정 요약',
@@ -170,6 +174,7 @@ void main() {
       await datasource.patchPost(
         'Bearer access-token',
         'post-id',
+        null,
         '수정 제목',
         '수정 본문',
         '',
@@ -180,8 +185,8 @@ void main() {
 
       final files = capturedFormData!.files;
       final postPart = files.firstWhere((entry) => entry.key == 'post').value;
-      final payload =
-          jsonDecode(await _readMultipartAsString(postPart)) as Map<String, dynamic>;
+      final payload = jsonDecode(await _readMultipartAsString(postPart))
+          as Map<String, dynamic>;
       expect(payload.containsKey('summary'), isTrue);
       expect(payload['summary'], '');
     });
@@ -216,7 +221,7 @@ void main() {
         );
 
       final datasource = PostRemoteDatasourceImpl(dio);
-      await datasource.getDraftPosts('Bearer access-token', 0, 20);
+      await datasource.getDraftPosts('Bearer access-token', 0, 20, null);
 
       expect(capturedOptions, isNotNull);
       expect(capturedOptions!.path, '/v1/posts/drafts/me');

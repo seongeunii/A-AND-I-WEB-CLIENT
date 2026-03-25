@@ -1,5 +1,6 @@
 import 'package:a_and_i_report_web_server/src/feature/auth/data/datasources/local/local_auth_datasource.dart';
-import 'package:a_and_i_report_web_server/src/feature/auth/data/datasources/local/local_auth_repository_impl.dart';
+import 'package:a_and_i_report_web_server/src/feature/auth/data/datasources/local/local_auth_datasource_stub.dart'
+    if (dart.library.js_interop) 'package:a_and_i_report_web_server/src/feature/auth/data/datasources/local/local_auth_repository_impl.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

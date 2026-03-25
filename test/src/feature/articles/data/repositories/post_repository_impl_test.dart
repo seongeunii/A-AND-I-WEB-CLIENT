@@ -7,6 +7,7 @@ import 'package:a_and_i_report_web_server/src/feature/auth/data/datasources/loca
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/create_post_payload.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/patch_post_payload.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post_author.dart';
+import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post_type.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -53,6 +54,7 @@ void main() {
 
       final result = await repository.createPost(
         payload: const CreatePostPayload(
+          type: PostType.blog,
           title: '새 글',
           contentMarkdown: '# hello',
           summary: '요약',
@@ -70,6 +72,7 @@ void main() {
       expect(datasource.createAuthorNickname, '멘토');
       expect(datasource.createAuthorProfileImageUrl,
           'https://example.com/profile.png');
+      expect(datasource.createType, PostType.blog);
       expect(datasource.createStatus, 'Draft');
       expect(datasource.createCollaborators, isEmpty);
       expect(datasource.createFile, isNull);
@@ -85,9 +88,13 @@ void main() {
         localAuthDatasource: localAuthDatasource,
       );
 
-      final result = await repository.getPost(postId: 'post-xyz');
+      final result = await repository.getPost(
+        postId: 'post-xyz',
+        type: PostType.blog,
+      );
 
       expect(datasource.getPostId, 'post-xyz');
+      expect(datasource.getPostType, PostType.blog);
       expect(result.id, 'post-1');
       expect(result.title, 'title');
     });
@@ -222,9 +229,12 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
   int? getPostsPage;
   int? getPostsSize;
   String? getPostsStatus;
+  PostType? getPostsType;
   int? getDraftsPage;
   int? getDraftsSize;
+  PostType? getDraftsType;
   String? getPostId;
+  PostType? getPostType;
   String? patchPostId;
   String? deletePostId;
   String? createAuthorization;
@@ -237,6 +247,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
   String? createAuthorId;
   String? createAuthorNickname;
   String? createAuthorProfileImageUrl;
+  PostType? createType;
   String? createStatus;
   List<PostAuthor> createCollaborators = <PostAuthor>[];
   DioException? deleteException;
@@ -253,6 +264,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
     String authorization,
     String title,
     String contentMarkdown,
+    PostType type,
     String? summary,
     String authorId,
     String authorNickname,
@@ -264,6 +276,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
     createAuthorization = authorization;
     createTitle = title;
     createContentMarkdown = contentMarkdown;
+    createType = type;
     createSummary = summary;
     createAuthorId = authorId;
     createAuthorNickname = authorNickname;
@@ -288,10 +301,12 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
     String authorization,
     int page,
     int size,
+    PostType? type,
   ) async {
     getDraftsAuthorization = authorization;
     getDraftsPage = page;
     getDraftsSize = size;
+    getDraftsType = type;
     return PostListResponseDto(
       items: [_sampleDraftPost()],
       page: page,
@@ -302,16 +317,22 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
   }
 
   @override
-  Future<PostResponseDto> getPost(String postId) async {
+  Future<PostResponseDto> getPost(String postId, PostType type) async {
     getPostId = postId;
+    getPostType = type;
     return _samplePost(status: 'Published');
   }
 
   @override
   Future<PostListResponseDto> getPosts(
-      int page, int size, String? status) async {
+    int page,
+    int size,
+    PostType? type,
+    String? status,
+  ) async {
     getPostsPage = page;
     getPostsSize = size;
+    getPostsType = type;
     getPostsStatus = status;
     return PostListResponseDto(
       items: [_samplePublishedPost()],
@@ -326,6 +347,7 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
   Future<PostResponseDto> patchPost(
     String authorization,
     String postId,
+    PostType? type,
     String? title,
     String? contentMarkdown,
     String? summary,
@@ -350,6 +372,7 @@ PostResponseDto _samplePost({
 }) {
   return PostResponseDto(
     id: 'post-1',
+    type: 'Blog',
     title: 'title',
     contentMarkdown: 'content',
     summary: '요약',

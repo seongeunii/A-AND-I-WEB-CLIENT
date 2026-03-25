@@ -125,7 +125,10 @@ class SourceCodeSubmitView extends HookConsumerWidget {
               label: Text(language.label),
               selected: selected,
               onSelected: (_) => notifier.selectLanguage(language),
-              selectedColor: const Color(0xFFE5E7EB),
+              showCheckmark: false,
+              selectedColor: isDarkMode
+                  ? const Color(0xFF18181B)
+                  : const Color(0xFFE5E7EB),
               backgroundColor: isDarkMode
                   ? const Color(0xFF3F3F46)
                   : const Color(0xFFF3F4F6),
@@ -140,9 +143,13 @@ class SourceCodeSubmitView extends HookConsumerWidget {
               ),
               labelStyle: TextStyle(
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: isDarkMode
-                    ? const Color(0xFFF5F5F5)
-                    : const Color(0xFF000000),
+                color: selected
+                    ? (isDarkMode
+                        ? const Color(0xFFF5F5F5)
+                        : const Color(0xFF111827))
+                    : (isDarkMode
+                        ? const Color(0xFFE5E7EB)
+                        : const Color(0xFF000000)),
               ),
             );
           }).toList(),
