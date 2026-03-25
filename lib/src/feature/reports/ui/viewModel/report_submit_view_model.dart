@@ -68,6 +68,7 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
   final String reportId;
   final Ref ref;
   StreamSubscription<String>? _submissionStreamSubscription;
+  int _submissionStreamSession = 0;
 
   ReportSubmitViewModel({
     required this.reportId,
@@ -97,6 +98,10 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
     required String problemId,
     bool forceRefresh = false,
   }) async {
+    if (!mounted) {
+      return;
+    }
+
     final normalizedProblemId = problemId.trim();
     if (normalizedProblemId.isEmpty ||
         state.isSubmitting ||
@@ -122,6 +127,9 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
       final previousSubmissions = await ref
           .read(getMyProblemSubmissionsUsecaseProvider)
           .call(normalizedProblemId);
+      if (!mounted) {
+        return;
+      }
 
       final sortedSubmissions = [...previousSubmissions]..sort((a, b) {
           final aTime = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -137,6 +145,9 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
           latestSubmissionDetail = await ref
               .read(getSubmissionResultUsecaseProvider)
               .call(latestSubmissionSummary.submissionId);
+          if (!mounted) {
+            return;
+          }
         } catch (_) {
           latestSubmissionDetail = null;
         }
@@ -171,6 +182,9 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
         );
       }
     } catch (error) {
+      if (!mounted) {
+        return;
+      }
       state = state.copyWith(
         isHistoryLoading: false,
         historyErrorMsg: ApiErrorMapper.map(
@@ -182,6 +196,10 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
   }
 
   Future<bool> submitCurrentDraft({String? problemId}) async {
+    if (!mounted) {
+      return false;
+    }
+
     final lang = state.selectedLanguage;
     final code = (state.draftCodeByLanguage[lang] ?? '').trim();
     if (code.isEmpty) {
@@ -219,19 +237,62 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
             language: lang.apiValue,
             code: code,
           );
+      if (!mounted) {
+        return false;
+      }
 
       state = state.copyWith(
         isSubmitting: false,
-        isPolling: true,
+        isPolling: false,
         submissionId: response.submissionId,
         streamUrl: response.streamUrl,
         submissionStatus: SubmissionStatus.queued,
-        feedbacks: const <String>['채점 스트림을 연결하고 있습니다.'],
+        feedbacks: const <String>['제출이 접수되었습니다. 결과를 확인하고 있습니다.'],
       );
 
-      await _startStreaming(response.streamUrl);
+      final immediateResult =
+          await _fetchSubmissionResultSnapshot(response.submissionId);
+      if (!mounted) {
+        return false;
+      }
+      if (immediateResult != null) {
+        final immediateStatus = _mapSubmissionStatus(immediateResult.status);
+        _applyResultSnapshot(
+          immediateResult,
+          feedbacks: _buildSnapshotFeedbacks(
+            result: immediateResult,
+            baseFeedbacks: state.feedbacks,
+            includeCompletionMessage: _isTerminal(immediateStatus),
+          ),
+        );
+
+        if (_isTerminal(immediateStatus)) {
+          return true;
+        }
+      } else {
+        state = state.copyWith(
+          isPolling: true,
+          feedbacks: [...state.feedbacks, '채점 스트림을 연결하고 있습니다.'],
+        );
+      }
+
+      if (response.streamUrl.trim().isEmpty) {
+        await _handleStreamTermination(
+          submissionId: response.submissionId,
+          sessionToken: _submissionStreamSession,
+        );
+        return true;
+      }
+
+      await _startStreaming(
+        response.streamUrl,
+        submissionId: response.submissionId,
+      );
       return true;
     } catch (error) {
+      if (!mounted) {
+        return false;
+      }
       final message = ApiErrorMapper.map(
         error,
         fallbackMessage: '소스 코드 제출에 실패했습니다.',
@@ -247,41 +308,48 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
     }
   }
 
-  Future<void> _startStreaming(String streamUrl) async {
-    await _submissionStreamSubscription?.cancel();
+  Future<void> _startStreaming(
+    String streamUrl, {
+    required String submissionId,
+  }) async {
+    _cancelSubmissionStream();
+    final sessionToken = _submissionStreamSession;
     try {
       final eventStream =
           await ref.read(streamSubmissionEventsUsecaseProvider).call(streamUrl);
+      if (!mounted || sessionToken != _submissionStreamSession) {
+        return;
+      }
+
       _submissionStreamSubscription = eventStream.listen(
         _handleStreamEvent,
         onError: (error, _) {
-          final message = ApiErrorMapper.map(
-            error,
-            fallbackMessage: '채점 스트림을 연결하지 못했습니다.',
-          );
-          state = state.copyWith(
-            isPolling: false,
-            submissionStatus: SubmissionStatus.error,
-            errorMsg: message,
-            feedbacks: [...state.feedbacks, message],
+          unawaited(
+            _handleStreamTermination(
+              submissionId: submissionId,
+              sessionToken: sessionToken,
+              streamError: error,
+            ),
           );
         },
         onDone: () {
-          state = state.copyWith(
-            isPolling: false,
+          unawaited(
+            _handleStreamTermination(
+              submissionId: submissionId,
+              sessionToken: sessionToken,
+            ),
           );
         },
       );
-    } catch (error) {
-      final message = ApiErrorMapper.map(
-        error,
-        fallbackMessage: '채점 스트림을 연결하지 못했습니다.',
-      );
       state = state.copyWith(
-        isPolling: false,
-        submissionStatus: SubmissionStatus.error,
-        errorMsg: message,
-        feedbacks: <String>[message],
+        isPolling: true,
+        feedbacks: [...state.feedbacks, '채점 스트림을 연결하고 있습니다.'],
+      );
+    } catch (error) {
+      await _handleStreamTermination(
+        submissionId: submissionId,
+        sessionToken: sessionToken,
+        streamError: error,
       );
     }
   }
@@ -324,7 +392,7 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
             finalStatus: nextStatus,
           );
           final historyProblemId = state.historyProblemId;
-          _submissionStreamSubscription?.cancel();
+          _cancelSubmissionStream();
           state = state.copyWith(
             isPolling: false,
             submissionStatus: nextStatus,
@@ -396,7 +464,7 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
 
     if (_isTerminal(nextStatus)) {
       final historyProblemId = state.historyProblemId;
-      _submissionStreamSubscription?.cancel();
+      _cancelSubmissionStream();
       if (historyProblemId != null && historyProblemId.isNotEmpty) {
         unawaited(
           loadSubmissionHistory(
@@ -412,11 +480,112 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
       submissionStatus: nextStatus,
       latestVerdict: result.status,
       submissionId: result.submissionId,
+      submittedAt: result.createdAt ?? state.submittedAt,
       score: score,
       feedbacks: feedbacks,
       testCaseResults: nextTestCaseResults,
       errorMsg: '',
     );
+  }
+
+  Future<SubmissionResult?> _fetchSubmissionResultSnapshot(
+    String submissionId,
+  ) async {
+    try {
+      return await ref.read(getSubmissionResultUsecaseProvider).call(
+            submissionId,
+          );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _handleStreamTermination({
+    required String submissionId,
+    required int sessionToken,
+    Object? streamError,
+  }) async {
+    if (!mounted ||
+        sessionToken != _submissionStreamSession ||
+        state.submissionId != submissionId) {
+      return;
+    }
+
+    _submissionStreamSession += 1;
+    _submissionStreamSubscription = null;
+
+    final snapshot = await _fetchSubmissionResultSnapshot(submissionId);
+    if (!mounted) {
+      return;
+    }
+    if (snapshot != null && state.submissionId == submissionId) {
+      final nextStatus = _mapSubmissionStatus(snapshot.status);
+      _applyResultSnapshot(
+        snapshot,
+        feedbacks: _buildSnapshotFeedbacks(
+          result: snapshot,
+          baseFeedbacks: state.feedbacks,
+          includeCompletionMessage: _isTerminal(nextStatus),
+        ),
+      );
+      if (_isTerminal(nextStatus)) {
+        return;
+      }
+    }
+
+    if (state.submissionId != submissionId) {
+      return;
+    }
+
+    if (streamError != null) {
+      final message = ApiErrorMapper.map(
+        streamError,
+        fallbackMessage: '채점 결과를 확인하지 못했습니다.',
+      );
+      state = state.copyWith(
+        isPolling: false,
+        submissionStatus: SubmissionStatus.error,
+        errorMsg: message,
+        feedbacks: [...state.feedbacks, message],
+      );
+      return;
+    }
+
+    state = state.copyWith(isPolling: false);
+  }
+
+  List<String> _buildSnapshotFeedbacks({
+    required SubmissionResult result,
+    required List<String> baseFeedbacks,
+    required bool includeCompletionMessage,
+  }) {
+    final nextFeedbacks = [...baseFeedbacks];
+    final normalizedStatus = result.status.trim();
+    if (normalizedStatus.isNotEmpty) {
+      final statusLine = '상태: $normalizedStatus';
+      if (!nextFeedbacks.contains(statusLine)) {
+        nextFeedbacks.add(statusLine);
+      }
+    }
+
+    if (result.testCases.isNotEmpty) {
+      for (final testCase in result.testCases) {
+        final line = _formatTestCaseResultLine(testCase);
+        if (!nextFeedbacks.contains(line)) {
+          nextFeedbacks.add(line);
+        }
+      }
+    }
+
+    if (includeCompletionMessage) {
+      final completion =
+          _completionMessage(_mapSubmissionStatus(result.status));
+      if (!nextFeedbacks.contains(completion)) {
+        nextFeedbacks.add(completion);
+      }
+    }
+
+    return nextFeedbacks;
   }
 
   void _applyHistoricalResultSnapshot(
@@ -743,8 +912,17 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
 
   @override
   void dispose() {
-    _submissionStreamSubscription?.cancel();
+    _cancelSubmissionStream();
     super.dispose();
+  }
+
+  void _cancelSubmissionStream() {
+    _submissionStreamSession += 1;
+    final subscription = _submissionStreamSubscription;
+    _submissionStreamSubscription = null;
+    if (subscription != null) {
+      unawaited(subscription.cancel());
+    }
   }
 }
 
