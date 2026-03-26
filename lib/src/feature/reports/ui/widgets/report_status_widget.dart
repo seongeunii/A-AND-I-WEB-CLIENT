@@ -9,7 +9,7 @@ enum ReportStatueType {
   const ReportStatueType(this.status);
 
   factory ReportStatueType.fromEndAt(DateTime time) {
-    final now = DateTime.now().add(const Duration(hours: 9)).toUtc();
+    final now = DateTime.now().toUtc();
 
     if (now.difference(time).inSeconds > 0) {
       return ReportStatueType.done;

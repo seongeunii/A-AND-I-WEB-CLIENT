@@ -272,7 +272,7 @@ class _DeadlineTimer extends HookWidget {
   const _DeadlineTimer({required this.endAt, required this.isDarkMode});
 
   Duration _remaining() {
-    final now = DateTime.now().add(const Duration(hours: 9)).toUtc();
+    final now = DateTime.now().toUtc();
     final diff = endAt.difference(now);
     return diff.isNegative ? Duration.zero : diff;
   }
