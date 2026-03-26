@@ -129,6 +129,38 @@ void main() {
   });
 
   group('ReportSubmitViewModel.submitCurrentDraft', () {
+    test('마감된 과제는 제출을 시도하지 않는다', () async {
+      final fakeCreateUsecase = FakeCreateSubmissionUsecase(
+        response: const SubmissionResponseDto(
+          submissionId: 'submission-closed',
+          streamUrl: '/streams/submission-closed',
+        ),
+      );
+      final report = _buildReport();
+      final container = ProviderContainer(
+        overrides: [
+          createSubmissionUsecaseProvider.overrideWith((ref) {
+            return fakeCreateUsecase;
+          }),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(reportSubmitViewModelProvider(report).notifier);
+      notifier.updateDraft(SubmitLanguage.python, 'print("closed")');
+
+      final submitted = await notifier.submitCurrentDraft(
+        problemId: 'problem-1',
+        isDeadlineClosed: true,
+      );
+
+      final state = container.read(reportSubmitViewModelProvider(report));
+      expect(submitted, isFalse);
+      expect(fakeCreateUsecase.requestedProblemIds, isEmpty);
+      expect(state.errorMsg, '마감된 과제는 제출할 수 없습니다.');
+    });
+
     test('캐시된 최종 결과가 즉시 조회되면 스트림 없이 화면 상태를 갱신한다', () async {
       final fakeCreateUsecase = FakeCreateSubmissionUsecase(
         response: const SubmissionResponseDto(

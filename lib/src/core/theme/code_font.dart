@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 
-const String kVsCodeCodeFontFamily = 'Consolas';
+const String kVsCodeCodeFontFamily = 'D2Coding';
 const List<String> kVsCodeCodeFontFamilyFallback = <String>[
-  'Menlo',
-  'Monaco',
-  'Courier New',
-  'Liberation Mono',
-  'DejaVu Sans Mono',
   'monospace',
 ];
 

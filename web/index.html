@@ -39,6 +39,22 @@
     <title>A&I</title>
     <link rel="manifest" href="manifest.json">
     <style>
+      @font-face {
+        font-family: 'Pretendard';
+        src: url('assets/assets/fonts/Pretendard-Regular.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'Pretendard';
+        src: url('assets/assets/fonts/Pretendard-Bold.otf') format('opentype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
       html, body {
         margin: 0;
         padding: 0;
@@ -47,12 +63,14 @@
         overflow: hidden;
         position: fixed;
         inset: 0;
+        font-family: 'Pretendard', sans-serif;
       }
 
       body {
         /* iOS: Large Viewport Height 강제 (툴바 숨김 상태 기준) */
         height: 100lvh !important;
         max-height: 100lvh !important;
+        font-family: 'Pretendard', sans-serif;
       }
 
       /* Flutter 컨테이너 - 절대 위치로 전체 화면 강제 */
@@ -67,6 +85,7 @@
         width: 100vw !important;
         height: 100lvh !important;
         max-height: 100lvh !important;
+        font-family: 'Pretendard', sans-serif;
       }
     </style>
     <script>

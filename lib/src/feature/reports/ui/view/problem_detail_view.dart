@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:a_and_i_report_web_server/src/core/theme/code_font.dart';
 import 'package:a_and_i_report_web_server/src/core/widgets/bottom_logo.dart';
-import 'package:a_and_i_report_web_server/src/feature/reports/ui/widgets/report_status_widget.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/data/entities/report.dart';
+import 'package:a_and_i_report_web_server/src/feature/reports/ui/utils/report_deadline.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/problem_bullet_list.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/problem_io_view.dart';
 import 'package:a_and_i_report_web_server/src/feature/reports/ui/view/problem_nav_tabs.dart';
@@ -30,11 +30,37 @@ class ProblemDetailView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTab = useState(0);
+    final currentTime = useState(DateTime.now().toUtc());
     final historyProblemId = report.problemId?.trim().isNotEmpty == true
         ? report.problemId!.trim()
         : report.id.trim();
+    final isSubmissionClosed = isReportDeadlineClosed(
+      endAt,
+      now: currentTime.value,
+    );
+
+    useEffect(() {
+      if (endAt == null ||
+          isReportDeadlineClosed(endAt, now: currentTime.value)) {
+        return null;
+      }
+
+      Timer? timer;
+      timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        final now = DateTime.now().toUtc();
+        currentTime.value = now;
+        if (isReportDeadlineClosed(endAt, now: now)) {
+          timer!.cancel();
+        }
+      });
+
+      return timer.cancel;
+    }, [endAt]);
 
     void selectTab(int nextTab) {
+      if (nextTab == 1 && isSubmissionClosed) {
+        return;
+      }
       selectedTab.value = nextTab;
       if (nextTab == 2 && historyProblemId.isNotEmpty) {
         unawaited(
@@ -56,11 +82,14 @@ class ProblemDetailView extends HookConsumerWidget {
           selectedTab: selectedTab.value,
           onSelectTab: selectTab,
           endAt: endAt,
+          currentTime: currentTime.value,
+          isSubmissionClosed: isSubmissionClosed,
           isDarkMode: isDarkMode,
         ),
         _ContentCard(
           report: report,
           selectedTab: selectedTab.value,
+          isSubmissionClosed: isSubmissionClosed,
           isDarkMode: isDarkMode,
           onMoveToResultTab: () => selectTab(2),
         ),
@@ -76,6 +105,8 @@ class _HeaderCard extends StatelessWidget {
   final int selectedTab;
   final ValueChanged<int> onSelectTab;
   final DateTime? endAt;
+  final DateTime currentTime;
+  final bool isSubmissionClosed;
   final bool isDarkMode;
 
   const _HeaderCard({
@@ -83,6 +114,8 @@ class _HeaderCard extends StatelessWidget {
     required this.selectedTab,
     required this.onSelectTab,
     this.endAt,
+    required this.currentTime,
+    required this.isSubmissionClosed,
     required this.isDarkMode,
   });
 
@@ -139,7 +172,11 @@ class _HeaderCard extends StatelessWidget {
               ),
               if (endAt != null) ...[
                 const SizedBox(width: 20),
-                _DeadlineTimer(endAt: endAt!, isDarkMode: isDarkMode),
+                _DeadlineTimer(
+                  endAt: endAt!,
+                  currentTime: currentTime,
+                  isDarkMode: isDarkMode,
+                ),
               ],
             ],
           ),
@@ -147,6 +184,7 @@ class _HeaderCard extends StatelessWidget {
           ProblemNavTabs(
             selectedTab: selectedTab,
             onSelectTab: onSelectTab,
+            isSubmitDisabled: isSubmissionClosed,
             isDarkMode: isDarkMode,
           ),
         ],
@@ -158,12 +196,14 @@ class _HeaderCard extends StatelessWidget {
 class _ContentCard extends StatelessWidget {
   final Report report;
   final int selectedTab;
+  final bool isSubmissionClosed;
   final bool isDarkMode;
   final VoidCallback onMoveToResultTab;
 
   const _ContentCard({
     required this.report,
     required this.selectedTab,
+    required this.isSubmissionClosed,
     required this.isDarkMode,
     required this.onMoveToResultTab,
   });
@@ -186,6 +226,7 @@ class _ContentCard extends StatelessWidget {
         0 => _ProblemTab(report: report, isDarkMode: isDarkMode),
         1 => SourceCodeSubmitView(
             report: report,
+            isSubmissionClosed: isSubmissionClosed,
             isDarkMode: isDarkMode,
             onSubmitSuccess: onMoveToResultTab,
           ),
@@ -266,29 +307,20 @@ class _ComingSoon extends StatelessWidget {
   }
 }
 
-class _DeadlineTimer extends HookWidget {
+class _DeadlineTimer extends StatelessWidget {
   final DateTime endAt;
+  final DateTime currentTime;
   final bool isDarkMode;
-  const _DeadlineTimer({required this.endAt, required this.isDarkMode});
-
-  Duration _remaining() {
-    final now = DateTime.now().toUtc();
-    final diff = endAt.difference(now);
-    return diff.isNegative ? Duration.zero : diff;
-  }
+  const _DeadlineTimer({
+    required this.endAt,
+    required this.currentTime,
+    required this.isDarkMode,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isDone = ReportStatueType.fromEndAt(endAt) == ReportStatueType.done;
-    final remaining = useState(_remaining());
-
-    useEffect(() {
-      if (isDone) return null;
-      final timer = Timer.periodic(const Duration(seconds: 1), (_) {
-        remaining.value = _remaining();
-      });
-      return timer.cancel;
-    }, []);
+    final isDone = isReportDeadlineClosed(endAt, now: currentTime);
+    final remaining = remainingUntilReportDeadline(endAt, now: currentTime);
 
     if (isDone) {
       return Row(
@@ -314,9 +346,9 @@ class _DeadlineTimer extends HookWidget {
       );
     }
 
-    final h = remaining.value.inHours.toString().padLeft(2, '0');
-    final m = (remaining.value.inMinutes % 60).toString().padLeft(2, '0');
-    final s = (remaining.value.inSeconds % 60).toString().padLeft(2, '0');
+    final h = remaining.inHours.toString().padLeft(2, '0');
+    final m = (remaining.inMinutes % 60).toString().padLeft(2, '0');
+    final s = (remaining.inSeconds % 60).toString().padLeft(2, '0');
 
     return Row(
       mainAxisSize: MainAxisSize.min,

@@ -57,7 +57,7 @@ abstract class ReportSubmitState with _$ReportSubmitState {
     final resolvedTemplates = _resolveTemplateCodeByLanguage(codeTemplates);
 
     return ReportSubmitState(
-      selectedLanguage: SubmitLanguage.python,
+      selectedLanguage: SubmitLanguage.kotlin,
       draftCodeByLanguage: resolvedTemplates,
       templateCodeByLanguage: resolvedTemplates,
     );
@@ -195,8 +195,20 @@ class ReportSubmitViewModel extends StateNotifier<ReportSubmitState> {
     }
   }
 
-  Future<bool> submitCurrentDraft({String? problemId}) async {
+  Future<bool> submitCurrentDraft({
+    String? problemId,
+    bool isDeadlineClosed = false,
+  }) async {
     if (!mounted) {
+      return false;
+    }
+
+    if (isDeadlineClosed) {
+      state = state.copyWith(
+        isSubmitting: false,
+        isPolling: false,
+        errorMsg: '마감된 과제는 제출할 수 없습니다.',
+      );
       return false;
     }
 

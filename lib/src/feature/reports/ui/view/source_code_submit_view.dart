@@ -15,12 +15,14 @@ import 'package:re_highlight/styles/monokai-sublime.dart';
 class SourceCodeSubmitView extends HookConsumerWidget {
   final Report report;
   final bool isDarkMode;
+  final bool isSubmissionClosed;
   final VoidCallback? onSubmitSuccess;
 
   const SourceCodeSubmitView({
     super.key,
     required this.report,
     this.isDarkMode = false,
+    this.isSubmissionClosed = false,
     this.onSubmitSuccess,
   });
 
@@ -114,6 +116,10 @@ class SourceCodeSubmitView extends HookConsumerWidget {
           ),
         ),
         const SizedBox(height: 20),
+        if (isSubmissionClosed) ...[
+          _DeadlineClosedNotice(isDarkMode: isDarkMode),
+          const SizedBox(height: 16),
+        ],
         _GuidelineBox(isDarkMode: isDarkMode),
         const SizedBox(height: 16),
         Wrap(
@@ -124,7 +130,9 @@ class SourceCodeSubmitView extends HookConsumerWidget {
             return ChoiceChip(
               label: Text(language.label),
               selected: selected,
-              onSelected: (_) => notifier.selectLanguage(language),
+              onSelected: isSubmissionClosed
+                  ? null
+                  : (_) => notifier.selectLanguage(language),
               showCheckmark: false,
               selectedColor: isDarkMode
                   ? const Color(0xFF18181B)
@@ -189,7 +197,9 @@ class SourceCodeSubmitView extends HookConsumerWidget {
                     ),
                     const Spacer(),
                     TextButton(
-                      onPressed: notifier.loadTemplateForCurrentLanguage,
+                      onPressed: isSubmissionClosed
+                          ? null
+                          : notifier.loadTemplateForCurrentLanguage,
                       style: TextButton.styleFrom(
                         foregroundColor: const Color(0xFFD1D5DB),
                         padding: const EdgeInsets.symmetric(
@@ -216,6 +226,7 @@ class SourceCodeSubmitView extends HookConsumerWidget {
                   style: CodeEditorStyle(
                     fontSize: 13,
                     fontFamily: kVsCodeCodeFontFamily,
+                    fontFamilyFallback: kVsCodeCodeFontFamilyFallback,
                     backgroundColor: const Color(0xFF0B1020),
                     textColor: const Color(0xFFE5E7EB),
                     cursorColor: const Color(0xFF93C5FD),
@@ -281,13 +292,14 @@ class SourceCodeSubmitView extends HookConsumerWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
             ),
-            onPressed: submitState.isSubmitting
+            onPressed: submitState.isSubmitting || isSubmissionClosed
                 ? null
                 : () async {
                     final success = await notifier.submitCurrentDraft(
                       problemId: report.problemId?.trim().isNotEmpty == true
                           ? report.problemId
                           : report.id,
+                      isDeadlineClosed: isSubmissionClosed,
                     );
                     final latestState =
                         ref.read(reportSubmitViewModelProvider(report));
@@ -308,12 +320,41 @@ class SourceCodeSubmitView extends HookConsumerWidget {
                         !success && latestState.errorMsg.isEmpty;
                   },
             child: Text(
-              submitState.isSubmitting ? '제출 중...' : '제출하기',
+              isSubmissionClosed
+                  ? '제출 마감'
+                  : (submitState.isSubmitting ? '제출 중...' : '제출하기'),
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DeadlineClosedNotice extends StatelessWidget {
+  final bool isDarkMode;
+
+  const _DeadlineClosedNotice({required this.isDarkMode});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF3F1D1D) : const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFFCA5A5)),
+      ),
+      child: Text(
+        '마감 시간이 지나 더 이상 제출할 수 없습니다.',
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: isDarkMode ? const Color(0xFFFECACA) : const Color(0xFFB91C1C),
+        ),
+      ),
     );
   }
 }

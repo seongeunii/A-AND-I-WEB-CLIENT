@@ -1,3 +1,4 @@
+import 'package:a_and_i_report_web_server/src/feature/reports/ui/utils/report_deadline.dart';
 import 'package:flutter/material.dart';
 
 enum ReportStatueType {
@@ -9,9 +10,7 @@ enum ReportStatueType {
   const ReportStatueType(this.status);
 
   factory ReportStatueType.fromEndAt(DateTime time) {
-    final now = DateTime.now().toUtc();
-
-    if (now.difference(time).inSeconds > 0) {
+    if (isReportDeadlineClosed(time)) {
       return ReportStatueType.done;
     } else {
       return ReportStatueType.progress;
