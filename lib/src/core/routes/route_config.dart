@@ -187,7 +187,7 @@ GoRouter goRouter(Ref ref) {
               pageSubtitle: 'A&I 강의자료를 한곳에서 확인하세요.',
               listPath: '/materials',
               detailBasePath: '/materials',
-              showWriteButton: false,
+              writePath: '/materials/write',
             ),
           );
         },

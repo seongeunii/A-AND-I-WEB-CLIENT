@@ -5,6 +5,7 @@ import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/auth_st
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/auth_view_model.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/user_view_model.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/ui/viewModels/user_view_state.dart';
+import 'package:a_and_i_report_web_server/src/feature/course/presentation/course_access_policy.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/data/entities/course.dart';
 import 'package:a_and_i_report_web_server/src/feature/home/providers/get_courses_usecase_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -145,12 +146,20 @@ class _CourseListViewState extends ConsumerState<CourseListView> {
 
         return <Widget>[
           for (var index = 0; index < sortedCourses.length; index++) ...[
-            _CourseCard(
-              palette: palette,
-              data: _toCourseCardData(sortedCourses[index]),
-              onTapCourse: () => context.go(
-                '/report?courseSlug=${Uri.encodeComponent(sortedCourses[index].slug)}',
-              ),
+            Builder(
+              builder: (_) {
+                final course = sortedCourses[index];
+                final cardData = _toCourseCardData(course);
+                return _CourseCard(
+                  palette: palette,
+                  data: cardData,
+                  onTapCourse: cardData.isClosed
+                      ? null
+                      : () => context.go(
+                            '/report?courseSlug=${Uri.encodeComponent(course.slug)}',
+                          ),
+                );
+              },
             ),
             if (index != sortedCourses.length - 1) const SizedBox(height: 22),
           ],
@@ -476,14 +485,42 @@ class _CourseCardContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            data.title,
-            style: TextStyle(
-              color: palette.textPrimary,
-              fontSize: 30 > (isMobile ? 26 : 30) ? 30 : (isMobile ? 26 : 30),
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.6,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  data.title,
+                  style: TextStyle(
+                    color: palette.textPrimary,
+                    fontSize:
+                        30 > (isMobile ? 26 : 30) ? 30 : (isMobile ? 26 : 30),
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.6,
+                  ),
+                ),
+              ),
+              if (data.isClosed) ...[
+                const SizedBox(width: 12),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: palette.lockedButtonBackground,
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: palette.border),
+                  ),
+                  child: Text(
+                    '종료',
+                    style: TextStyle(
+                      color: palette.lockedButtonForeground,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 10),
           Text(
@@ -568,12 +605,14 @@ class _CourseCardData {
     required this.title,
     required this.description,
     required this.period,
+    required this.isClosed,
     required this.phaseStyle,
   });
 
   final String title;
   final String description;
   final String period;
+  final bool isClosed;
   final _CoursePhaseStyle phaseStyle;
 }
 
@@ -690,11 +729,13 @@ String? _resolveProfileImageUrl(String? imagePath) {
 
 _CourseCardData _toCourseCardData(Course course) {
   final phaseStyle = _coursePhaseStyle(course);
+  final isClosed = isCourseClosed(course.endDate);
 
   return _CourseCardData(
     title: course.metadata.title,
     description: course.metadata.description,
     period: '기간: ${course.startDate} ~ ${course.endDate}',
+    isClosed: isClosed,
     phaseStyle: phaseStyle,
   );
 }

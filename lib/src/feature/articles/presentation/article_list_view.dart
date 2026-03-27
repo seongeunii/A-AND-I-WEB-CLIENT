@@ -27,7 +27,7 @@ class ArticleListView extends HookConsumerWidget {
     this.listPath = '/articles',
     this.detailBasePath = '/articles',
     this.showWriteButton = true,
-    this.writeButtonLabel = '블로그 글 작성',
+    this.writeButtonLabel = '글 작성',
     this.writePath = '/articles/write',
   });
 
