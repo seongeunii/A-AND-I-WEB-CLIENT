@@ -80,7 +80,7 @@ Report? _parseReport(Object? rawData) {
   final attributesMap = attributes is Map<String, dynamic> ? attributes : null;
   final requirements = metadataMap?['requirements'];
   final learningGoals = metadataMap?['learningGoals'];
-  final examples = metadataMap?['examples'] ?? metadataMap?['testCases'];
+  final testCases = metadataMap?['testCases'];
   final codeTemplates = metadataMap?['codeTemplates'];
 
   final id = rawData['assignmentId']?.toString() ?? rawData['id']?.toString();
@@ -119,7 +119,7 @@ Report? _parseReport(Object? rawData) {
     content: content,
     requirement: _parseRequirements(requirements),
     objects: _parseLearningGoals(learningGoals),
-    exampleIo: _parseExamples(examples),
+    exampleIo: _parseExamples(testCases),
     codeTemplates: _parseCodeTemplates(codeTemplates),
     reportType: reportType,
     week: week,
