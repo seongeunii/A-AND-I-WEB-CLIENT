@@ -121,74 +121,129 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(48, 40, 48, 0),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF18181B) : Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        border: Border(
-          top: BorderSide(
-              color: isDarkMode
-                  ? const Color(0xFF27272A)
-                  : const Color(0xFFE5E7EB)),
-          left: BorderSide(
-              color: isDarkMode
-                  ? const Color(0xFF27272A)
-                  : const Color(0xFFE5E7EB)),
-          right: BorderSide(
-              color: isDarkMode
-                  ? const Color(0xFF27272A)
-                  : const Color(0xFFE5E7EB)),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 720;
+        final isNarrow = constraints.maxWidth < 420;
+        final horizontalPadding = isCompact ? 20.0 : 48.0;
+        final topPadding = isCompact ? 24.0 : 40.0;
+        final titleFontSize = isNarrow
+            ? 22.0
+            : isCompact
+                ? 24.0
+                : 28.0;
+
+        return Container(
+          padding: EdgeInsets.fromLTRB(
+            horizontalPadding,
+            topPadding,
+            horizontalPadding,
+            0,
+          ),
+          decoration: BoxDecoration(
+            color: isDarkMode ? const Color(0xFF18181B) : Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            border: Border(
+              top: BorderSide(
+                  color: isDarkMode
+                      ? const Color(0xFF27272A)
+                      : const Color(0xFFE5E7EB)),
+              left: BorderSide(
+                  color: isDarkMode
+                      ? const Color(0xFF27272A)
+                      : const Color(0xFFE5E7EB)),
+              right: BorderSide(
+                  color: isDarkMode
+                      ? const Color(0xFF27272A)
+                      : const Color(0xFFE5E7EB)),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+              if (isCompact) ...[
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 12,
+                  runSpacing: 12,
                   children: [
-                    Flexible(
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: constraints.maxWidth - horizontalPadding * 2,
+                      ),
                       child: Text(
                         report.title,
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: titleFontSize,
                           fontWeight: FontWeight.bold,
-                          color: isDarkMode ? Colors.white : Color(0xFF000000),
+                          color: isDarkMode
+                              ? Colors.white
+                              : const Color(0xFF000000),
                           letterSpacing: -0.5,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
                     ProblemLevelBadge(level: report.level),
                   ],
                 ),
-              ),
-              if (endAt != null) ...[
-                const SizedBox(width: 20),
-                _DeadlineTimer(
-                  endAt: endAt!,
-                  currentTime: currentTime,
-                  isDarkMode: isDarkMode,
+                if (endAt != null) ...[
+                  const SizedBox(height: 12),
+                  _DeadlineTimer(
+                    endAt: endAt!,
+                    currentTime: currentTime,
+                    isDarkMode: isDarkMode,
+                  ),
+                ],
+              ] else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              report.title,
+                              style: TextStyle(
+                                fontSize: titleFontSize,
+                                fontWeight: FontWeight.bold,
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : const Color(0xFF000000),
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          ProblemLevelBadge(level: report.level),
+                        ],
+                      ),
+                    ),
+                    if (endAt != null) ...[
+                      const SizedBox(width: 20),
+                      _DeadlineTimer(
+                        endAt: endAt!,
+                        currentTime: currentTime,
+                        isDarkMode: isDarkMode,
+                      ),
+                    ],
+                  ],
                 ),
-              ],
+              SizedBox(height: isCompact ? 24 : 32),
+              ProblemNavTabs(
+                selectedTab: selectedTab,
+                onSelectTab: onSelectTab,
+                isSubmitDisabled: isSubmissionClosed,
+                isDarkMode: isDarkMode,
+              ),
             ],
           ),
-          const SizedBox(height: 32),
-          ProblemNavTabs(
-            selectedTab: selectedTab,
-            onSelectTab: onSelectTab,
-            isSubmitDisabled: isSubmissionClosed,
-            isDarkMode: isDarkMode,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -210,28 +265,36 @@ class _ContentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(48),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF18181B) : Colors.white,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(16),
-          bottomRight: Radius.circular(16),
-        ),
-        border: Border.all(
-          color: isDarkMode ? const Color(0xFF27272A) : const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: switch (selectedTab) {
-        0 => _ProblemTab(report: report, isDarkMode: isDarkMode),
-        1 => SourceCodeSubmitView(
-            report: report,
-            isSubmissionClosed: isSubmissionClosed,
-            isDarkMode: isDarkMode,
-            onSubmitSuccess: onMoveToResultTab,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final contentPadding = constraints.maxWidth < 720 ? 20.0 : 48.0;
+
+        return Container(
+          padding: EdgeInsets.all(contentPadding),
+          decoration: BoxDecoration(
+            color: isDarkMode ? const Color(0xFF18181B) : Colors.white,
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
+            border: Border.all(
+              color: isDarkMode
+                  ? const Color(0xFF27272A)
+                  : const Color(0xFFE5E7EB),
+            ),
           ),
-        2 => ReportSubmitResultView(report: report, isDarkMode: isDarkMode),
-        _ => _ComingSoon(isDarkMode: isDarkMode),
+          child: switch (selectedTab) {
+            0 => _ProblemTab(report: report, isDarkMode: isDarkMode),
+            1 => SourceCodeSubmitView(
+                report: report,
+                isSubmissionClosed: isSubmissionClosed,
+                isDarkMode: isDarkMode,
+                onSubmitSuccess: onMoveToResultTab,
+              ),
+            2 => ReportSubmitResultView(report: report, isDarkMode: isDarkMode),
+            _ => _ComingSoon(isDarkMode: isDarkMode),
+          },
+        );
       },
     );
   }
