@@ -94,7 +94,7 @@ void main() {
       );
 
       expect(datasource.getPostId, 'post-xyz');
-      expect(datasource.getPostType, PostType.blog);
+      expect(datasource.getPostAuthorization, 'Bearer token');
       expect(result.id, 'post-1');
       expect(result.title, 'title');
     });
@@ -226,6 +226,7 @@ class FakeLocalAuthDatasource implements LocalAuthDatasource {
 }
 
 class FakePostRemoteDatasource implements PostRemoteDatasource {
+  String? getPostsAuthorization;
   int? getPostsPage;
   int? getPostsSize;
   String? getPostsStatus;
@@ -233,8 +234,8 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
   int? getDraftsPage;
   int? getDraftsSize;
   PostType? getDraftsType;
+  String? getPostAuthorization;
   String? getPostId;
-  PostType? getPostType;
   String? patchPostId;
   String? deletePostId;
   String? createAuthorization;
@@ -317,19 +318,21 @@ class FakePostRemoteDatasource implements PostRemoteDatasource {
   }
 
   @override
-  Future<PostResponseDto> getPost(String postId, PostType type) async {
+  Future<PostResponseDto> getPost(String authorization, String postId) async {
+    getPostAuthorization = authorization;
     getPostId = postId;
-    getPostType = type;
     return _samplePost(status: 'Published');
   }
 
   @override
   Future<PostListResponseDto> getPosts(
+    String authorization,
     int page,
     int size,
     PostType? type,
     String? status,
   ) async {
+    getPostsAuthorization = authorization;
     getPostsPage = page;
     getPostsSize = size;
     getPostsType = type;

@@ -33,8 +33,14 @@ class PostRepositoryImpl implements PostRepository {
     PostType? type,
     String? status,
   }) async {
-    final response =
-        await postRemoteDatasource.getPosts(page, size, type, status);
+    final authorization = await _resolveAuthorization();
+    final response = await postRemoteDatasource.getPosts(
+      authorization,
+      page,
+      size,
+      type,
+      status,
+    );
     return response.toEntity();
   }
 
@@ -68,7 +74,8 @@ class PostRepositoryImpl implements PostRepository {
     required String postId,
     required PostType type,
   }) async {
-    final response = await postRemoteDatasource.getPost(postId, type);
+    final authorization = await _resolveAuthorization();
+    final response = await postRemoteDatasource.getPost(authorization, postId);
     return response.toEntity();
   }
 

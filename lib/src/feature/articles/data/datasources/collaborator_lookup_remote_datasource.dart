@@ -1,6 +1,6 @@
-import 'package:aandi_api_endpoints/aandi_api_endpoints.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/data/dtos/collaborator_lookup_response_dto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 /// 협업자 조회 원격 데이터소스 인터페이스입니다.
 abstract class CollaboratorLookupRemoteDatasource {
@@ -15,7 +15,7 @@ abstract class CollaboratorLookupRemoteDatasource {
 class CollaboratorLookupRemoteDatasourceImpl
     implements CollaboratorLookupRemoteDatasource {
   /// 협업자 조회 원격 데이터소스 구현체를 생성합니다.
-  const CollaboratorLookupRemoteDatasourceImpl(this._dio);
+  CollaboratorLookupRemoteDatasourceImpl(this._dio);
 
   final Dio _dio;
 
@@ -25,25 +25,31 @@ class CollaboratorLookupRemoteDatasourceImpl
     String code,
   ) async {
     try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        AandiApiEndpointTemplate.userLookup,
-        queryParameters: <String, dynamic>{
-          'code': code,
-        },
+      final response = await _dio.requestUri<Map<String, dynamic>>(
+        Uri.parse('${_dio.options.baseUrl}/v2/users/lookup').replace(
+          queryParameters: <String, dynamic>{'code': code},
+        ),
         options: Options(
-          contentType: 'application/json',
+          method: 'GET',
           headers: <String, dynamic>{
-            'Authorization': authorization,
+            'Authenticate': authorization,
+            'deviceOS': _resolveDeviceOs(),
+            'timestamp': DateTime.now().toIso8601String(),
           },
         ),
       );
 
-      final responseData = response.data ?? <String, dynamic>{};
-      final payload = _extractPayload(responseData);
-      if (payload == null) {
-        return null;
+      final body = response.data;
+      if (body == null) {
+        throw Exception('협업자 조회 응답이 비어 있습니다.');
       }
-      return CollaboratorLookupResponseDto.fromJson(payload);
+
+      final data = body['data'];
+      if (data is! Map<String, dynamic>) {
+        throw Exception('협업자 조회 응답 형식이 올바르지 않습니다.');
+      }
+
+      return CollaboratorLookupResponseDto.fromJson(data);
     } on DioException catch (error) {
       if (error.response?.statusCode == 404) {
         return null;
@@ -52,14 +58,17 @@ class CollaboratorLookupRemoteDatasourceImpl
     }
   }
 
-  Map<String, dynamic>? _extractPayload(Map<String, dynamic> responseData) {
-    final data = responseData['data'];
-    if (data is Map<String, dynamic>) {
-      return data;
+  static String _resolveDeviceOs() {
+    if (kIsWeb) {
+      return 'web';
     }
-    if (data is Map) {
-      return Map<String, dynamic>.from(data);
-    }
-    return null;
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.android => 'android',
+      TargetPlatform.iOS => 'ios',
+      TargetPlatform.macOS => 'macos',
+      TargetPlatform.windows => 'windows',
+      TargetPlatform.linux => 'linux',
+      TargetPlatform.fuchsia => 'fuchsia',
+    };
   }
 }
