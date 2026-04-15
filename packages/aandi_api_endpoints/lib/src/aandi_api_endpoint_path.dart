@@ -3,37 +3,37 @@ final class AandiApiEndpointPath {
   const AandiApiEndpointPath._();
 
   /// 게시글 상세 경로를 반환한다.
-  static String postById(String postId) => '/v1/posts/$postId';
+  static String postById(String postId) => '/v2/posts/$postId';
 
   /// 게시글 협업자 추가 경로를 반환한다.
   static String postCollaborators(String postId) =>
-      '/v1/posts/$postId/collaborators';
+      '/v2/posts/$postId/collaborators';
 
   /// 제출 상세 경로를 반환한다.
   static String submissionById(String submissionId) =>
-      '/v1/submissions/$submissionId';
+      '/v2/submissions/$submissionId';
 
   /// 특정 문제의 내 제출 목록 경로를 반환한다.
   static String myProblemSubmissions(String problemId) =>
-      '/v1/problems/$problemId/submissions/me';
+      '/v2/problems/$problemId/submissions/me';
 
   /// 코스 상세 경로를 반환한다.
-  static String courseBySlug(String courseSlug) => '/v1/courses/$courseSlug';
+  static String courseBySlug(String courseSlug) => '/v2/courses/$courseSlug';
 
   /// 코스 목차 경로를 반환한다.
   static String courseOutline(String courseSlug) =>
-      '/v1/courses/$courseSlug/outline';
+      '/v2/courses/$courseSlug/outline';
 
   /// 코스 주차별 과제 경로를 반환한다.
   static String courseWeekAssignments(String courseSlug, int weekNo) =>
-      '/v1/courses/$courseSlug/weeks/$weekNo/assignments';
+      '/v2/courses/$courseSlug/weeks/$weekNo/assignments';
 
   /// 코스 과제 상세 경로를 반환한다.
   static String courseAssignmentDetail(
     String courseSlug,
     String assignmentId,
   ) =>
-      '/v1/courses/$courseSlug/assignments/$assignmentId';
+      '/v2/courses/$courseSlug/assignments/$assignmentId';
 
   /// 과제 기준 코스 조회 경로를 반환한다.
   static String assignmentCourseV2(String assignmentId) =>

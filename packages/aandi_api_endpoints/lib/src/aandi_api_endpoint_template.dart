@@ -3,49 +3,49 @@ final class AandiApiEndpointTemplate {
   const AandiApiEndpointTemplate._();
 
   /// 로그인 엔드포인트다.
-  static const String login = '/v1/auth/login';
+  static const String login = '/v2/auth/login';
 
   /// 토큰 재발급 엔드포인트다.
-  static const String refreshToken = '/v1/auth/refresh';
+  static const String refreshToken = '/v2/auth/refresh';
 
   /// 로그아웃 엔드포인트다.
-  static const String logout = '/v1/auth/logout';
+  static const String logout = '/v2/auth/logout';
 
   /// 내 정보 조회/수정 엔드포인트다.
-  static const String me = '/v1/me';
+  static const String me = '/v2/me';
 
   /// 내 비밀번호 변경 엔드포인트다.
-  static const String mePassword = '/v1/me/password';
+  static const String mePassword = '/v2/me/password';
 
   /// 계정 활성화 엔드포인트 후보 목록이다.
   static const List<String> activateCandidates = <String>[
+    '/v2/activate',
     '/activate',
-    '/v1/auth/activate',
   ];
 
   /// 사용자 공개 코드 조회 엔드포인트다.
-  static const String userLookup = '/v1/users/lookup';
+  static const String userLookup = '/v2/users/lookup';
 
   /// 게시글 목록/생성 엔드포인트다.
-  static const String posts = '/v1/posts';
+  static const String posts = '/v2/posts';
 
   /// 초안 게시글 목록 엔드포인트다.
-  static const String draftPosts = '/v1/posts/drafts';
+  static const String draftPosts = '/v2/posts/drafts';
 
   /// 내 게시글 목록 엔드포인트다.
-  static const String myPosts = '/v1/posts/me';
+  static const String myPosts = '/v2/posts/me';
 
   /// 내 초안 게시글 목록 엔드포인트다.
-  static const String myDraftPosts = '/v1/posts/drafts/me';
+  static const String myDraftPosts = '/v2/posts/drafts/me';
 
   /// 게시글 상세 템플릿이다.
-  static const String postById = '/v1/posts/{postId}';
+  static const String postById = '/v2/posts/{postId}';
 
   /// 게시글 협업자 추가 템플릿이다.
-  static const String postCollaborators = '/v1/posts/{postId}/collaborators';
+  static const String postCollaborators = '/v2/posts/{postId}/collaborators';
 
   /// 게시글 이미지 업로드 엔드포인트다.
-  static const String postImages = '/v1/posts/images';
+  static const String postImages = '/v2/posts/images';
 
   /// OJ 테스트케이스 목록 엔드포인트다.
   static const String adminTestCasesV2 = '/v2/admin/testcases';
@@ -54,31 +54,31 @@ final class AandiApiEndpointTemplate {
   static const String adminSubmissionsV2 = '/v2/admin/submissions';
 
   /// 코스 목록 엔드포인트다.
-  static const String courses = '/v1/courses';
+  static const String courses = '/v2/courses';
 
   /// 코스 상세 템플릿이다.
-  static const String courseBySlug = '/v1/courses/{courseSlug}';
+  static const String courseBySlug = '/v2/courses/{courseSlug}';
 
   /// 코스 목차 템플릿이다.
-  static const String courseOutline = '/v1/courses/{courseSlug}/outline';
+  static const String courseOutline = '/v2/courses/{courseSlug}/outline';
 
   /// 코스 주차별 과제 목록 템플릿이다.
   static const String courseWeekAssignments =
-      '/v1/courses/{courseSlug}/weeks/{weekNo}/assignments';
+      '/v2/courses/{courseSlug}/weeks/{weekNo}/assignments';
 
   /// 코스 과제 상세 템플릿이다.
   static const String courseAssignmentDetail =
-      '/v1/courses/{courseSlug}/assignments/{assignmentId}';
+      '/v2/courses/{courseSlug}/assignments/{assignmentId}';
 
   /// 제출 생성 엔드포인트다.
-  static const String submissions = '/v1/submissions';
+  static const String submissions = '/v2/submissions';
 
   /// 제출 상세 템플릿이다.
-  static const String submissionById = '/v1/submissions/{submissionId}';
+  static const String submissionById = '/v2/submissions/{submissionId}';
 
   /// 특정 문제의 내 제출 목록 템플릿이다.
   static const String myProblemSubmissions =
-      '/v1/problems/{problemId}/submissions/me';
+      '/v2/problems/{problemId}/submissions/me';
 
   /// 관리자 코스 목록 엔드포인트다.
   static const String adminCoursesV2 = '/v2/admin/courses';

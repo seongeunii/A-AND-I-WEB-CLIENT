@@ -34,7 +34,7 @@ packages:
     source: git
     version: "0.1.0"
   aandi_auth:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "packages/auth_api"
       relative: true
@@ -51,6 +51,13 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/aandi_oj_api"
+      relative: true
+    source: path
+    version: "0.1.0"
+  aandi_tech_blog:
+    dependency: "direct main"
+    description:
+      path: "packages/blog_api"
       relative: true
     source: path
     version: "0.1.0"

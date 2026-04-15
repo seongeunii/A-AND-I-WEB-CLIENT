@@ -34,10 +34,14 @@ dependencies:
     sdk: flutter
   aandi_api_endpoints:
     path: packages/aandi_api_endpoints
+  aandi_auth:
+    path: packages/auth_api
   aandi_course_api:
     path: packages/aandi_course_api
   aandi_oj_api:
     path: packages/aandi_oj_api
+  aandi_tech_blog:
+    path: packages/blog_api
 
 
   # The following adds the Cupertino Icons font to your application.

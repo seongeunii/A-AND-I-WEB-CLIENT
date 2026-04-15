@@ -9,7 +9,7 @@ part 'submission_repository_provider.g.dart';
 
 /// 제출 API Repository Provider입니다.
 @riverpod
-SubmissionRepository submissionRepository(Ref _ref) {
+SubmissionRepository submissionRepository(Ref ref) {
   return SubmissionRepositoryAdapter(
     client: oj_api.OjApiClient(
       baseUrl: baseUrl,

@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'report_summary_repository_provider.g.dart';
 
 @riverpod
-ReportSummaryRepository reportSummaryRepository(Ref _ref) {
+ReportSummaryRepository reportSummaryRepository(Ref ref) {
   return ReportSummaryRepositoryAdapter(
     client: course_api.CourseApiClient(
       baseUrl: baseUrl,

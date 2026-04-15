@@ -1,13 +1,14 @@
+import 'package:aandi_auth/aandi_auth.dart' as auth_api;
+import 'package:aandi_tech_blog/aandi_tech_blog.dart' as blog_api;
+import 'package:a_and_i_report_web_server/src/core/constants/api_url.dart';
 import 'package:a_and_i_report_web_server/src/core/providers/dio_provider.dart';
-import 'package:a_and_i_report_web_server/src/feature/articles/data/datasources/collaborator_lookup_remote_datasource.dart';
-import 'package:a_and_i_report_web_server/src/feature/articles/data/datasources/image_remote_datasource.dart';
-import 'package:a_and_i_report_web_server/src/feature/articles/data/datasources/post_remote_datasource.dart';
-import 'package:a_and_i_report_web_server/src/feature/articles/data/repositories/collaborator_lookup_repository_impl.dart';
-import 'package:a_and_i_report_web_server/src/feature/articles/data/repositories/image_repository_impl.dart';
-import 'package:a_and_i_report_web_server/src/feature/articles/data/repositories/post_repository_impl.dart';
+import 'package:a_and_i_report_web_server/src/feature/articles/data/repositories/collaborator_lookup_repository_adapter.dart';
+import 'package:a_and_i_report_web_server/src/feature/articles/data/repositories/image_repository_adapter.dart';
+import 'package:a_and_i_report_web_server/src/feature/articles/data/repositories/post_repository_adapter.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post_page.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/entities/post_type.dart';
+import 'package:a_and_i_report_web_server/src/feature/auth/data/datasources/local/auth_token_store_adapter.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/providers/local_auth_datasource_provider.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/repositories/collaborator_lookup_repository.dart';
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/repositories/image_repository.dart';
@@ -17,34 +18,24 @@ import 'package:a_and_i_report_web_server/src/feature/articles/domain/usecases/g
 import 'package:a_and_i_report_web_server/src/feature/articles/domain/usecases/lookup_collaborator_by_code_usecase.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-/// 게시글 원격 데이터소스 Provider입니다.
-final postRemoteDatasourceProvider = Provider<PostRemoteDatasource>((ref) {
-  return PostRemoteDatasourceImpl(ref.read(dioProvider));
-});
-
-/// 이미지 원격 데이터소스 Provider입니다.
-final imageRemoteDatasourceProvider = Provider<ImageRemoteDatasource>((ref) {
-  return ImageRemoteDatasourceImpl(ref.read(dioProvider));
-});
-
-/// 협업자 조회 원격 데이터소스 Provider입니다.
-final collaboratorLookupRemoteDatasourceProvider =
-    Provider<CollaboratorLookupRemoteDatasource>((ref) {
-  return CollaboratorLookupRemoteDatasourceImpl(ref.read(dioProvider));
-});
-
 /// 게시글 조회 저장소 Provider입니다.
 final postRepositoryProvider = Provider<PostRepository>((ref) {
-  return PostRepositoryImpl(
-    postRemoteDatasource: ref.read(postRemoteDatasourceProvider),
+  return PostRepositoryAdapter(
+    client: blog_api.TechBlogApiClient(
+      baseUrl: baseUrl,
+      dio: ref.read(dioProvider),
+    ),
     localAuthDatasource: ref.read(localAuthDatasourceProvider),
   );
 });
 
 /// 이미지 업로드 저장소 Provider입니다.
 final imageRepositoryProvider = Provider<ImageRepository>((ref) {
-  return ImageRepositoryImpl(
-    imageRemoteDatasource: ref.read(imageRemoteDatasourceProvider),
+  return ImageRepositoryAdapter(
+    client: blog_api.TechBlogApiClient(
+      baseUrl: baseUrl,
+      dio: ref.read(dioProvider),
+    ),
     localAuthDatasource: ref.read(localAuthDatasourceProvider),
   );
 });
@@ -52,9 +43,13 @@ final imageRepositoryProvider = Provider<ImageRepository>((ref) {
 /// 협업자 조회 저장소 Provider입니다.
 final collaboratorLookupRepositoryProvider =
     Provider<CollaboratorLookupRepository>((ref) {
-  return CollaboratorLookupRepositoryImpl(
-    collaboratorLookupRemoteDatasource:
-        ref.read(collaboratorLookupRemoteDatasourceProvider),
+  return CollaboratorLookupRepositoryAdapter(
+    repository: auth_api.AuthRepositoryImpl(
+      apiClient: auth_api.AuthApiClient(baseUrl: baseUrl),
+      tokenStore: AuthTokenStoreAdapter(
+        localAuthDatasource: ref.read(localAuthDatasourceProvider),
+      ),
+    ),
     localAuthDatasource: ref.read(localAuthDatasourceProvider),
   );
 });

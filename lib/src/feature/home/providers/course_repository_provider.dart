@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'course_repository_provider.g.dart';
 
 @riverpod
-CourseRepository courseRepository(Ref _ref) {
+CourseRepository courseRepository(Ref ref) {
   return CourseRepositoryAdapter(
     client: course_api.CourseApiClient(
       baseUrl: baseUrl,

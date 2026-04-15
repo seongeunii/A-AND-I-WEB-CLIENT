@@ -1,3 +1,4 @@
+import 'package:aandi_auth/aandi_auth.dart' as auth_api;
 import 'dart:developer';
 
 import 'package:a_and_i_report_web_server/src/feature/auth/data/dtos/login_request_dto.dart';
@@ -10,7 +11,7 @@ import 'package:dio/dio.dart';
 /// **비즈니스 로직:**
 /// 1. [authRepository.login]을 호출하여 서버 인증을 수행합니다.
 /// 2. 발급받은 액세스 토큰을 [authRepository.saveToken]으로 저장합니다.
-/// 3. 저장한 토큰으로 `/v1/me`를 조회해 사용자 상세 정보를 확보합니다.
+/// 3. 저장한 토큰으로 `/v2/me`를 조회해 사용자 상세 정보를 확보합니다.
 final class UserLoginUsecaseImpl implements UserLoginUsecase {
   final AuthRepository authRepository;
 
@@ -39,6 +40,12 @@ final class UserLoginUsecaseImpl implements UserLoginUsecase {
         response: response,
         user: user,
       );
+    } on auth_api.AuthApiException catch (e) {
+      log(e.toString());
+      if (e.statusCode == 401) {
+        throw Exception("아이디 혹은 비밀번호가 올바르지 않습니다.");
+      }
+      throw Exception(e.message);
     } on DioException catch (e) {
       log(e.toString());
       if (e.response?.statusCode == 401) {

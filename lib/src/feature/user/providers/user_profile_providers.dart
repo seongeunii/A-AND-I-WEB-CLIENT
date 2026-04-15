@@ -1,19 +1,27 @@
 import 'package:a_and_i_report_web_server/src/core/constants/api_url.dart';
-import 'package:a_and_i_report_web_server/src/core/providers/dio_provider.dart';
+import 'package:a_and_i_report_web_server/src/feature/auth/data/datasources/local/auth_token_store_adapter.dart';
 import 'package:a_and_i_report_web_server/src/feature/auth/providers/auth_repository_provider.dart';
+import 'package:a_and_i_report_web_server/src/feature/auth/providers/local_auth_datasource_provider.dart';
 import 'package:a_and_i_report_web_server/src/feature/user/data/datasources/user_profile_remote_datasource.dart';
 import 'package:a_and_i_report_web_server/src/feature/user/data/repositories/user_profile_repository_impl.dart';
 import 'package:a_and_i_report_web_server/src/feature/user/domain/repositories/user_profile_repository.dart';
 import 'package:a_and_i_report_web_server/src/feature/user/domain/usecases/change_password_usecase.dart';
 import 'package:a_and_i_report_web_server/src/feature/user/domain/usecases/update_my_profile_usecase.dart';
+import 'package:aandi_auth/aandi_auth.dart' as auth_api;
+import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 내 정보 수정 원격 데이터소스 Provider다.
 final userProfileRemoteDatasourceProvider =
     Provider<UserProfileRemoteDatasource>(
   (ref) => UserProfileRemoteDatasource(
-    ref.read(dioProvider),
-    baseUrl: baseUrl,
+    repository: auth_api.AuthRepositoryImpl(
+      apiClient: auth_api.AuthApiClient(baseUrl: baseUrl),
+      tokenStore: AuthTokenStoreAdapter(
+        localAuthDatasource: ref.read(localAuthDatasourceProvider),
+      ),
+    ),
+    uploadDio: Dio(),
   ),
 );
 
